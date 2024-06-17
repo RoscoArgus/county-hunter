@@ -7,6 +7,7 @@ import {
 import Home from './pages/Home/Home';
 import Create from './pages/Create/Create';
 import RedirectToHome from "./components/RedirectToHome/RedirectToHome";
+import Game from "./pages/Game/Game";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route exact path="/" element={<Home />} />
         <Route path="/create" element={<Create />} />
         <Route path="/join" element={<RedirectToHome />} />
+        <Route path="/game" element={<Game />} />
       </Routes>
     </Router>
   )

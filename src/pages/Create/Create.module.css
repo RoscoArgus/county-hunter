@@ -1,0 +1,133 @@
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .container form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .container label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .container input[type="text"],
+  select,
+  input[type="range"] {
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  
+  .container input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    margin-bottom: 20px;
+  }
+  
+  .container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .container input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .container button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .container button:hover {
+    background-color: #45a049;
+  }
+
+  .container button:disabled {
+    background-color: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+  }
+  
+  .container span {
+    display: block;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #777;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  
+  .container .pageButtons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+  }
+  
+  .container .pageButton {
+    box-sizing: border-box;
+    padding: 5px;
+    font-size: 14px;
+    background-color: #e0e0e0;
+    color: #333;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .container .pageButton.selected {
+    border: 1px solid blue;
+  }
+  
+  .container .pageButton.complete {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .container .pageButton:hover {
+    background-color: #ddd;
+  }
+  
+  .container .pageButton.complete:hover {
+    background-color: #45a049;
+  }
+  

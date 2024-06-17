@@ -1,0 +1,27 @@
+@import "../../vars.css";
+
+.Home {
+    background-color: var(--color-bg);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.instructions {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    color: red;
+}
+
+.instructions input, button {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 3px;
+    margin: 10px;
+    padding: 5px;
+}

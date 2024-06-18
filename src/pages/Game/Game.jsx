@@ -4,6 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { useGeolocation } from '../../utils/player';
 import Map from '../../components/Map/Map';
 
+/*
+Possible Gamemodes:
+Classic: Player has to guess the location in N circles, top-score wins (points deducted for incorrect guesses)
+Time Trial: Most done in time limit wins
+Walking Tour: Player has to visit N locations in order
+*/
+
 const Game = () => {
     const playerLocation = useGeolocation();
     const playArea = {
@@ -62,7 +69,9 @@ const Game = () => {
     }, [playerLocation, circles]);
 
     return (
-        <Map circles={circles} playerLocation={playerLocation==null ? {latitude: 0, longitude: 0} : playerLocation} playArea={playArea}/>
+        <div style={{width: '100%', height: '100vh'}}>
+            <Map circles={circles} playerLocation={playerLocation==null ? {latitude: 0, longitude: 0} : playerLocation} playArea={playArea}/>
+        </div>
     );
 };
 

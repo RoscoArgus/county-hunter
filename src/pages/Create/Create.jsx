@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import styles from './Create.module.css';
+import Map from '../../components/Map/Map';
+import { useGeolocation } from '../../utils/player';
 
 const Create = () => {
     const [gameSize, setGameSize] = useState('small');
     const [locations, setLocations] = useState(Array.from({ length: 5 }, () => ({ location: '', hint: '', isComplete: false })));
     const [maxDistance, setMaxDistance] = useState(1);
     const [currentPage, setCurrentPage] = useState(0);
+    const playerLocation = useGeolocation();
 
     const handleGameSizeChange = (event) => {
         const size = event.target.value;
@@ -53,11 +56,15 @@ const Create = () => {
                         <option value="large">Large</option>
                     </select>
                 </div>
-
-                <label htmlFor={`locations`}>Locations</label>
+                
+                <label htmlFor={'locations'}>Locations:</label>
+                <div style={{width:'100%', height: '50vh'}}>
+                    <Map playerLocation={playerLocation==null ? {latitude: 0, longitude: 0} : playerLocation}/>
+                </div>
                 <div className={styles.pageButtons}>
                     {locations.map((pair, index) => (
                         <button
+                            id='locations'
                             key={index}
                             type="button"
                             className={`${styles.pageButton} ${currentPage === index ? styles.selected : ''} ${pair.isComplete ? styles.complete : ''}`}

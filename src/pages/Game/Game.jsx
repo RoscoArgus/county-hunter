@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 //import { db } from '../../../config/firebase';
-//import useGeolocation from '../../hooks/useGeolocation';
-import { useGeolocation } from '../../utils/player';
+import useGeolocation from '../../hooks/useGeolocation';
+//import { useGeolocation } from '../../utils/player';
 import Map from '../../components/Map/Map';
 
 /*
@@ -51,22 +51,6 @@ const Game = () => {
 
         fetchCircles();
     }, []);*/
-
-    useEffect(() => {
-        if (playerLocation.latitude && playerLocation.longitude) {
-        circles.forEach(circle => {
-            // Handle the event when the player is within the circle (e.g., allow guess)
-            if (isWithinCircle(playerLocation, circle) && !justEntered) {
-                console.log("Player is within the circle!");
-            }
-            // Handle the event when the player has left the circle (e.g., disable guess)
-            else if (!isWithinCircle(playerLocation, circle) && justEntered) {
-                setJustEntered(false);
-                console.log("Player has left the circle")
-            }
-        });
-        }
-    }, [playerLocation, circles]);
 
     return (
         <div style={{width: '100%', height: '100vh'}}>

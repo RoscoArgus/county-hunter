@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Circle, Marker, AttributionControl } from 'react-leaflet';
-import styles from './Map.module.css';
 import 'leaflet/dist/leaflet.css';
 
 const tileLayerUrls = {
@@ -17,15 +16,27 @@ const playAreaOptions = { fillColor: 'transparent', fillOpacity: 1.0 };
 const mapBounds = [[-180, -180], [180, 180]];
 
 const Map = ({ circles, playerLocation, playArea }) => {
-  if (!playerLocation || !playerLocation.latitude || !playerLocation.longitude) {
-    return <div>Loading...</div>;
-  }
+
+  const [mapCenter, setMapCenter] = useState(playerLocation ? playerLocation : { latitude: 0, longitude: 0 });
+  const [mapZoom, setMapZoom] = useState(playerLocation ? 15 : 0);
+  console.log(playerLocation);
+
+  useEffect(() => {
+    if(playerLocation) {
+      setMapCenter(playerLocation);
+      setMapZoom(15);
+    } 
+  }, [playerLocation]);
+
+  useEffect(() => {
+    console.log("Map center updated")
+  }, [mapCenter])
 
   return (
     <>
       <MapContainer
-        center={[playerLocation.latitude, playerLocation.longitude]}
-        zoom={15}
+        center={[mapCenter.latitude, mapCenter.longitude]}
+        zoom={mapZoom}
         minZoom={3}
         style={{ height: '100%', width: '100%' }}
         worldCopyJump={true}
@@ -43,10 +54,10 @@ const Map = ({ circles, playerLocation, playArea }) => {
           radius={playArea.radius}
           pathOptions={playAreaOptions}
         />}
-        {/*{circles.map((circle, index) => (
+        {circles.map((circle, index) => (
           <Marker key={index} position={[circle.latitude, circle.longitude]} />
-        ))}*/}
-        <Marker position={[playerLocation.latitude, playerLocation.longitude]} />
+        ))}
+        {playerLocation && <Marker position={[playerLocation.latitude, playerLocation.longitude]} />}
       </MapContainer>
     </>
   );

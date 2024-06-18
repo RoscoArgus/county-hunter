@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import styles from './Create.module.css';
 import Map from '../../components/Map/Map';
 import { useGeolocation } from '../../utils/player';
+import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 
 const Create = () => {
     const [gameSize, setGameSize] = useState('small');
     const [locations, setLocations] = useState(Array.from({ length: 5 }, () => ({ location: '', hint: '', isComplete: false })));
     const [maxDistance, setMaxDistance] = useState(1);
     const [currentPage, setCurrentPage] = useState(0);
-    const playerLocation = useGeolocation();
+    const [startingLocation, setStartingLocation] = useState(null);
 
     const handleGameSizeChange = (event) => {
         const size = event.target.value;
@@ -39,13 +40,20 @@ const Create = () => {
         console.log(formData);
     };
 
+    const handlePlaceChanged = (places) => {
+        const [place] = places;
+        setStartingLocation({latitude: place.geometry.location.lat(), longitude: place.geometry.location.lng()});
+    }
+
     return (
         <div className={styles.container}>
             <h1>Create Game</h1>
             <form onSubmit={handleSubmit}>
                 <div className={styles['form-group']}>
                     <label htmlFor="startingLocation">Starting Location:</label>
-                    <input type="text" id="startingLocation" name="startingLocation" />
+                    <PlacesAutocomplete handlePlaceChanged={(places) => handlePlaceChanged(places)}>
+                        <input type="text" id="startingLocation" name="startingLocation" placeholder='Enter Location'/>
+                    </PlacesAutocomplete>
                 </div>
 
                 <div className={styles['form-group']}>
@@ -59,7 +67,7 @@ const Create = () => {
                 
                 <label htmlFor={'locations'}>Locations:</label>
                 <div style={{width:'100%', height: '50vh'}}>
-                    <Map playerLocation={playerLocation==null ? {latitude: 0, longitude: 0} : playerLocation}/>
+                    <Map circles={[]} playerLocation={startingLocation}/>
                 </div>
                 <div className={styles.pageButtons}>
                     {locations.map((pair, index) => (

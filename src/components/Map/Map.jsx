@@ -15,22 +15,16 @@ const playAreaOptions = { fillColor: 'transparent', fillOpacity: 1.0 };
 
 const mapBounds = [[-180, -180], [180, 180]];
 
-const Map = ({ circles, playerLocation, playArea }) => {
-
+const Map = ({ circles, playerLocation, startingLocation }) => {
   const [mapCenter, setMapCenter] = useState(playerLocation ? playerLocation : { latitude: 0, longitude: 0 });
   const [mapZoom, setMapZoom] = useState(playerLocation ? 15 : 0);
-  console.log(playerLocation);
 
   useEffect(() => {
-    if(playerLocation) {
+    if (playerLocation) {
       setMapCenter(playerLocation);
       setMapZoom(15);
-    } 
+    }
   }, [playerLocation]);
-
-  useEffect(() => {
-    console.log("Map center updated")
-  }, [mapCenter])
 
   return (
     <>
@@ -49,11 +43,13 @@ const Map = ({ circles, playerLocation, playArea }) => {
           attribution='<a href="https://leafletjs.com/">Leaflet</a> | &copy;<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy;<a href="https://carto.com/attributions">CARTO</a>'
         />
         <AttributionControl position="bottomright" prefix={false} />
-        {playArea && <Circle
-          center={[playArea.latitude, playArea.longitude]}
-          radius={playArea.radius}
-          pathOptions={playAreaOptions}
-        />}
+        {startingLocation && (
+          <Circle
+            center={[startingLocation.latitude, startingLocation.longitude]}
+            radius={startingLocation.radius}
+            pathOptions={playAreaOptions}
+          />
+        )}
         {circles.map((circle, index) => (
           <Marker key={index} position={[circle.latitude, circle.longitude]} />
         ))}

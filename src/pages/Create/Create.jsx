@@ -1,126 +1,177 @@
 import React, { useState } from 'react';
-import styles from './Create.module.css';
-import Map from '../../components/Map/Map';
-import { useGeolocation } from '../../utils/player';
 import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
+import Map from '../../components/Map/Map';
+
+/**
+ * TODO
+ * - Fix how starting location input is handled
+ * - Fix error in console RE:controlled input being uncontrolled
+ * - Fix how map zoom works when starting location selected
+ * - Add Firebase submission
+ * - Styling
+ */
 
 const Create = () => {
-    const [gameSize, setGameSize] = useState('small');
-    const [locations, setLocations] = useState(Array.from({ length: 5 }, () => ({ location: '', hint: '', isComplete: false })));
-    const [maxDistance, setMaxDistance] = useState(1);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [startingLocation, setStartingLocation] = useState(null);
+  const [startingLocation, setStartingLocation] = useState(null);
+  const [radius, setRadius] = useState(1000); // Default radius
+  const [gameSize, setGameSize] = useState(5); // Default game size
+  const [locations, setLocations] = useState(Array(5).fill(null)); // Array to hold location objects
+  const [locationInputs, setLocationInputs] = useState(Array(5).fill('')); // Array to hold input values
+  const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
+  const [bounds, setBounds] = useState(null); // State to hold search bounds
 
-    const handleGameSizeChange = (event) => {
-        const size = event.target.value;
-        setGameSize(size);
-        let pairs = 5;
-        if (size === 'medium') pairs = 10;
-        else if (size === 'large') pairs = 15;
+  const handlePlaceChanged = (places) => {
+    if (places.length > 0) {
+      const place = places[0];
+      const location = {
+        latitude: place.geometry.location.lat(),
+        longitude: place.geometry.location.lng()
+      };
 
-        setLocations(Array.from({ length: pairs }, () => ({ location: '', hint: '', isComplete: false })));
-        setCurrentPage(0);
-    };
-
-    const handleLocationChange = (index, event) => {
+      if (currentLocationIndex === 0) {
+        const newStartingLocation = { ...location, radius };
+        setStartingLocation(newStartingLocation);
+        // Set bounds based on the starting location
+        const sw = new window.google.maps.LatLng(
+            location.latitude - 0.05, location.longitude - 0.05);
+        const ne = new window.google.maps.LatLng(
+            location.latitude + 0.05, location.longitude + 0.05);
+        setBounds(new window.google.maps.LatLngBounds(sw, ne));
+      } else {
         const newLocations = [...locations];
-        newLocations[index][event.target.name] = event.target.value;
-        newLocations[index].isComplete = newLocations[index].location && newLocations[index].hint;
+        newLocations[currentLocationIndex - 1] = location;
         setLocations(newLocations);
-    };
+      }
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const formData = {
-            startingLocation: event.target.startingLocation.value,
-            gameSize,
-            maxDistance,
-            locations: locations.map(loc => ({ location: loc.location, hint: loc.hint })),
-        };
-        console.log(formData);
-    };
-
-    const handlePlaceChanged = (places) => {
-        const [place] = places;
-        setStartingLocation({latitude: place.geometry.location.lat(), longitude: place.geometry.location.lng()});
+      // Persist input value after selection
+      const newLocationInputs = [...locationInputs];
+      newLocationInputs[currentLocationIndex] = place.formatted_address || '';
+      setLocationInputs(newLocationInputs);
     }
+  };
 
-    return (
-        <div className={styles.container}>
-            <h1>Create Game</h1>
-            <form onSubmit={handleSubmit}>
-                <div className={styles['form-group']}>
-                    <label htmlFor="startingLocation">Starting Location:</label>
-                    <PlacesAutocomplete handlePlaceChanged={(places) => handlePlaceChanged(places)}>
-                        <input type="text" id="startingLocation" name="startingLocation" placeholder='Enter Location'/>
-                    </PlacesAutocomplete>
-                </div>
+  const handleRadiusChange = (event) => {
+    const newRadius = event.target.value;
+    setRadius(newRadius);
+    if (startingLocation) {
+        setStartingLocation({ ...startingLocation, radius: newRadius });
+        // Update bounds based on the new radius
+        const sw = new window.google.maps.LatLng(
+            startingLocation.latitude - 0.05, startingLocation.longitude - 0.05);
+        const ne = new window.google.maps.LatLng(
+            startingLocation.latitude + 0.05, startingLocation.longitude + 0.05);
+        setBounds(new window.google.maps.LatLngBounds(sw, ne));
+    }
+};
 
-                <div className={styles['form-group']}>
-                    <label htmlFor="gameSize">Game Size:</label>
-                    <select id="gameSize" name="gameSize" onChange={handleGameSizeChange} value={gameSize}>
-                        <option value="small">Small</option>
-                        <option value="medium">Medium</option>
-                        <option value="large">Large</option>
-                    </select>
-                </div>
-                
-                <label htmlFor={'locations'}>Locations:</label>
-                <div style={{width:'100%', height: '50vh'}}>
-                    <Map circles={[]} playerLocation={startingLocation}/>
-                </div>
-                <div className={styles.pageButtons}>
-                    {locations.map((pair, index) => (
-                        <button
-                            id='locations'
-                            key={index}
-                            type="button"
-                            className={`${styles.pageButton} ${currentPage === index ? styles.selected : ''} ${pair.isComplete ? styles.complete : ''}`}
-                            onClick={() => setCurrentPage(index)}
-                        >
-                            {index + 1}
-                        </button>
-                    ))}
-                </div>
+  const handleGameSizeChange = (event) => {
+    const newSize = parseInt(event.target.value);
+    if (newSize > gameSize) {
+      // Expand the arrays by adding null values
+      setLocations([...locations, ...Array(newSize - gameSize).fill(null)]);
+      setLocationInputs([...locationInputs, ...Array(newSize - gameSize).fill('')]);
+    } else {
+      // Shrink the arrays and retain the first N elements
+      const truncatedLocations = locations.slice(0, newSize);
+      const truncatedLocationInputs = locationInputs.slice(0, newSize);
+      setLocations(truncatedLocations);
+      setLocationInputs(truncatedLocationInputs);
+    }
+    setGameSize(newSize);
+    setCurrentLocationIndex(0); // Reset current location index
+  };
 
-                <div className={styles['form-group']}>
-                    <label htmlFor={`location-${currentPage}`}>Location {currentPage + 1}:</label>
-                    <input
-                        type="text"
-                        id={`location-${currentPage}`}
-                        name="location"
-                        value={locations[currentPage].location}
-                        onChange={(e) => handleLocationChange(currentPage, e)}
-                    />
-                    <label htmlFor={`hint-${currentPage}`}>Hint {currentPage + 1}:</label>
-                    <input
-                        type="text"
-                        id={`hint-${currentPage}`}
-                        name="hint"
-                        value={locations[currentPage].hint}
-                        onChange={(e) => handleLocationChange(currentPage, e)}
-                    />
-                </div>
+  const handleLocationButtonClick = (index) => {
+    setCurrentLocationIndex(index + 1);
+  };
 
-                <div className={styles['form-group']}>
-                    <label htmlFor="maxDistance">Maximum Distance from Starting Location:</label>
-                    <input
-                        type="range"
-                        id="maxDistance"
-                        name="maxDistance"
-                        min="1"
-                        max="5"
-                        step="0.1"
-                        value={maxDistance}
-                        onChange={(e) => setMaxDistance(e.target.value)}
-                    />
-                    <span>{maxDistance} km</span>
-                </div>
+  const handleInputChange = (index, value) => {
+    const newLocationInputs = [...locationInputs];
+    newLocationInputs[index] = value;
+    setLocationInputs(newLocationInputs);
+  };
 
-                <button type="submit" disabled={locations.filter((pair) => !pair.isComplete).length !== 0}>Create</button>
-            </form>
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const gameData = {
+      startingLocation,
+      radius,
+      gameSize,
+      locations
+    };
+    console.log("Submitting game data:", gameData);
+    // Placeholder for Firebase submission
+    // submitToFirebase(gameData);
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Starting Location:</label>
+          <PlacesAutocomplete
+            handlePlaceChanged={handlePlaceChanged}
+            value={locationInputs[0]}
+            onChange={(e) => handleInputChange(0, e.target.value)}
+          />
         </div>
-    );
+        <div>
+          <label>Radius: {radius} meters</label>
+          <input
+            type="range"
+            min="100"
+            max="5000"
+            value={radius}
+            onChange={handleRadiusChange}
+          />
+        </div>
+        <div>
+          <label>Game Size:</label>
+          <select value={gameSize} onChange={handleGameSizeChange}>
+            <option value="5">Small (5 locations)</option>
+            <option value="10">Medium (10 locations)</option>
+            <option value="15">Large (15 locations)</option>
+          </select>
+        </div>
+        <div>
+          <label>Choose Locations:</label>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(5, 1fr)` }}>
+            {Array.from({ length: gameSize }, (_, index) => (
+              <button
+                type="button"
+                key={index}
+                onClick={() => handleLocationButtonClick(index)}
+                style={{ padding: '10px', margin: '5px' }}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          {currentLocationIndex > 0 && (
+            <>
+              <label>Choose Location {currentLocationIndex}:</label>
+              <PlacesAutocomplete
+                handlePlaceChanged={handlePlaceChanged}
+                value={locationInputs[currentLocationIndex]}
+                onChange={(e) => handleInputChange(currentLocationIndex, e.target.value)}
+                bounds={bounds}
+              />
+            </>
+          )}
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+      <div style={{ height: '500px', marginTop: '20px' }}>
+        <Map
+          circles={locations.filter(loc => loc)}
+          startingLocation={startingLocation}
+          playerLocation={null} /* Replace null with actual player location data if available */
+        />
+      </div>
+    </div>
+  );
 };
 
 export default Create;

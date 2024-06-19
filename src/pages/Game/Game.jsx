@@ -12,7 +12,7 @@ Walking Tour: Player has to visit N locations in order
 */
 
 const Game = () => {
-    const playerLocation = useGeolocation();
+    const playerLocation = null;
     const playArea = {
         latitude: 53.34983,
         longitude: -6.26026,
@@ -54,7 +54,7 @@ const Game = () => {
 
     return (
         <div style={{width: '100%', height: '100vh'}}>
-            <Map circles={circles} playerLocation={playerLocation==null ? {latitude: 0, longitude: 0} : playerLocation} playArea={playArea}/>
+            <Map circles={circles} playerLocation={playerLocation} playArea={playArea}/>
         </div>
     );
 };

@@ -8,6 +8,8 @@ import Home from './pages/Home/Home';
 import Create from './pages/Create/Create';
 import RedirectToHome from "./components/RedirectToHome/RedirectToHome";
 import Game from "./pages/Game/Game";
+import Lobby from './pages/Lobby/Lobby';
+import Join from './pages/Join/Join';
 
 function App() {
   return (
@@ -15,11 +17,13 @@ function App() {
       <Routes>
         <Route exact path="/" element={<Home />} />
         <Route path="/create" element={<Create />} />
-        <Route path="/join" element={<RedirectToHome />} />
+        <Route path="/join" element={<Join />} />
         <Route path="/game" element={<Game />} />
+        <Route path="/lobby/:gameCode" element={<Lobby />} />
+        <Route path="*" element={<RedirectToHome />} />
       </Routes>
     </Router>
   )
 }
 
-export default App
+export default App;

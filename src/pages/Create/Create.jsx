@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../../config/firebase';
 import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 import Map from '../../components/Map/Map';
 
@@ -15,41 +17,90 @@ const Create = () => {
     const [startingLocation, setStartingLocation] = useState(null);
     const [radius, setRadius] = useState(1000); // Default radius
     const [gameSize, setGameSize] = useState(5); // Default game size
-    const [locations, setLocations] = useState(Array(5).fill(null)); // Array to hold location objects
+    const [targets, settargets] = useState(Array(5).fill(null)); // Array to hold location objects
     const [locationInputs, setLocationInputs] = useState(Array(5).fill('')); // Array to hold input values
     const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
     const [bounds, setBounds] = useState(null); // State to hold search bounds
 
+    const getStreetName = (place) => {
+        for (let component of place.address_components) {
+            if (component.types.includes('route')) {
+                return component.long_name;
+            }
+        }
+        return 'No Street Data Found';
+    }
+
+    const getRandomPointWithinRadius = (lat, lng, radius) => {
+        const radiusInDegrees = radius / 111320;
+        const minDistanceInDegrees = 10 / 111320;
+
+        let distance, angle;
+
+        do {
+            distance = Math.random() * radiusInDegrees;
+        } while (distance < minDistanceInDegrees);
+
+        angle = Math.random() * 2 * Math.PI;
+
+        const offsetLat = distance * Math.cos(angle);
+        const offsetLng = distance * Math.sin(angle);
+
+        const newLat = lat + offsetLat;
+        const newLng = lng + offsetLng / Math.cos(lat * Math.PI / 180);
+
+        return {
+            latitude: newLat,
+            longitude: newLng
+        };
+    };
+
     const handlePlaceChanged = (places) => {
-        if (places.length > 0) {
+        // Early exit
+        if(places.length<=0) 
+            return;
+        
+        const range = 100; // Default range, TODO make this dynamic
+
         const place = places[0];
         console.log(place);
 
-        const location = {
-            latitude: place.geometry.location.lat(),
-            longitude: place.geometry.location.lng()
+        /** 
+         * TODO right now the center of the circle within which the location lies is 
+         * randomised only once at creation. This should be randomised every time a new
+         * game is started with this preset to ensure variety. Consider doing this per session?
+        */
+        let target = {
+            location: {
+                latitude: place.geometry.location.lat(),
+                longitude: place.geometry.location.lng(),
+            },
+            types: place.types,
+            street: getStreetName(place),
+            id: place.place_id,
+            locataionName: place.name
         };
 
         if (currentLocationIndex === 0) {
-            const newStartingLocation = { ...location, radius };
+            const newStartingLocation = { ...target, radius };
             setStartingLocation(newStartingLocation);
             // Set bounds based on the starting location
             const sw = new window.google.maps.LatLng(
-                location.latitude - 0.05, location.longitude - 0.05);
+                target.location.latitude - 0.05, target.location.longitude - 0.05);
             const ne = new window.google.maps.LatLng(
-                location.latitude + 0.05, location.longitude + 0.05);
+                target.location.latitude + 0.05, target.location.longitude + 0.05);
             setBounds(new window.google.maps.LatLngBounds(sw, ne));
         } else {
-            const newLocations = [...locations];
-            newLocations[currentLocationIndex - 1] = location;
-            setLocations(newLocations);
+            target = {...target, randOffset: getRandomPointWithinRadius(place.geometry.location.lat(), place.geometry.location.lng(), range)}
+            const newtargets = [...targets];
+            newtargets[currentLocationIndex - 1] = target;
+            settargets(newtargets);
         }
 
         // Persist input value after selection
         const newLocationInputs = [...locationInputs];
         newLocationInputs[currentLocationIndex] = place.formatted_address || '';
         setLocationInputs(newLocationInputs);
-        }
     };
 
     const handleRadiusChange = (event) => {
@@ -59,9 +110,9 @@ const Create = () => {
             setStartingLocation({ ...startingLocation, radius: newRadius });
             // Update bounds based on the new radius
             const sw = new window.google.maps.LatLng(
-                startingLocation.latitude - 0.05, startingLocation.longitude - 0.05);
+                startingLocation.location.latitude - 0.05, startingLocation.longitude - 0.05);
             const ne = new window.google.maps.LatLng(
-                startingLocation.latitude + 0.05, startingLocation.longitude + 0.05);
+                startingLocation.location.latitude + 0.05, startingLocation.longitude + 0.05);
             setBounds(new window.google.maps.LatLngBounds(sw, ne));
         }
     };
@@ -70,13 +121,13 @@ const Create = () => {
         const newSize = parseInt(event.target.value);
         if (newSize > gameSize) {
         // Expand the arrays by adding null values
-        setLocations([...locations, ...Array(newSize - gameSize).fill(null)]);
+        settargets([...targets, ...Array(newSize - gameSize).fill(null)]);
         setLocationInputs([...locationInputs, ...Array(newSize - gameSize).fill('')]);
         } else {
         // Shrink the arrays and retain the first N elements
-        const truncatedLocations = locations.slice(0, newSize);
+        const truncatedtargets = targets.slice(0, newSize);
         const truncatedLocationInputs = locationInputs.slice(0, newSize);
-        setLocations(truncatedLocations);
+        settargets(truncatedtargets);
         setLocationInputs(truncatedLocationInputs);
         }
         setGameSize(newSize);
@@ -93,18 +144,25 @@ const Create = () => {
         setLocationInputs(newLocationInputs);
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const gameData = {
-        startingLocation,
-        radius,
-        gameSize,
-        locations
+            title: 'Test Game',
+            creator: 'roscoargus',
+            startingLocation,
+            radius,          
+            gameSize,       
+            targets        
         };
         console.log("Submitting game data:", gameData);
-        // Placeholder for Firebase submission
-        // submitToFirebase(gameData);
-    };    
+        try {
+            // Add a new document with a generated id.
+            const docRef = await addDoc(collection(db, "presets"), gameData);
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }; 
 
     return (
         <div>
@@ -130,13 +188,13 @@ const Create = () => {
             <div>
             <label>Game Size:</label>
             <select value={gameSize} onChange={handleGameSizeChange}>
-                <option value="5">Small (5 locations)</option>
-                <option value="10">Medium (10 locations)</option>
-                <option value="15">Large (15 locations)</option>
+                <option value="5">Small (5 targets)</option>
+                <option value="10">Medium (10 targets)</option>
+                <option value="15">Large (15 targets)</option>
             </select>
             </div>
             <div>
-            <label>Choose Locations:</label>
+            <label>Choose targets:</label>
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(5, 1fr)` }}>
                 {Array.from({ length: gameSize }, (_, index) => (
                 <button
@@ -153,24 +211,25 @@ const Create = () => {
             <div>
             {currentLocationIndex > 0 && (
                 <>
-                <label>Choose Location {currentLocationIndex}:</label>
-                <PlacesAutocomplete
-                    handlePlaceChanged={handlePlaceChanged}
-                    value={locationInputs[currentLocationIndex]}
-                    onChange={(e) => handleInputChange(currentLocationIndex, e.target.value)}
-                    bounds={bounds}
-                />
+                    <label>Choose Location {currentLocationIndex}:</label>
+                    <PlacesAutocomplete
+                        handlePlaceChanged={handlePlaceChanged}
+                        value={locationInputs[currentLocationIndex]}
+                        onChange={(e) => handleInputChange(currentLocationIndex, e.target.value)}
+                        bounds={bounds}
+                    />
                 </>
             )}
             </div>
             <button type="submit">Submit</button>
         </form>
+        {console.log(startingLocation)}
         <div style={{ height: '500px', marginTop: '20px' }}>
             <Map
-            circles={locations.filter(loc => loc)}
-            startingLocation={startingLocation}
-            playerLocation={null} /* Replace null with actual player location data if available */
-            gamemode='create'
+                circles={targets.filter(loc => loc)}
+                startingLocation={startingLocation}
+                playerLocation={null} /* Replace null with actual player location data if available */
+                gamemode='create'
             />
         </div>
         </div>

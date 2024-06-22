@@ -25,7 +25,7 @@ const Map = ({ circles, playerLocation, startingLocation, gamemode, locationGues
             setMapCenter(playerLocation);
             setMapZoom(15);
         }
-    }, [playerLocation]);
+    }, [playerLocation]); 
 
     return (
         <MapContainer
@@ -45,22 +45,22 @@ const Map = ({ circles, playerLocation, startingLocation, gamemode, locationGues
             <AttributionControl position="bottomright" prefix={false} />
             {startingLocation && (
                 <Circle
-                    center={[startingLocation.latitude, startingLocation.longitude]}
+                    center={[startingLocation.location.latitude, startingLocation.location.longitude]}
                     radius={startingLocation.radius}
                     pathOptions={playAreaOptions}
                 />
             )}
-            {gamemode === 'create' && circles.map((circle, index) => (
-                <Marker key={index} position={[circle.latitude, circle.longitude]} />
-            ))}
-            {gamemode === 'classic' && circles.map((circle, index) => (
-                <Circle
+            {gamemode === 'create' && circles.map((circle, index) => {
+                return <Marker key={index} position={[circle.latitude, circle.longitude]} />
+})}
+            {gamemode === 'classic' && circles.map((circle, index) => {
+                return <Circle
                     key={index}
                     center={[circle.latitude, circle.longitude]}
                     radius={100}
                     pathOptions={locationOptions}
                 />
-            ))}
+            })}
             {locationGuess && (
                 <Marker position={[locationGuess.latitude, locationGuess.longitude]} />
             )}

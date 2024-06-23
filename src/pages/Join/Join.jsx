@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { joinLobby, createLobby } from '../../utils/game'; // Assuming createLobby function exists
+import { joinLobby, createLobby } from '../../utils/game';
+import { useUsername } from '../../context/UsernameContext';
 
-const Join = ({ userId }) => {
+const Join = () => {
   const [gameCode, setGameCode] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { username } = useUsername();
 
   const handleJoinLobby = async () => {
     //TODO REMOVE
-    const userId = 'roscoargus2';
     setError('');
     try {
-      await joinLobby(gameCode, userId);
-      navigate(`/lobby/${gameCode}`);
+      await joinLobby(gameCode, username);
+      navigate(`/game/${gameCode}`);
     } catch (error) {
         console.error(error);
       setError(error.message);
@@ -22,11 +23,10 @@ const Join = ({ userId }) => {
 
   const handleCreateLobby = async () => {
     //TODO REMOVE
-    const userId = 'roscoargus';
     setError('');
     try {
-      const newGameCode = await createLobby(userId); // Assuming createLobby returns a new game code
-      navigate(`/lobby/${newGameCode}`);
+      const newGameCode = await createLobby(username); // Assuming createLobby returns a new game code
+      navigate(`/game/${newGameCode}`);
     } catch (error) {
         console.error(error);
       setError(error.message);
@@ -43,8 +43,8 @@ const Join = ({ userId }) => {
           value={gameCode}
           onChange={(e) => setGameCode(e.target.value)}
         />
-        <button onClick={handleJoinLobby}>Join Lobby</button>
-        <button onClick={handleCreateLobby}>Create New Lobby</button>
+        <button onClick={handleJoinLobby}>Join Game</button>
+        <button onClick={handleCreateLobby}>Create New Game</button>
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </div>
     </div>

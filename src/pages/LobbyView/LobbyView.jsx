@@ -10,7 +10,11 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame }) => {
           <ul>
             {Object.keys(lobbyData.players).map((userId) => (
               <li key={userId}>
-                {lobbyData.players[userId].username} - Score: {lobbyData.players[userId].score}
+                {
+                    userId === lobbyData.host
+                    ? <strong>{lobbyData.players[userId].username} - Host</strong>
+                    : `${lobbyData.players[userId].username} - Score: ${lobbyData.players[userId].score}`
+                }
               </li>
             ))}
           </ul>

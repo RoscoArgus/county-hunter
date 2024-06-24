@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db, rtdb } from '../../config/firebase';
-import { ref, update } from 'firebase/database'; // Import Firebase Realtime Database functions
+import { ref, update } from 'firebase/database';
 import Map from '../../components/Map/Map';
 import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 import styles from './GameView.module.css';

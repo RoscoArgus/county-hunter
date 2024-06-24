@@ -23,7 +23,7 @@ export const createLobby = async (userId, presetId) => {
   const lobbyRef = ref(rtdb, `games/${gameCode}`);
 
   const initialData = {
-    creator: userId,
+    host: userId,
     players: {
       [userId]: {
         username: userId,

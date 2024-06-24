@@ -17,10 +17,28 @@ const Create = () => {
   const [bounds, setBounds] = useState(null);
   const [selectedTab, setSelectedTab] = useState('Custom');
   const [defaultPresets, setDefaultPresets] = useState([]);
-  const [selectedPreset, setSelectedPreset] = useState(null);
+  const [gamemode, setGamemode] = useState('classic');
 
   const navigate = useNavigate();
   const { username } = useUsername();
+
+  const gameModes = [
+    {
+      id: 'classic',
+      name: 'Classic',
+      description: 'Visit each location in any order. Bonuses for finishing first and being the first to guess a location.',
+    },
+    {
+      id: 'marathon',
+      name: 'Marathon',
+      description: 'Visit each location in order. First to finish wins!',
+    },
+    {
+      id: 'rush',
+      name: 'Rush',
+      description: 'Visit as many locations as you can in the time limit.',
+    }
+  ];
 
   useEffect(() => {
     if (selectedTab === 'Pre-Made') {
@@ -150,10 +168,11 @@ const Create = () => {
     const gameData = {
       title: 'Test Game',
       creator: 'County Hunter',
+      gamemode: 'Classic',
       startingLocation,
       radius,
       gameSize,
-      targets
+      targets,
     };
 
     try {
@@ -182,6 +201,21 @@ const Create = () => {
       </div>
       {selectedTab === 'Custom' && (
         <form onSubmit={handleSubmit}>
+          <div style={{ marginTop: '20px' }}>
+            <h3>Select Game Mode:</h3>
+            {gameModes.map(mode => (
+              <label key={mode.id} style={{ display: 'block', marginBottom: '10px' }}>
+                <input
+                  type="radio"
+                  value={mode.id}
+                  checked={gamemode === mode.id}
+                  onChange={(e) => setGamemode(e.target.value)}
+                />
+                {mode.name}
+                <p>{mode.description}</p>
+              </label>
+            ))}
+          </div>
           <div>
             <label>Starting Location:</label>
             <PlacesAutocomplete

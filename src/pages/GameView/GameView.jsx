@@ -1,12 +1,13 @@
-// src/pages/LobbyGame/GameView.jsx
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import { db, rtdb } from '../../config/firebase';
+import { ref, update } from 'firebase/database'; // Import Firebase Realtime Database functions
 import Map from '../../components/Map/Map';
 import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 import styles from './GameView.module.css';
+import { useUsername } from '../../context/UsernameContext';
 
-const GameView = ({ presetId }) => {
+const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
   const [gameOptions, setGameOptions] = useState(null);
   const [playerLocation, setPlayerLocation] = useState(null);
   const [guessPrompt, setGuessPrompt] = useState(false);
@@ -15,25 +16,27 @@ const GameView = ({ presetId }) => {
   const [bounds, setBounds] = useState(null);
   const [guessResult, setGuessResult] = useState(null);
 
+  const { username } = useUsername();
+
   useEffect(() => {
     const fetchGameOptions = async () => {
-        if(presetId) {
-            const gameDocRef = doc(db, 'temp_presets', presetId);
-            const gameDoc = await getDoc(gameDocRef);
+      if (presetId) {
+        const gameDocRef = doc(db, 'presets', presetId);
+        const gameDoc = await getDoc(gameDocRef);
 
-            if (gameDoc.exists()) {
-                const gameData = gameDoc.data();
-                const updatedGameOptions = {
-                ...gameData,
-                mode: 'classic',
-                range: 100,
-                };
-                setGameOptions(updatedGameOptions);
-                setPlayerLocation(updatedGameOptions.startingLocation.location);
-            } else {
-                console.error("No such document!");
-            }
+        if (gameDoc.exists()) {
+          const gameData = gameDoc.data();
+          const updatedGameOptions = {
+            ...gameData,
+            mode: 'classic',
+            range: 100,
+          };
+          setGameOptions(updatedGameOptions);
+          setPlayerLocation(updatedGameOptions.startingLocation.location);
+        } else {
+          console.error("No such document!");
         }
+      }
     };
 
     fetchGameOptions();
@@ -141,7 +144,7 @@ const GameView = ({ presetId }) => {
     return R * 2 * Math.asin(Math.sqrt(a));
   };
 
-  const checkGuess = () => {
+  const checkGuess = async () => {
     let guessedCorrectly = false;
     const updatedTargets = [...gameOptions.targets];
 
@@ -164,10 +167,34 @@ const GameView = ({ presetId }) => {
     setGameOptions({ ...gameOptions, targets: updatedTargets });
     setLocationGuess(null);
     setLocationInput('');
+
+
+    if (guessedCorrectly) {
+      try {
+        const playerRef = ref(rtdb, `games/${gameCode}/players/${username}`);
+        await update(playerRef, {
+          score: lobbyData.players[username].score + 100, // Update score in database
+        });
+      } catch (error) {
+        console.error('Error updating player score:', error);
+      }
+    }
   };
 
   if (!gameOptions || !presetId) {
     return <div>Loading...</div>;
+  }
+
+  if(isHost) {
+    return (
+        <ul>
+            {Object.keys(lobbyData.players).map((userId) => (
+              <li key={userId}>
+                {lobbyData.players[userId].username} - Score: {lobbyData.players[userId].score}
+              </li>
+            ))}
+        </ul>
+    )
   }
 
   return (

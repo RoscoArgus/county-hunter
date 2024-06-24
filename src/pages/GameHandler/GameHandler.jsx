@@ -1,36 +1,54 @@
-// src/pages/GameHandler/GameHandler.jsx
-import React, { useState, useEffect } from 'react';
+import { getDatabase, ref, onValue, onDisconnect, set, off } from 'firebase/database';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getDatabase, ref, onValue, off } from 'firebase/database';
-import { startGame } from '../../utils/game';
 import { useUsername } from '../../context/UsernameContext';
 import LobbyView from '../LobbyView/LobbyView';
 import GameView from '../GameView/GameView';
-
-const db = getDatabase();
+import { startGame } from '../../utils/game';
 
 const GameHandler = () => {
   const { gameCode } = useParams();
+  const { username } = useUsername();
+  const db = getDatabase();
   const [lobbyData, setLobbyData] = useState(null);
   const [isHost, setIsHost] = useState(false);
-  const [gameStatus, setGameStatus] = useState('waiting'); // 'waiting' or 'in-progress'
-  const { username } = useUsername();
+  const [gameStatus, setGameStatus] = useState('waiting');
 
   useEffect(() => {
     if (gameCode) {
       const lobbyRef = ref(db, `games/${gameCode}`);
+      const playerRef = ref(db, `games/${gameCode}/players/${username}`);
+
       const handleDataChange = (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
           setLobbyData(data);
           setIsHost(data.creator === username);
-          setGameStatus(data.status); // assuming 'status' field tracks game status
+          setGameStatus(data.status);
+        } else {
+          alert("This game does not exist");
         }
       };
-      // Attach listener
+
       onValue(lobbyRef, handleDataChange);
 
-      // Clean up listener on unmount
+      // Handle online presence
+      const connectedRef = ref(db, '.info/connected');
+      onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+          // Mark user as online
+          set(playerRef, { username, score: 0, online: true });
+
+          // Handle disconnection
+          onDisconnect(playerRef).set({
+            username,
+            score: 0,
+            online: false,
+            lastActive: new Date().toISOString()
+          });
+        }
+      });
+
       return () => {
         off(lobbyRef, 'value', handleDataChange);
       };
@@ -42,15 +60,15 @@ const GameHandler = () => {
   };
 
   if (gameStatus === 'in-progress') {
-    return <GameView presetId={lobbyData.presetId} />;
+    return <GameView presetId={lobbyData.presetId} isHost={isHost} lobbyData={lobbyData} gameCode={gameCode}/>;
   }
 
   return (
-    <LobbyView 
-      gameCode={gameCode} 
-      lobbyData={lobbyData} 
-      isHost={isHost} 
-      handleStartGame={handleStartGame} 
+    <LobbyView
+      gameCode={gameCode}
+      lobbyData={lobbyData}
+      isHost={isHost}
+      handleStartGame={handleStartGame}
     />
   );
 };

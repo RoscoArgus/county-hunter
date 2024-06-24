@@ -25,3 +25,15 @@
     margin: 10px;
     padding: 5px;
 }
+
+.join {
+    display: flex;
+}
+
+.join input {
+    flex: 3;
+}
+
+.join button {
+    flex: 1;
+}

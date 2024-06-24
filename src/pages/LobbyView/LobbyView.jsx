@@ -1,4 +1,3 @@
-// src/pages/LobbyGame/LobbyView.jsx
 import React from 'react';
 
 const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame }) => {
@@ -9,8 +8,10 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame }) => {
         <div>
           <h3>Players:</h3>
           <ul>
-            {lobbyData.players.map((player, index) => (
-              <li key={index}>{player}</li>
+            {Object.keys(lobbyData.players).map((userId) => (
+              <li key={userId}>
+                {lobbyData.players[userId].username} - Score: {lobbyData.players[userId].score}
+              </li>
             ))}
           </ul>
           {isHost && (

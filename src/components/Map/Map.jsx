@@ -17,7 +17,7 @@ const locationOptions = { fillColor: 'blue', fillOpacity: 0.2 };
 const mapBounds = [[-180, -180], [180, 180]];
 
 const Map = ({ circles, playerLocation, startingLocation, gamemode, locationGuess }) => {
-    const [mapCenter, setMapCenter] = useState(playerLocation ? playerLocation : { latitude: 0, longitude: 0 });
+    const [mapCenter, setMapCenter] = useState(playerLocation ? playerLocation : { latitude: 50, longitude: 20 });
     const [mapZoom, setMapZoom] = useState(playerLocation ? 15 : 0);
 
     useEffect(() => {

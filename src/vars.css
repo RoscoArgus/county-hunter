@@ -5,6 +5,12 @@
     --color-secondary: #19376d;
     --color-dark: #0b2447;
     --color-bg: white;
+
+    --button-primary: #3C6CFD;
+    --button-primary-hover: #1E3888;
+    --button-secondary: #00BA4D;
+    --button-secondary-hover: #009A40;
+    --button-disabled: #BBBBBB;
   
     /* Fonts */
     --font-roboto: "Roboto";

@@ -9,31 +9,84 @@
     align-items: center;
 }
 
-.instructions {
+.user {
+    position: absolute;
+    top: 15px;
+    right: 15px;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.pfp {
+    height: 40px;
+    width: 40px;
+    margin-left: 10px;
+    border-radius: 50%;
+    border: 1px solid black;
+}
+
+.main {
+    font-size: 14px;
+    text-align: center
 }
 
 .title {
+    font-size: 4em;
     color: red;
+    margin: 15px 0;
 }
 
-.instructions input, button {
-    background-color: white;
-    border: 1px solid black;
-    border-radius: 3px;
-    margin: 10px;
-    padding: 5px;
+.gameCode {
+    font-size: 2em;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 15px 0;
+    text-align: center;
+    border: 2px solid black;
 }
 
-.join {
-    display: flex;
+.buttons {
+    margin: 15px 0;
 }
 
-.join input {
-    flex: 3;
+.buttons button {
+    font-size: 1.5em;
+    font-family: var(--font-roboto);
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 10px;
+    border: 0px solid black;
+    color: var(--color-text);
 }
 
-.join button {
-    flex: 1;
+.buttons .joinButton {
+    background-color: var(--button-primary);
+    color: white;
+    cursor: pointer;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-primary-hover);
+    }
+
+    &:disabled{
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
+}
+
+.buttons .createButton {
+    background-color: var(--button-secondary);
+    color: white;
+    cursor: pointer;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-secondary-hover);
+    }
+
+    &:disabled{
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
 }

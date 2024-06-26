@@ -1,0 +1,23 @@
+.Create {
+    display: flex;
+    flex-direction: row;
+}
+
+.options {
+    flex: 3;
+}
+
+.map{
+    flex: 2;
+    height: 100vh;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input {
+    width: 200px;
+    margin: 15px;
+}

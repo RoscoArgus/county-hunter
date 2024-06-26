@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { createPreset, createLobby } from '../../utils/game';
 import { useUsername } from '../../context/UsernameContext';
 import { getDocs, collection, query, where } from 'firebase/firestore';
+import styles from './Create.module.css';
+import PresetSlider from '../../components/PresetSlider/PresetSlider';
 import { db } from '../../config/firebase';
 import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 import Map from '../../components/Map/Map';
+import { getImageUrl } from '../../utils/image';
 
 const Create = () => {
   const [startingLocation, setStartingLocation] = useState(null);
@@ -15,7 +18,6 @@ const Create = () => {
   const [locationInputs, setLocationInputs] = useState(Array(5).fill(''));
   const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
   const [bounds, setBounds] = useState(null);
-  const [selectedTab, setSelectedTab] = useState('Custom');
   const [defaultPresets, setDefaultPresets] = useState([]);
   const [gamemode, setGamemode] = useState('classic');
 
@@ -27,20 +29,57 @@ const Create = () => {
       id: 'classic',
       name: 'Classic',
       description: 'Visit each location in any order. Bonuses for finishing first and being the first to guess a location.',
+      image: 'user/default.png',
     },
     {
       id: 'marathon',
       name: 'Marathon',
       description: 'Visit each location in order. First to finish wins!',
+      image: 'user/default.png',
     },
     {
       id: 'rush',
       name: 'Rush',
       description: 'Visit as many locations as you can in the time limit.',
+      image: 'user/default.png',
+    },
+    {
+      id: 'rush1',
+      name: 'Rush1',
+      description: 'Visit as many locations as you can in the time limit.',
+      image: 'user/default.png',
     }
   ];
 
-  useEffect(() => {
+  return (
+    <div className={styles.Create}>
+      <div className={styles.options}>
+        <PresetSlider slides={gameModes}/>
+        <form>
+          <label for='timeLimit'>Time Limit:</label>
+          <input type='number' id='timeLimit' name='timeLimit' min='1' max='60' />
+
+          <label for='maxPlayers'>Max Players:</label>
+          <input type='number' id='maxPlayers' name='maxPlayers' min='1' max='8' />
+        </form>
+      </div>
+      <div className={styles.map}>
+        <Map
+          circles={targets.filter(loc => loc).map(loc => loc.location)}
+          startingLocation={startingLocation}
+          playerLocation={null}
+          gamemode='create'
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Create;
+
+/*
+
+useEffect(() => {
     if (selectedTab === 'Pre-Made') {
       const fetchDefaultPresets = async () => {
         const presetsQuery = query(collection(db, 'presets'), where('creator', '==', 'County Hunter'));
@@ -48,7 +87,7 @@ const Create = () => {
         const querySnapshot = await getDocs(presetsQuery);
         const presets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   
-        setDefaultPresets(presets);
+        setDefaultPresets([...presets]);
       };
       fetchDefaultPresets();
     }
@@ -193,8 +232,6 @@ const Create = () => {
     }
   };
 
-  return (
-    <div>
       <div>
         <button onClick={() => setSelectedTab('Custom')}>Custom</button>
         <button onClick={() => setSelectedTab('Pre-Made')}>Pre-Made</button>
@@ -296,8 +333,4 @@ const Create = () => {
           />
         </div>
       )}
-    </div>
-  );
-};
-
-export default Create;
+*/

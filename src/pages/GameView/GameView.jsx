@@ -6,6 +6,7 @@ import Map from '../../components/Map/Map';
 import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 import styles from './GameView.module.css';
 import { useUsername } from '../../context/UsernameContext';
+import { getDistanceInMeters } from '../../utils/calculations';
 
 const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
   const [gameOptions, setGameOptions] = useState(null);
@@ -87,7 +88,7 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
     if (gameOptions) {
       let withinRange = false;
       gameOptions.targets.forEach(target => {
-        const distance = getDistanceFromLatLonInMeters(
+        const distance = getDistanceInMeters(
           playerLocation.latitude,
           playerLocation.longitude,
           target.randOffset.latitude,
@@ -130,18 +131,6 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
       setLocationGuess(location);
     }
     updateBounds(playerLocation);
-  };
-
-  const getDistanceFromLatLonInMeters = (lat1, lon1, lat2, lon2) => {
-    const R = 6371000;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      0.5 - Math.cos(dLat) / 2 +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      (1 - Math.cos(dLon)) / 2;
-
-    return R * 2 * Math.asin(Math.sqrt(a));
   };
 
   const checkGuess = async () => {

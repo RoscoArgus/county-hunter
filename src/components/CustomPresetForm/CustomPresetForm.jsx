@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import styles from './CustomPresetForm.module.css'
 import gameModes from '../../data/gameModes';
 import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
+import { getDistanceInMeters } from '../../utils/calculations';
 
 const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools }) => {
     const [gameMode, setGameMode] = useState('classic');
@@ -177,7 +178,18 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools }) => {
                             type="button"
                             key={index}
                             onClick={() => setCurrentTargetIndex(index)}
-                            style={{ padding: '10px', margin: '5px', backgroundColor: targets[index] ? '#70ff2a' : '', border: currentTargetIndex === index ? '2px solid black' : '2px solid transparent'}}
+                            style={{ 
+                                padding: '10px', 
+                                margin: '5px', 
+                                backgroundColor: targets[index] ? '#70ff2a' : '', 
+                                border: currentTargetIndex === index ? '2px solid black' : '2px solid transparent',
+                                outline: getDistanceInMeters (
+                                            startingLocation?.location.latitude, 
+                                            startingLocation?.location.longitude, 
+                                            targets[index]?.location.latitude, 
+                                            targets[index]?.location.longitude
+                                        ) > radius ? '2px solid red' : '2px solid transparent',
+                            }}
                         >
                             {index + 1}
                         </button>

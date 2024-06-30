@@ -3,7 +3,7 @@ import { useJsApiLoader, StandaloneSearchBox } from '@react-google-maps/api';
 
 const libraries = ["places"];
 
-const PlacesAutocomplete = ({ handlePlaceChanged, value, onChange, bounds }) => {
+const PlacesAutocomplete = ({ type, handlePlaceChanged, bounds, value }) => {
     const inputRef = useRef(null);
 
     const { isLoaded, loadError } = useJsApiLoader({
@@ -12,22 +12,20 @@ const PlacesAutocomplete = ({ handlePlaceChanged, value, onChange, bounds }) => 
     });
 
     if (loadError) {
-        return <div>Error loading maps</div>;
+        return <div>Error Loading Maps</div>;
     }
 
     return (
         isLoaded ? (
             <StandaloneSearchBox
                 onLoad={ref => (inputRef.current = ref)}
-                onPlacesChanged={() => handlePlaceChanged(inputRef.current.getPlaces())}
+                onPlacesChanged={() => handlePlaceChanged(type, inputRef.current.getPlaces())}
                 bounds={bounds}
             >
                 <input 
                     type="text" 
-                    className="form-control"
                     placeholder="Enter a location"
                     value={value}
-                    onChange={onChange}
                 />
             </StandaloneSearchBox>
         ) : (

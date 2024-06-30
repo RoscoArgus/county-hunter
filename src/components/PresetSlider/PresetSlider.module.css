@@ -1,8 +1,39 @@
-.slider {
-    width: 60vw;
+.sliderContainer {
+    position: relative;
+    width: 100%;
+    max-width: 100%; /* Ensure it doesn't exceed the parent width */
     margin: 0 auto;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-}
+  }
+  
+  .slider {
+    width: 100%;
+    overflow: hidden; /* Hide any overflow */
+  }
+  
+  .leftCaret, .rightCaret {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1;
+  }
+  
+  .leftCaret {
+    left: 10px;
+  }
+  
+  .rightCaret {
+    right: 10px;
+  }
+  
+  .leftCaret:hover, .rightCaret:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }  

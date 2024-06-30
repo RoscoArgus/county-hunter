@@ -1,13 +1,41 @@
+@import '../../vars.css';
+
 .Create {
     display: flex;
     flex-direction: row;
+    height: 100vh;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.leftButton {
+    position: absolute;
+    left: 0;
+}
+
+.rightButton {
+    position: absolute;
+    right: 0;
+}
+
+.title {
+    flex: 1;
+    text-align: center;
 }
 
 .options {
     flex: 3;
+    padding: 30px;
+    overflow: hidden;
 }
 
-.map{
+.map {
     flex: 2;
     height: 100vh;
 }
@@ -17,7 +45,35 @@ form {
     flex-direction: column;
 }
 
-input {
-    width: 200px;
-    margin: 15px;
+.gameModes {
+    display: flex;
+    flex-wrap: wrap; /* Allow the labels to wrap if necessary */
+}
+
+.gameModes label {
+    display: flex;
+    flex-direction: column; /* Stack the input and text vertically */
+    align-items: center; /* Center align the input and text */
+    margin-right: 0px; /* Add some space between each label */
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer; /* Pointer cursor for better UX */
+}
+
+.gameModes input {
+    margin-bottom: 15px;
+}
+
+@media screen and (max-width: 768px) {
+    .Create {
+        flex-direction: column;
+    }
+
+    .options {
+        padding: 10px;
+    }
+
+    .map {
+        height: 50vh;
+    }
 }

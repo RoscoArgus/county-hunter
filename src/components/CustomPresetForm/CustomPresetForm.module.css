@@ -1,0 +1,32 @@
+.section {
+    margin-bottom: 20px;
+}
+.sectionLabel {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.gameModes label {
+    position: relative;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.gameModes label:not(:last-child), .gameModes label input{
+    margin-right: 10px;
+}
+
+.startingLocation {
+    display: flex;
+    flex-direction: row;
+}
+
+.startingLocation .locationName {
+    margin-left: 15px;
+    font-weight: bold;
+}
+
+.locationName {
+    font-weight: bold;
+}

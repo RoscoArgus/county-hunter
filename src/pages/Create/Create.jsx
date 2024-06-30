@@ -1,67 +1,106 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createPreset, createLobby } from '../../utils/game';
-import { useUsername } from '../../context/UsernameContext';
-import { getDocs, collection, query, where } from 'firebase/firestore';
 import styles from './Create.module.css';
-import PresetSlider from '../../components/PresetSlider/PresetSlider';
+import { getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
-import Map from '../../components/Map/Map';
 import { getImageUrl } from '../../utils/image';
+import PresetSlider from '../../components/PresetSlider/PresetSlider';
+import Map from '../../components/Map/Map';
+import CustomPresetForm from '../../components/CustomPresetForm/CustomPresetForm';
+import { useNavigate } from 'react-router-dom';
 
 const Create = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [defaultPresets, setDefaultPresets] = useState([]);
+  const [selectedPreset, setSelectedPreset] = useState(null);
   const [startingLocation, setStartingLocation] = useState(null);
   const [radius, setRadius] = useState(1000);
-  const [gameSize, setGameSize] = useState(5);
   const [targets, setTargets] = useState(Array(5).fill(null));
-  const [locationInputs, setLocationInputs] = useState(Array(5).fill(''));
-  const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
-  const [bounds, setBounds] = useState(null);
-  const [defaultPresets, setDefaultPresets] = useState([]);
-  const [gamemode, setGamemode] = useState('classic');
+  const [showCustom, setShowCustom] = useState(false);
 
   const navigate = useNavigate();
-  const { username } = useUsername();
 
-  const gameModes = [
-    {
-      id: 'classic',
-      name: 'Classic',
-      description: 'Visit each location in any order. Bonuses for finishing first and being the first to guess a location.',
-      image: 'user/default.png',
-    },
-    {
-      id: 'marathon',
-      name: 'Marathon',
-      description: 'Visit each location in order. First to finish wins!',
-      image: 'user/default.png',
-    },
-    {
-      id: 'rush',
-      name: 'Rush',
-      description: 'Visit as many locations as you can in the time limit.',
-      image: 'user/default.png',
-    },
-    {
-      id: 'rush1',
-      name: 'Rush1',
-      description: 'Visit as many locations as you can in the time limit.',
-      image: 'user/default.png',
+  const custom = {
+    id: 'custom',
+    title: "Custom", 
+    gamemode: "custom",
+    thumbnail: getImageUrl('presets/custom.png'),
+  }
+ 
+  useEffect(() => {
+    const fetchDefaultPresets = async () => {
+      setIsLoading(true);
+      const presetsQuery = query(collection(db, 'presets'), where('creator', '==', 'County Hunter'));
+      const querySnapshot = await getDocs(presetsQuery);
+      const presets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setDefaultPresets((prev) => [custom, ...presets]);
+      setIsLoading(false);
+    };
+    fetchDefaultPresets();
+  }, []);
+
+  const handlePresetSelect = (preset) => {
+    if(preset.gamemode === 'custom') {
+      // Remove targets when custom not already selected
+      if(selectedPreset !== 'custom') {
+        setStartingLocation(null);
+        setTargets(Array(5).fill(null));
+      }
+      setSelectedPreset(preset.id);
+      setShowCustom(true);
+      return;
     }
-  ];
+    setStartingLocation(preset.startingLocation);
+    setTargets(preset.targets.map(target => ({ location: target.location, radius: target.radius })));
+    setSelectedPreset(preset.id);
+  }
+
+  const handleRadiusChanged = (event) => {
+    const newRadius = event.target.value;
+    setRadius(newRadius);
+    if (startingLocation)
+      setStartingLocation({ ...startingLocation, radius: newRadius });
+  };
+
+  if(isLoading) {
+    return <h1>Loading...</h1>
+  }
 
   return (
     <div className={styles.Create}>
       <div className={styles.options}>
-        <PresetSlider slides={gameModes}/>
-        <form>
-          <label for='timeLimit'>Time Limit:</label>
-          <input type='number' id='timeLimit' name='timeLimit' min='1' max='60' />
-
-          <label for='maxPlayers'>Max Players:</label>
-          <input type='number' id='maxPlayers' name='maxPlayers' min='1' max='8' />
-        </form>
+        {showCustom
+          ? 
+          <React.Fragment>
+            <nav className={styles.nav}>
+              <button onClick={() => setShowCustom(false)} className={styles.leftButton}>Cancel</button>
+              <h2 className={styles.title}>Custom Preset</h2>
+              {/* TODO show when logged in, allow player to save under their handle */}
+              <button onClick={() => console.log("TODO save preset")} className={styles.rightButton}>Save to Profile</button>
+            </nav>
+            
+            <CustomPresetForm 
+              onSubmit={handlePresetSelect}
+              SLTools={{startingLocation, setStartingLocation}}
+              radiusTools={{radius, setRadius: handleRadiusChanged}}
+              targetsTools={{targets, setTargets}}
+            />
+          </React.Fragment>
+          : 
+          <React.Fragment>
+            <nav className={styles.nav}>
+              <button onClick={() => navigate('/home')} className={styles.leftButton}>Home</button>
+              <h2 className={styles.title}>Create Game</h2>
+            </nav>
+            <PresetSlider slides={defaultPresets} onPresetPress={handlePresetSelect} selectedId={selectedPreset}/>
+            <form>
+              <label htmlFor='timeLimit'>Time Limit:</label>
+              <input type='number' id='timeLimit' name='timeLimit' min='1' max='60' />
+              <label htmlFor='maxPlayers'>Max Players:</label>
+              <input type='number' id='maxPlayers' name='maxPlayers' min='1' max='8' />
+              <button type='submit'>Create Game</button>
+            </form>
+          </React.Fragment>
+        }
       </div>
       <div className={styles.map}>
         <Map
@@ -76,261 +115,3 @@ const Create = () => {
 };
 
 export default Create;
-
-/*
-
-useEffect(() => {
-    if (selectedTab === 'Pre-Made') {
-      const fetchDefaultPresets = async () => {
-        const presetsQuery = query(collection(db, 'presets'), where('creator', '==', 'County Hunter'));
-  
-        const querySnapshot = await getDocs(presetsQuery);
-        const presets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  
-        setDefaultPresets([...presets]);
-      };
-      fetchDefaultPresets();
-    }
-  }, [selectedTab]);
-
-  const getStreetName = (place) => {
-    for (let component of place.address_components) {
-      if (component.types.includes('route')) {
-        return component.long_name;
-      }
-    }
-    return 'No Street Data Found';
-  };
-
-  const getRandomPointWithinRadius = (lat, lng, radius) => {
-    const radiusInDegrees = radius / 111320;
-    const minDistanceInDegrees = 10 / 111320;
-
-    let distance, angle;
-
-    do {
-      distance = Math.random() * radiusInDegrees;
-    } while (distance < minDistanceInDegrees);
-
-    angle = Math.random() * 2 * Math.PI;
-
-    const offsetLat = distance * Math.cos(angle);
-    const offsetLng = distance * Math.sin(angle);
-
-    const newLat = lat + offsetLat;
-    const newLng = lng + offsetLng / Math.cos(lat * Math.PI / 180);
-
-    return {
-      latitude: newLat,
-      longitude: newLng
-    };
-  };
-
-  const handlePlaceChanged = (places) => {
-    if (places.length <= 0) return;
-
-    const range = 100;
-
-    const place = places[0];
-
-    let target = {
-      location: {
-        latitude: place.geometry.location.lat(),
-        longitude: place.geometry.location.lng(),
-      },
-      types: place.types,
-      street: getStreetName(place),
-      id: place.place_id,
-      locationName: place.name
-    };
-
-    if (currentLocationIndex === 0) {
-      const newStartingLocation = { ...target, radius };
-      setStartingLocation(newStartingLocation);
-      const sw = new window.google.maps.LatLng(
-        target.location.latitude - 0.05, target.location.longitude - 0.05);
-      const ne = new window.google.maps.LatLng(
-        target.location.latitude + 0.05, target.location.longitude + 0.05);
-      setBounds(new window.google.maps.LatLngBounds(sw, ne));
-    } else {
-      target = { ...target, randOffset: getRandomPointWithinRadius(place.geometry.location.lat(), place.geometry.location.lng(), range) };
-      const newTargets = [...targets];
-      newTargets[currentLocationIndex - 1] = target;
-      setTargets(newTargets);
-    }
-
-    const newLocationInputs = [...locationInputs];
-    newLocationInputs[currentLocationIndex] = place.formatted_address || '';
-    setLocationInputs(newLocationInputs);
-  };
-
-  const handleRadiusChange = (event) => {
-    const newRadius = event.target.value;
-    setRadius(newRadius);
-    if (startingLocation) {
-      setStartingLocation({ ...startingLocation, radius: newRadius });
-      const sw = new window.google.maps.LatLng(
-        startingLocation.location.latitude - 0.05, startingLocation.location.longitude - 0.05);
-      const ne = new window.google.maps.LatLng(
-        startingLocation.location.latitude + 0.05, startingLocation.location.longitude + 0.05);
-      setBounds(new window.google.maps.LatLngBounds(sw, ne));
-    }
-  };
-
-  const handleGameSizeChange = (event) => {
-    const newSize = parseInt(event.target.value);
-    if (newSize > gameSize) {
-      setTargets([...targets, ...Array(newSize - gameSize).fill(null)]);
-      setLocationInputs([...locationInputs, ...Array(newSize - gameSize).fill('')]);
-    } else {
-      const truncatedTargets = targets.slice(0, newSize);
-      const truncatedLocationInputs = locationInputs.slice(0, newSize);
-      setTargets(truncatedTargets);
-      setLocationInputs(truncatedLocationInputs);
-    }
-    setGameSize(newSize);
-    setCurrentLocationIndex(0);
-  };
-
-  const handleLocationButtonClick = (index) => {
-    setCurrentLocationIndex(index + 1);
-  };
-
-  const handleInputChange = (index, value) => {
-    const newLocationInputs = [...locationInputs];
-    newLocationInputs[index] = value;
-    setLocationInputs(newLocationInputs);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const gameData = {
-      title: 'Test Game',
-      creator: 'County Hunter',
-      gamemode: 'Classic',
-      startingLocation,
-      radius,
-      gameSize,
-      targets,
-    };
-
-    try {
-      const presetId = await createPreset(gameData);
-      const gameCode = await createLobby(username, presetId);
-      navigate(`/game/${gameCode}`);
-    } catch (e) {
-      console.error("Error creating game: ", e);
-    }
-  };
-
-  const handlePresetSubmit = async (presetId) => {
-    try {
-      const gameCode = await createLobby(username, presetId);
-      navigate(`/game/${gameCode}`);
-    } catch (e) {
-      console.error("Error creating game: ", e);
-    }
-  };
-
-      <div>
-        <button onClick={() => setSelectedTab('Custom')}>Custom</button>
-        <button onClick={() => setSelectedTab('Pre-Made')}>Pre-Made</button>
-      </div>
-      {selectedTab === 'Custom' && (
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginTop: '20px' }}>
-            <h3>Select Game Mode:</h3>
-            {gameModes.map(mode => (
-              <label key={mode.id} style={{ display: 'block', marginBottom: '10px' }}>
-                <input
-                  type="radio"
-                  value={mode.id}
-                  checked={gamemode === mode.id}
-                  onChange={(e) => setGamemode(e.target.value)}
-                />
-                {mode.name}
-                <p>{mode.description}</p>
-              </label>
-            ))}
-          </div>
-          <div>
-            <label>Starting Location:</label>
-            <PlacesAutocomplete
-              handlePlaceChanged={handlePlaceChanged}
-              value={locationInputs[0]}
-              onChange={(e) => handleInputChange(0, e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Radius: {radius} meters</label>
-            <input
-              type="range"
-              min="100"
-              max="5000"
-              value={radius}
-              onChange={handleRadiusChange}
-            />
-          </div>
-          <div>
-            <label>Game Size:</label>
-            <select value={gameSize} onChange={handleGameSizeChange}>
-              <option value="5">Small (5 targets)</option>
-              <option value="10">Medium (10 targets)</option>
-              <option value="15">Large (15 targets)</option>
-            </select>
-          </div>
-          <div>
-            <label>Choose targets:</label>
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(5, 1fr)` }}>
-              {Array.from({ length: gameSize }, (_, index) => (
-                <button
-                  type="button"
-                  key={index}
-                  onClick={() => handleLocationButtonClick(index)}
-                  style={{ padding: '10px', margin: '5px' }}
-                >
-                  {index + 1}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            {currentLocationIndex > 0 && (
-              <>
-                <label>Choose Location {currentLocationIndex}:</label>
-                <PlacesAutocomplete
-                  handlePlaceChanged={handlePlaceChanged}
-                  value={locationInputs[currentLocationIndex]}
-                  onChange={(e) => handleInputChange(currentLocationIndex, e.target.value)}
-                  bounds={bounds}
-                />
-              </>
-            )}
-          </div>
-          <button type="submit">Submit</button>
-        </form>
-      )}
-      {selectedTab === 'Pre-Made' && (
-        <div>
-          <h3>Select a Pre-Made Game</h3>
-          <ul>
-            {defaultPresets.map(preset => (
-              <li key={preset.id}>
-                {preset.title}
-                <button onClick={() => handlePresetSubmit(preset.id)}>Select</button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {selectedTab === 'Custom' && (
-        <div style={{ height: '500px', marginTop: '20px' }}>
-          <Map
-            circles={targets.filter(loc => loc).map(loc => loc.location)}
-            startingLocation={startingLocation}
-            playerLocation={null}
-            gamemode='create'
-          />
-        </div>
-      )}
-*/

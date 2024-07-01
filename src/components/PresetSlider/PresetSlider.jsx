@@ -38,13 +38,13 @@ const PresetSlider = ({ slides, onPresetPress, selectedId }) => {
 
   return (
     <div className={styles.sliderContainer}>
-      <button className={styles.leftCaret} onClick={() => sliderRef.current.slickNext()}>&lt;</button>
+      <button className={styles.leftCaret} onClick={() => sliderRef.current.slickPrev()}>&lt;</button>
       <Slider ref={sliderRef} {...settings}>
         {displaySlides.map((d, index) => (
           <PresetCard key={index} data={d} onPresetPress={onPresetPress} selectedId={selectedId}/>
         ))}
       </Slider>
-      <button className={styles.rightCaret} onClick={() => sliderRef.current.slickPrev()}>&gt;</button>
+      <button className={styles.rightCaret} onClick={() => sliderRef.current.slickNext()}>&gt;</button>
     </div>
   );
 };

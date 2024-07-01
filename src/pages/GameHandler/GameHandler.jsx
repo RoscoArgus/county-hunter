@@ -23,7 +23,7 @@ const GameHandler = () => {
         if (snapshot.exists()) {
           const data = snapshot.val();
           setLobbyData(data);
-          setIsHost(data.creator === username);
+          setIsHost(data.host === username);
           setGameStatus(data.status);
         } else {
           alert("This game does not exist");
@@ -60,7 +60,14 @@ const GameHandler = () => {
   };
 
   if (gameStatus === 'in-progress') {
-    return <GameView presetId={lobbyData.presetId} isHost={isHost} lobbyData={lobbyData} gameCode={gameCode}/>;
+    return (
+      <GameView 
+        presetId={lobbyData.presetId} 
+        isHost={isHost} 
+        lobbyData={lobbyData} 
+        gameCode={gameCode}
+      />
+    );
   }
 
   return (

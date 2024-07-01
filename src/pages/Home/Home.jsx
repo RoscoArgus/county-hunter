@@ -1,10 +1,14 @@
-import React, { useState, CSSProperties } from 'react'
+import React, { useState } from 'react'
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useUsername } from '../../context/UsernameContext';
 import { joinLobby } from '../../utils/game';
 import { getImageUrl } from '../../utils/image';
-import ClipLoader from 'react-spinners/ClipLoader';
+
+/**
+ * TODO
+ * - Add spinner (throbber) for loading
+ */
 
 const Home = () => {
     const navigate = useNavigate();
@@ -59,7 +63,7 @@ const Home = () => {
                         disabled={gameCode.length !== 8}
                     >
                         { isLoading 
-                            ? <ClipLoader color="#ffffff" loading={isLoading} size={24} />
+                            ? 'Loading...'
                             : 'Join Game'
                         }
                     </button>

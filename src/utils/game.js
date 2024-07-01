@@ -17,7 +17,7 @@ const generateGameCode = () => {
   return result;
 };
 
-export const createLobby = async (userId, presetId) => {
+export const createLobby = async (userId, presetId, timeLimit, maxPlayers) => {
   const gameCode = generateGameCode(); // Generate a random game code
 
   const lobbyRef = ref(rtdb, `games/${gameCode}`);
@@ -34,6 +34,9 @@ export const createLobby = async (userId, presetId) => {
     },
     status: "waiting",
     presetId: presetId,
+    timeLimit: timeLimit,
+    maxPlayers: maxPlayers,
+    endTime: null,
   };
 
   await set(lobbyRef, initialData); // Set data with the generated game code as the key
@@ -50,6 +53,10 @@ export const joinLobby = async (gameCode, userId) => {
   }
 
   const lobbyData = lobbySnapshot.val();
+  if(lobbyData.status !== 'waiting') {
+    throw new Error("Game has already started");
+  }
+
   if (lobbyData.players[userId]) {
     return; // Player already exists in the lobby
   }
@@ -82,7 +89,45 @@ export const getLobbyData = async (gameCode) => {
 
 export const startGame = async (gameCode) => {
   const lobbyRef = ref(rtdb, `games/${gameCode}`);
-  await update(lobbyRef, {
-    status: "in-progress",
-  });
+  
+  try {
+    const lobbySnapshot = await get(lobbyRef);
+    if (lobbySnapshot.exists()) {
+      const lobbyData = lobbySnapshot.val();
+      const timeLimit = lobbyData.timeLimit;
+      
+      const currentTime = new Date().getTime();
+      const endTime = currentTime + timeLimit * 60 * 1000;
+      
+      await update(lobbyRef, {
+        status: "in-progress",
+        endTime: endTime,
+      });
+    } else {
+      console.error('No such lobby exists!');
+    }
+  } catch (error) {
+    console.error('Error fetching timeLimit or updating lobby status:', error);
+  }
+};
+
+export const endGame = async (gameCode) => {
+  const lobbyRef = ref(rtdb, `games/${gameCode}`);
+
+  try {
+    const lobbySnapshot = await get(lobbyRef);
+    if (lobbySnapshot.exists()) {
+
+      await update(lobbyRef, {
+        status: "waiting",
+        endTime: null,
+      });
+
+      console.log(`Game ${gameCode} ended successfully.`);
+    } else {
+      console.error('No such lobby exists!');
+    }
+  } catch (error) {
+    console.error('Error fetching lobby data or updating game status:', error);
+  }
 };

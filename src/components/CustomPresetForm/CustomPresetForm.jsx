@@ -3,40 +3,17 @@ import styles from './CustomPresetForm.module.css'
 import gameModes from '../../data/gameModes';
 import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
 import { getDistanceInMeters } from '../../utils/calculations';
+import { getRandomPointWithinRadius } from '../../utils/calculations';
 
-const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools }) => {
-    const [gameMode, setGameMode] = useState('classic');
+const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameModeTools }) => {
     const [bounds, setBounds] = useState(null); // TODO bounds should be player location initially
     const { startingLocation, setStartingLocation } = SLTools;
     const { radius, setRadius } = radiusTools;
     const { targets, setTargets } = targetsTools;
+    const { gameMode, setGameMode } = gameModeTools;
     const [ currentTargetIndex, setCurrentTargetIndex ] = useState(0);
     const [hints, setHints] = useState(Array(5).fill(''));
     const [gameSize, setGameSize] = useState(5);
-
-    const getRandomPointWithinRadius = (lat, lng, radius) => {
-        const radiusInDegrees = radius / 111320;
-        const minDistanceInDegrees = 10 / 111320;
-    
-        let distance, angle;
-    
-        do {
-            distance = Math.random() * radiusInDegrees;
-        } while (distance < minDistanceInDegrees);
-    
-        angle = Math.random() * 2 * Math.PI;
-    
-        const offsetLat = distance * Math.cos(angle);
-        const offsetLng = distance * Math.sin(angle);
-    
-        const newLat = lat + offsetLat;
-        const newLng = lng + offsetLng / Math.cos(lat * Math.PI / 180);
-    
-        return {
-            latitude: newLat,
-            longitude: newLng
-        };
-    };
 
     const getStreetName = (place) => {
         for (let component of place.address_components) {
@@ -60,7 +37,6 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools }) => {
             street: getStreetName(place),
             id: place.place_id,
             locationName: place.name,
-            formattedAddress: place.formatted_address,
         };
 
         if (type === 'start') {
@@ -79,7 +55,7 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools }) => {
 
             setBounds(new window.google.maps.LatLngBounds(sw, ne));
         } else if (type === 'target') {
-            target = { ...target, randOffset: getRandomPointWithinRadius(place.geometry.location.lat(), place.geometry.location.lng()) };
+            target = { ...target, randOffset: getRandomPointWithinRadius(place.geometry.location.lat(), place.geometry.location.lng(), 100) };
             const newTargets = [...targets];
             newTargets[currentTargetIndex] = target;
             setTargets(newTargets);

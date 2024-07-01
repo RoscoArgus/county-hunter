@@ -64,6 +64,64 @@ form {
     margin-bottom: 15px;
 }
 
+.input-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.input-container button {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-container input {
+    width: 60px;
+    height: 30px;
+    text-align: center;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    margin: 0 5px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.buttons button {
+    font-size: 1.5em;
+    font-family: var(--font-roboto);
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 10px;
+    border: 0px solid black;
+    color: var(--color-text);
+}
+
+.buttons .createButton {
+    background-color: var(--button-secondary);
+    color: white;
+    cursor: pointer;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-secondary-hover);
+    }
+
+    &:disabled{
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
+}
+
 @media screen and (max-width: 768px) {
     .Create {
         flex-direction: column;

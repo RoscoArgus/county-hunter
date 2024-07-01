@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db, rtdb } from '../../config/firebase';
-import { ref, update } from 'firebase/database';
+import { ref, get, update, onValue } from 'firebase/database';
 import Map from '../../components/Map/Map';
 import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 import styles from './GameView.module.css';
 import { useUsername } from '../../context/UsernameContext';
 import { getDistanceInMeters } from '../../utils/calculations';
+import Timer from '../../components/Timer/Timer';
+import { endGame } from '../../utils/game';
+import useGeolocation from '../../hooks/useGeolocation';
 
 const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
   const [gameOptions, setGameOptions] = useState(null);
-  const [playerLocation, setPlayerLocation] = useState(null);
+  //const [playerLocation, setPlayerLocation] = useState(null);
   const [guessPrompt, setGuessPrompt] = useState(false);
   const [locationGuess, setLocationGuess] = useState(null);
   const [locationInput, setLocationInput] = useState('');
   const [bounds, setBounds] = useState(null);
   const [guessResult, setGuessResult] = useState(null);
+  const [endTime, setEndTime] = useState(null);
 
   const { username } = useUsername();
+  const playerLocation = useGeolocation();
 
   useEffect(() => {
     const fetchGameOptions = async () => {
@@ -33,7 +38,7 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
             range: 100,
           };
           setGameOptions(updatedGameOptions);
-          setPlayerLocation(updatedGameOptions.startingLocation.location);
+          //setPlayerLocation(updatedGameOptions.startingLocation.location);
         } else {
           console.error("No such document!");
         }
@@ -118,7 +123,7 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
     }
   };
 
-  const handlePlaceChanged = (places) => {
+  const handlePlaceChanged = (_, places) => {
     if (places.length > 0) {
       const place = places[0];
       const location = {
@@ -138,7 +143,7 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
     const updatedTargets = [...gameOptions.targets];
 
     gameOptions.targets.forEach((target, index) => {
-      const distance = getDistanceFromLatLonInMeters(
+      const distance = getDistanceInMeters(
         playerLocation.latitude,
         playerLocation.longitude,
         target.randOffset.latitude,
@@ -157,17 +162,33 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
     setLocationGuess(null);
     setLocationInput('');
 
-
     if (guessedCorrectly) {
       try {
         const playerRef = ref(rtdb, `games/${gameCode}/players/${username}`);
         await update(playerRef, {
-          score: lobbyData.players[username].score + 100, // Update score in database
+          score: lobbyData.players[username].score + 100,
         });
+        setGuessPrompt(false);
       } catch (error) {
         console.error('Error updating player score:', error);
       }
     }
+  };
+
+  useEffect(() => {
+    const lobbyRef = ref(rtdb, `games/${gameCode}/endTime`);
+    
+    const unsubscribe = onValue(lobbyRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setEndTime(snapshot.val());
+      }
+    });
+
+    return () => unsubscribe();
+  }, [gameCode]);
+
+  const handleTimeLimitReached = () => {
+    endGame(gameCode);
   };
 
   if (!gameOptions || !presetId) {
@@ -188,6 +209,9 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
 
   return (
     <div style={{ width: '100%', height: '100vh' }}>
+      <div style={{position: 'absolute', top: 0, left: 0, zIndex: 10000}}>
+        {endTime && <Timer targetTime={endTime} onTimeLimitReached={handleTimeLimitReached}/>}
+      </div>
       <Map
         circles={gameOptions.targets.map(target => target.randOffset)}
         playerLocation={playerLocation}
@@ -198,12 +222,11 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
       <div className={`${styles.prompt} ${guessPrompt ? '' : styles.hidden}`}>
         <h2>You are within the range!</h2>
         <PlacesAutocomplete
+          type='target'
           handlePlaceChanged={handlePlaceChanged}
-          value={locationInput}
-          onChange={(e) => setLocationInput(e.target.value)}
           bounds={bounds}
         />
-        <button onClick={() => { checkGuess(); setGuessPrompt(false); }}>Guess the location</button>
+        <button onClick={() => checkGuess()}>Guess the location</button>
       </div>
       {guessResult && <div className={styles.result}>{guessResult}</div>}
     </div>

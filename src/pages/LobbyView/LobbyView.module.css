@@ -1,0 +1,19 @@
+.LobbyView {
+    height: 100vh;
+    width: 100vw;
+    padding: 30px;
+}
+
+.players ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.map {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 25%;
+    aspect-ratio: 1/1;
+    background-color: red;
+}

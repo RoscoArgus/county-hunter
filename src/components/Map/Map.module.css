@@ -1,0 +1,26 @@
+.leafletControl {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+.leafletButton {
+    width: 35px;
+    height: 35px;
+    justify-content: center;
+    align-self: start;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.leafletButton:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.leafletButton.active {
+    background-color: #007bff;
+    color: #fff;
+}

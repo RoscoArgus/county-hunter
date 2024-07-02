@@ -30,11 +30,7 @@ const Create = () => {
     title: "Custom", 
     gamemode: "custom",
     thumbnail: getImageUrl('presets/custom.png'),
-  }
-
-  useEffect(() => {
-    console.log(targets)
-  }, targets)
+  };
  
   useEffect(() => {
     const fetchDefaultPresets = async () => {
@@ -197,7 +193,7 @@ const Create = () => {
           circles={targets.filter(loc => loc).map(loc => loc.location)}
           startingLocation={startingLocation}
           playerLocation={null}
-          gamemode='create'
+          gameMode='create'
         />
       </div>
     </div>

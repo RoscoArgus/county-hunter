@@ -9,44 +9,17 @@ import { useUsername } from '../../context/UsernameContext';
 import { getDistanceInMeters } from '../../utils/calculations';
 import Timer from '../../components/Timer/Timer';
 import { endGame } from '../../utils/game';
-import useGeolocation from '../../hooks/useGeolocation';
 
-const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
-  const [gameOptions, setGameOptions] = useState(null);
+const GameView = ({ isHost, lobbyData, gameCode, playerLocation }) => {
+  const [gameOptions, setGameOptions] = useState(gameOptions);
   //const [playerLocation, setPlayerLocation] = useState(null);
   const [guessPrompt, setGuessPrompt] = useState(false);
   const [locationGuess, setLocationGuess] = useState(null);
-  const [locationInput, setLocationInput] = useState('');
   const [bounds, setBounds] = useState(null);
   const [guessResult, setGuessResult] = useState(null);
   const [endTime, setEndTime] = useState(null);
 
   const { username } = useUsername();
-  const playerLocation = useGeolocation();
-
-  useEffect(() => {
-    const fetchGameOptions = async () => {
-      if (presetId) {
-        const gameDocRef = doc(db, 'presets', presetId);
-        const gameDoc = await getDoc(gameDocRef);
-
-        if (gameDoc.exists()) {
-          const gameData = gameDoc.data();
-          const updatedGameOptions = {
-            ...gameData,
-            mode: 'classic',
-            range: 100,
-          };
-          setGameOptions(updatedGameOptions);
-          //setPlayerLocation(updatedGameOptions.startingLocation.location);
-        } else {
-          console.error("No such document!");
-        }
-      }
-    };
-
-    fetchGameOptions();
-  }, [presetId]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -160,7 +133,6 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
     setGuessResult(guessedCorrectly ? 'Correct Guess!' : 'Wrong Guess!');
     setGameOptions({ ...gameOptions, targets: updatedTargets });
     setLocationGuess(null);
-    setLocationInput('');
 
     if (guessedCorrectly) {
       try {
@@ -191,7 +163,7 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
     endGame(gameCode);
   };
 
-  if (!gameOptions || !presetId) {
+  if (!gameOptions) {
     return <div>Loading...</div>;
   }
 
@@ -216,7 +188,7 @@ const GameView = ({ presetId, isHost, lobbyData, gameCode }) => {
         circles={gameOptions.targets.map(target => target.randOffset)}
         playerLocation={playerLocation}
         startingLocation={gameOptions.startingLocation}
-        gamemode={gameOptions.mode}
+        gameMode={gameOptions.mode}
         locationGuess={locationGuess}
       />
       <div className={`${styles.prompt} ${guessPrompt ? '' : styles.hidden}`}>

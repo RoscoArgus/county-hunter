@@ -30,7 +30,7 @@ const validPlayerLocation = (playerLocation) => {
     return playerLocation && playerLocation.latitude !== null && playerLocation.longitude !== null;
 }
 
-const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapCenter, setMapZoom, tracking }) => {
+const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapCenter, setMapZoom, tracking, setTracking }) => {
     const map = useMap();
 
     useEffect(() => {
@@ -40,19 +40,18 @@ const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapC
     }, [center, zoom, map, tracking]);
 
     useEffect(() => {
-
         map.zoomControl[tracking ? 'disable' : 'enable']();
-
-        // Toggle scroll wheel zooming
         map.scrollWheelZoom[tracking ? 'disable' : 'enable']();
-
         map.doubleClickZoom[tracking ? 'disable' : 'enable']();
-
-        // Toggle touch zoom
         map.touchZoom[tracking ? 'disable' : 'enable']();
-
-        // Toggle box zoom
         map.boxZoom[tracking ? 'disable' : 'enable']();
+
+        map.on('dragstart', () => setTracking(false));
+
+        return () => {
+            map.off('dragstart');
+        };
+
     }, [tracking, map]);
 
     useEffect(() => {
@@ -118,6 +117,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 setMapCenter={setMapCenter}
                 setMapZoom={setMapZoom}
                 tracking={tracking}
+                setTracking={setTracking}
             />
             <AttributionControl position="bottomright" prefix={false} />
             <TileLayer

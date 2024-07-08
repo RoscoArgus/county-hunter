@@ -2,18 +2,41 @@
     height: 100vh;
     width: 100vw;
     padding: 30px;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
 }
 
-.players ul {
+.lobbyLeft, .lobbyRight {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.lobbyLeft {
+    flex: 3;
+}
+
+.lobbyRight {
+    flex: 1;
+}
+
+.playerInfo {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.playerInfo ul {
     list-style-type: none;
     padding: 0;
 }
 
+.playerInfo .inRange {
+    margin-top: 22px;
+}
+
 .map {
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    width: 25%;
+    width: 20vw;
     aspect-ratio: 1/1;
-    background-color: red;
 }

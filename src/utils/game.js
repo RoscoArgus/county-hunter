@@ -29,6 +29,7 @@ export const createLobby = async (userId, presetId, timeLimit, maxPlayers) => {
         username: userId,
         score: 0,
         online: true,
+        inRange: false,
         lastActive: new Date().toISOString(),
       },
     },
@@ -67,6 +68,7 @@ export const joinLobby = async (gameCode, userId) => {
       username: userId,
       score: 0,
       online: true,
+      inRange: false,
       lastActive: new Date().toISOString(),
     },
   };
@@ -86,6 +88,13 @@ export const getLobbyData = async (gameCode) => {
 
   return lobbySnapshot.val();
 };
+
+export const updatePlayer = async (attr, value, gameCode, userId) => {
+  const lobbyRef = ref(rtdb, `games/${gameCode}/players/${userId}`);
+  await update(lobbyRef, {
+    [attr]: value,
+  });
+}
 
 export const startGame = async (gameCode) => {
   const lobbyRef = ref(rtdb, `games/${gameCode}`);

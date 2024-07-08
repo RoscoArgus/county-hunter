@@ -3,6 +3,7 @@ import styles from './Map.module.css';
 import { MapContainer, TileLayer, Circle, Marker, AttributionControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { FaCrosshairs } from 'react-icons/fa';
+import { startingRange, targetRange } from '../../constants';
 import 'leaflet/dist/leaflet.css';
 
 const tileLayerUrls = {
@@ -137,7 +138,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                     {gameMode === 'lobby' && (
                         <Circle
                             center={[startingLocation.location.latitude, startingLocation.location.longitude]}
-                            radius={50}
+                            radius={startingRange}
                             pathOptions={startOptions}
                         />
                     )}
@@ -153,7 +154,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 <Circle
                     key={index}
                     center={[circle.latitude, circle.longitude]}
-                    radius={100}
+                    radius={targetRange}
                     pathOptions={locationOptions}
                 />
             ))}

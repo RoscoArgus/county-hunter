@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from './CustomPresetForm.module.css'
 import gameModes from '../../data/gameModes';
 import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
 import { getDistanceInMeters } from '../../utils/calculations';
 import { getRandomPointWithinRadius } from '../../utils/calculations';
 
-const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameModeTools }) => {
+const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameModeTools, playerLocation }) => {
     const [bounds, setBounds] = useState(null); // TODO bounds should be player location initially
     const { startingLocation, setStartingLocation } = SLTools;
     const { radius, setRadius } = radiusTools;
@@ -15,6 +15,13 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
     const [hints, setHints] = useState(Array(5).fill(''));
     const [gameSize, setGameSize] = useState(5);
 
+    useEffect(() => {
+        if(bounds) return;
+        if(playerLocation && playerLocation.latitude && playerLocation.longitude) {
+            updateBounds(playerLocation);
+        }
+    }, [playerLocation])
+
     const getStreetName = (place) => {
         for (let component of place.address_components) {
             if (component.types.includes('route')) {
@@ -23,6 +30,20 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
         }
         return 'No Street Data Found';
     };
+
+    const updateBounds = (target) => {
+        // Set bounds so autocomplete shows most relevant results
+        const sw = new window.google.maps.LatLng(
+            target.latitude - 0.05, 
+            target.longitude - 0.05
+        );
+        const ne = new window.google.maps.LatLng(
+            target.latitude + 0.05, 
+            target.longitude + 0.05
+        );
+
+        setBounds(new window.google.maps.LatLngBounds(sw, ne));
+    }
     
     const handlePlaceChanged = (type, places) => {
         if (places.length <= 0) return;
@@ -41,19 +62,7 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
 
         if (type === 'start') {
             setStartingLocation({ ...target, radius });
-            console.log(target);
-
-            // Set bounds so autocomplete shows most relevant results
-            const sw = new window.google.maps.LatLng(
-                target.location.latitude - 0.05, 
-                target.location.longitude - 0.05
-            );
-            const ne = new window.google.maps.LatLng(
-                target.location.latitude + 0.05, 
-                target.location.longitude + 0.05
-            );
-
-            setBounds(new window.google.maps.LatLngBounds(sw, ne));
+            updateBounds(target.location);
         } else if (type === 'target') {
             target = { ...target, randOffset: getRandomPointWithinRadius(place.geometry.location.lat(), place.geometry.location.lng(), 100) };
             const newTargets = [...targets];

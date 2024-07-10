@@ -31,7 +31,9 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
         return 'No Street Data Found';
     };
 
+    // TODO fix console error RE:no constructor
     const updateBounds = (target) => {
+        console.log(target)
         try {
             const sw = new window.google.maps.LatLng(
                 target.latitude - 0.05, 

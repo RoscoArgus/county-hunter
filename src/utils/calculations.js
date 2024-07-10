@@ -10,23 +10,25 @@ export const getDistanceInMeters = (lat1, lon1, lat2, lon2) => {
     return R * 2 * Math.asin(Math.sqrt(a));
 };
 
-export const getRandomPointWithinRadius = (lat, lng, radius) => {
+export const getRandomPointWithinRadius = (lat, lng, radius, startLat, startLng, startRadius) => {
   const radiusInDegrees = radius / 111320;
-  const minDistanceInDegrees = 10 / 111320;
+  const minDistanceInDegrees = 20 / 111320;
 
-  let distance, angle;
+  let distance, angle, newLat, newLng;
 
   do {
-    distance = Math.random() * radiusInDegrees;
-  } while (distance < minDistanceInDegrees);
+    do {
+      distance = Math.random() * radiusInDegrees;
+    } while (distance < minDistanceInDegrees);
 
-  angle = Math.random() * 2 * Math.PI;
+    angle = Math.random() * 2 * Math.PI;
 
-  const offsetLat = distance * Math.cos(angle);
-  const offsetLng = distance * Math.sin(angle);
+    const offsetLat = distance * Math.cos(angle);
+    const offsetLng = distance * Math.sin(angle);
 
-  const newLat = lat + offsetLat;
-  const newLng = lng + offsetLng / Math.cos(lat * Math.PI / 180);
+    newLat = lat + offsetLat;
+    newLng = lng + offsetLng / Math.cos(lat * Math.PI / 180);
+  } while(getDistanceInMeters(startLat, startLng, newLat, newLng) + radius > startRadius);
 
   return {
     latitude: newLat,

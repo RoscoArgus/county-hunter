@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { useUsername } from '../../context/UsernameContext';
+import { useAuth } from '../../context/AuthContext';
 
 const ProtectedLayout = () => {
-  const { username } = useUsername();
+  const { currentUser, loading } = useAuth();
 
-  if (!username) {
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!currentUser) {
     return <Navigate to="/login" />;
   }
 

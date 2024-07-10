@@ -1,28 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUsername } from '../../context/UsernameContext';
+import styles from './Login.module.css';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
-  const { setUsername } = useUsername();
-  const [inputValue, setInputValue] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { error, currentUser, handleLoginWithEmailAndPassword, handleLoginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
-  const handleSetUsername = () => {
-    if (inputValue.trim()) {
-      setUsername(inputValue.trim());
+  useEffect(() => {
+    if(currentUser && !error) {
       navigate('/');
     }
-  };
+  }, [currentUser])
+
+  const handleLogin = async (provider) => {
+    const credential = await provider(email, password);
+    console.log(credential);
+    if(credential)
+        navigate('/');
+  }
 
   return (
-    <div>
+    <div className={styles.Login}>
       <input
         type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         placeholder="Enter your username"
       />
-      <button onClick={handleSetUsername}>Set Username</button>
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Enter your password"
+      />
+      <br/>
+      <button onClick={() => handleLogin(handleLoginWithEmailAndPassword)}>Login</button>
+      <br/> or
+      <button onClick={() => navigate('/signup')}>Sign Up</button>
+
+      <button onClick={() => handleLogin(handleLoginWithGoogle)}>Login with Google</button>
+      <div>{error}</div>
     </div>
   );
 };

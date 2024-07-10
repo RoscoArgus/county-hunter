@@ -3,16 +3,16 @@ import styles from './CustomPresetForm.module.css'
 import gameModes from '../../data/gameModes';
 import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
 import { getDistanceInMeters } from '../../utils/calculations';
-import { getRandomPointWithinRadius } from '../../utils/calculations';
 
-const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameModeTools, playerLocation }) => {
+const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsTools, hintTools, gameModeTools, playerLocation }) => {
     const [bounds, setBounds] = useState(null); // TODO bounds should be player location initially
+    const { title, setTitle } = titleTools;
     const { startingLocation, setStartingLocation } = SLTools;
     const { radius, setRadius } = radiusTools;
     const { targets, setTargets } = targetsTools;
+    const { hints, setHints } = hintTools;
     const { gameMode, setGameMode } = gameModeTools;
     const [ currentTargetIndex, setCurrentTargetIndex ] = useState(0);
-    const [hints, setHints] = useState(Array(5).fill(''));
     const [gameSize, setGameSize] = useState(5);
 
     useEffect(() => {
@@ -32,18 +32,22 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
     };
 
     const updateBounds = (target) => {
-        // Set bounds so autocomplete shows most relevant results
-        const sw = new window.google.maps.LatLng(
-            target.latitude - 0.05, 
-            target.longitude - 0.05
-        );
-        const ne = new window.google.maps.LatLng(
-            target.latitude + 0.05, 
-            target.longitude + 0.05
-        );
-
-        setBounds(new window.google.maps.LatLngBounds(sw, ne));
+        try {
+            const sw = new window.google.maps.LatLng(
+                target.latitude - 0.05, 
+                target.longitude - 0.05
+            );
+            const ne = new window.google.maps.LatLng(
+                target.latitude + 0.05, 
+                target.longitude + 0.05
+            );
+            const bounds = new window.google.maps.LatLngBounds(sw, ne);
+            setBounds(bounds);
+        } catch (error) {
+            console.error("Error creating LatLng or LatLngBounds:", error);
+        }
     }
+    
     
     const handlePlaceChanged = (type, places) => {
         if (places.length <= 0) return;
@@ -64,7 +68,11 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
             setStartingLocation({ ...target, radius });
             updateBounds(target.location);
         } else if (type === 'target') {
-            target = { ...target, randOffset: getRandomPointWithinRadius(place.geometry.location.lat(), place.geometry.location.lng(), 100) };
+            const distance = getDistanceInMeters(startingLocation.location.latitude, startingLocation.location.longitude, place.geometry.location.lat(), place.geometry.location.lng());
+            if (distance > radius) {
+                alert('Target is outside of the game radius');
+                return;
+            };
             const newTargets = [...targets];
             newTargets[currentTargetIndex] = target;
             setTargets(newTargets);
@@ -91,7 +99,7 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
             const truncatedTargets = targets.slice(0, newSize);
             setTargets(truncatedTargets);
             const truncatedHints = hints.slice(0, newSize);
-            setHints([...hints, ...Array(newSize - gameSize).fill('')]);
+            setHints(truncatedHints);
         }
         setGameSize(newSize);
         setCurrentTargetIndex(0);
@@ -99,16 +107,28 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
 
     return (
         <form>
+            {/* Title */}
+            <div className={styles.section}>
+                <div className={styles.sectionLabel}>Preset Title</div>
+                <input
+                    id='title'
+                    type="text"
+                    placeholder="Enter title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                />
+            </div>
             {/* Gamemode */}
             <div className={styles.section}>
                 <div className={styles.sectionLabel}>Game Mode:</div>
                 <div id='gameMode' className={styles.gameModes}>
                     {gameModes.map(mode => (
-                        <label key={mode.id}>
+                        <label key={mode.id} style={{ color: mode.enabled ? 'black' : 'gray'}}>
                             <input
                                 type="radio"
                                 value={mode.id}
                                 checked={gameMode === mode.id}
+                                disabled={!mode.enabled}
                                 onChange={(e) => setGameMode(e.target.value)}
                             />
                             {mode.name}
@@ -157,6 +177,7 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
             {/* Target Locations */}
             <div className={styles.section}>
                 <div className={styles.sectionLabel}>Choose targets:</div>
+                { startingLocation ? <>
                 <div style={{ display: 'grid', gridTemplateColumns: `repeat(5, 1fr)` }}>
                     {Array.from({ length: gameSize }, (_, index) => (
                         <button
@@ -166,7 +187,7 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
                             style={{ 
                                 padding: '10px', 
                                 margin: '5px', 
-                                backgroundColor: targets[index] ? '#70ff2a' : '', 
+                                backgroundColor: targets[index] ? targets.filter(target => targets[index]?.id === target?.id).length > 1 ? 'yellow' : '#70ff2a' : '', 
                                 border: currentTargetIndex === index ? '2px solid black' : '2px solid transparent',
                                 outline: getDistanceInMeters (
                                             startingLocation?.location.latitude, 
@@ -198,6 +219,8 @@ const CustomPresetForm = ({ onSubmit, SLTools, radiusTools, targetsTools, gameMo
                         </div>
                     );
                 })}
+                </> 
+                : <div>Please select a starting location to choose targets</div>}
             </div>
         </form>
     )

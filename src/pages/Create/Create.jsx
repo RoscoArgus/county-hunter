@@ -8,22 +8,28 @@ import Map from '../../components/Map/Map';
 import CustomPresetForm from '../../components/CustomPresetForm/CustomPresetForm';
 import { createLobby, createPreset } from '../../utils/game';
 import { useNavigate } from 'react-router-dom';
-import { useUsername } from '../../context/UsernameContext';
+import useGeolocation from '../../hooks/useGeolocation';
+import { useAuth } from '../../context/AuthContext';
+import { getRandomPointWithinRadius } from '../../utils/calculations';
+import { TARGET_RANGE } from '../../constants';
 
 const Create = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [defaultPresets, setDefaultPresets] = useState([]);
   const [selectedPreset, setSelectedPreset] = useState(null);
+  const [title, setTitle] = useState('');
   const [startingLocation, setStartingLocation] = useState(null);
   const [radius, setRadius] = useState(1000);
   const [targets, setTargets] = useState(Array(5).fill(null));
+  const [hints, setHints] = useState(Array(5).fill(''));
   const [gameMode, setGameMode] = useState('classic');
   const [timeLimit, setTimeLimit] = useState(30);
   const [maxPlayers, setMaxPlayers] = useState(8);
   const [showCustom, setShowCustom] = useState(false);
 
   const navigate = useNavigate();
-  const { username } = useUsername();
+  const playerLocation = useGeolocation();
+  const { currentUser } = useAuth();
 
   const custom = {
     id: 'custom',
@@ -35,7 +41,7 @@ const Create = () => {
   useEffect(() => {
     const fetchDefaultPresets = async () => {
       setIsLoading(true);
-      const presetsQuery = query(collection(db, 'presets'), where('creator', '==', 'County Hunter'));
+      const presetsQuery = query(collection(db, 'presets'), where('creator', 'in', ['County Hunter', currentUser.displayName]));
       const querySnapshot = await getDocs(presetsQuery);
       const presets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setDefaultPresets((prev) => [custom, ...presets]);
@@ -43,6 +49,23 @@ const Create = () => {
     };
     fetchDefaultPresets();
   }, []);
+
+  useEffect(() => {
+    if(currentUser) {
+      setTitle(currentUser.displayName + "'s Preset")
+    }
+  }, [currentUser])
+
+  const hasDuplicates = (array) => {
+    const ids = new Set();
+    return array.some(item => {
+        if (ids.has(item?.id)) {
+            return true;
+        }
+        ids.add(item?.id);
+        return false;
+    });
+};
 
   const handlePresetSelect = (preset) => {
     if(preset.gamemode === 'custom') {
@@ -62,7 +85,7 @@ const Create = () => {
 
   const handleRadiusChanged = (event) => {
     const newRadius = event.target.value;
-    setRadius(newRadius);
+    setRadius(parseInt(newRadius));
     if (startingLocation)
       setStartingLocation({ ...startingLocation, radius: newRadius });
   };
@@ -82,13 +105,27 @@ const Create = () => {
   const handleSubmit = async (event) => {
     setIsLoading(true);
     event.preventDefault();
+    const targetData = targets.map((target, index) => { 
+      return { 
+        ...target, 
+        randOffset: getRandomPointWithinRadius(
+          target.location.latitude, 
+          target.location.longitude, 
+          TARGET_RANGE, 
+          startingLocation.location.latitude, 
+          startingLocation.location.longitude, 
+          startingLocation.radius
+        ),
+        hint: hints[index] 
+      } 
+    });
     const gameData = {
-      title: 'Test Game',
-      creator: 'County Hunter',
+      title: title,
+      creator: currentUser.displayName,
       gameMode: gameMode,
       startingLocation,
       radius,
-      targets,
+      targets: targetData,
     };
 
     try {
@@ -96,7 +133,7 @@ const Create = () => {
       let presetId = selectedPreset;
       if(selectedPreset === 'custom')
         presetId = await createPreset(gameData);
-      const gameCode = await createLobby(username, presetId, timeLimit, maxPlayers);
+        const gameCode = await createLobby(currentUser, presetId, timeLimit, maxPlayers);
       navigate(`/game/${gameCode}`);
     } catch (e) {
       console.error("Error creating game: ", e);
@@ -106,8 +143,11 @@ const Create = () => {
 
   const isMissingData = () => {
     return (
+      !title ||
       !startingLocation || 
       !targets.every(target => target) ||
+      hasDuplicates(targets) ||
+      !hints.every(hint => hint) ||
       !radius ||
       !gameMode ||
       !timeLimit ||
@@ -126,7 +166,7 @@ const Create = () => {
           ? 
           <React.Fragment>
             <nav className={styles.nav}>
-              <button onClick={() => setShowCustom(false)} className={styles.leftButton}>Cancel</button>
+              <button onClick={() => setShowCustom(false)} className={styles.leftButton}>Back</button>
               <h2 className={styles.title}>Custom Preset</h2>
               {/* TODO show when logged in, allow player to save under their handle */}
               <button onClick={() => console.log("TODO save preset")} className={styles.rightButton}>Save to Profile</button>
@@ -134,10 +174,13 @@ const Create = () => {
             
             <CustomPresetForm 
               onSubmit={handlePresetSelect}
+              titleTools={{title, setTitle}}
               SLTools={{startingLocation, setStartingLocation}}
               radiusTools={{radius, setRadius: handleRadiusChanged}}
               targetsTools={{targets, setTargets}}
+              hintTools={{hints, setHints}}
               gameModeTools={{gameMode, setGameMode}}
+              playerLocation={playerLocation}
             />
           </React.Fragment>
           : 
@@ -179,11 +222,26 @@ const Create = () => {
               <div className={styles.buttons}>
                 <button 
                   className={styles.createButton}
-                  disabled={isLoading || isMissingData()}
+                  disabled={isLoading || (isMissingData() && selectedPreset === 'custom')}
                 >
                   Create Game
                 </button>
               </div>
+              {/*errors*/}
+              {selectedPreset === 'custom' && 
+                <ul>
+                  <h3>Requirements for Custom Game</h3>
+                  {!title && <li>Title is required</li>}
+                  {!startingLocation && <li>Starting location is required</li>}
+                  {!targets.every(target => target) && <li>Targets are required</li>}
+                  {hasDuplicates(targets) && <li>Targets must be unique</li>}
+                  {!hints.every(hint => hint) && <li>Hints are required</li>}
+                  {!radius && <li>Radius is required</li>}
+                  {!gameMode && <li>Game mode is required</li>}
+                  {!timeLimit && <li>Time limit is required</li>}
+                  {!maxPlayers && <li>Max players is required</li>}
+                </ul>
+              }
             </form>
           </React.Fragment>
         }
@@ -192,7 +250,7 @@ const Create = () => {
         <Map
           circles={targets.filter(loc => loc).map(loc => loc.location)}
           startingLocation={startingLocation}
-          playerLocation={null}
+          playerLocation={playerLocation}
           gameMode='create'
         />
       </div>

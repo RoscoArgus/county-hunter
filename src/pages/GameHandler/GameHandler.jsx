@@ -3,32 +3,32 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db, rtdb } from '../../config/firebase';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useUsername } from '../../context/UsernameContext';
 import LobbyView from '../LobbyView/LobbyView';
 import GameView from '../GameView/GameView';
 import { startGame } from '../../utils/game';
 import useGeolocation from '../../hooks/useGeolocation';
+import { useAuth } from '../../context/AuthContext';
 
 const GameHandler = () => {
   const { gameCode } = useParams();
-  const { username } = useUsername();
   const [lobbyData, setLobbyData] = useState(null);
   const [isHost, setIsHost] = useState(false);
   const [gameStatus, setGameStatus] = useState('waiting');
   const [gameOptions, setGameOptions] = useState(null);
 
   const playerLocation = useGeolocation();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     if (gameCode) {
       const lobbyRef = ref(rtdb, `games/${gameCode}`);
-      const playerRef = ref(rtdb, `games/${gameCode}/players/${username}`);
+      const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
 
       const handleDataChange = (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
           setLobbyData(data);
-          setIsHost(data.host === username);
+          setIsHost(data.host === currentUser.uid);
           setGameStatus(data.status);
         } else {
           alert("This game does not exist");
@@ -42,11 +42,11 @@ const GameHandler = () => {
       onValue(connectedRef, (snap) => {
         if (snap.val() === true) {
           // Mark user as online
-          set(playerRef, { username, score: 0, online: true });
+          set(playerRef, { username: currentUser.displayName, score: 0, online: true, inRange: false });
 
           // Handle disconnection
           onDisconnect(playerRef).set({
-            username,
+            username: currentUser.displayName,
             score: 0,
             online: false,
             lastActive: new Date().toISOString()
@@ -58,7 +58,7 @@ const GameHandler = () => {
         off(lobbyRef, 'value', handleDataChange);
       };
     }
-  }, [gameCode, username]);
+  }, [gameCode]);
 
   useEffect(() => {
     const fetchGameOptions = async () => {
@@ -74,7 +74,6 @@ const GameHandler = () => {
             range: 100,
           };
           setGameOptions(updatedGameOptions);
-          //setPlayerLocation(updatedGameOptions.startingLocation.location);
         } else {
           console.error("No such document!");
         }
@@ -95,7 +94,7 @@ const GameHandler = () => {
         isHost={isHost} 
         lobbyData={lobbyData} 
         gameCode={gameCode}
-        gameOptions={gameOptions}
+        initGameOptions={gameOptions}
         playerLocation={playerLocation}
       />
     );

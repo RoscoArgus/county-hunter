@@ -1,27 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
-import { useUsername } from '../../context/UsernameContext';
 import { joinLobby } from '../../utils/game';
 import { getImageUrl } from '../../utils/image';
-
-/**
- * TODO
- * - Add spinner (throbber) for loading
- */
+import { auth } from '../../config/firebase';
+import { useAuth } from '../../context/AuthContext';
 
 const Home = () => {
     const navigate = useNavigate();
-    const  { username } = useUsername();
     const [gameCode, setGameCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
     const [error, setError] = useState('');
+    const { currentUser } = useAuth();
 
     const handleJoinLobby = async () => {
         setError('');
         setIsLoading(true);
         try {
-            await joinLobby(gameCode, username);
+            await joinLobby(gameCode, currentUser);
             navigate(`/game/${gameCode}`);
         } catch (error) {
             console.error(error);
@@ -33,17 +30,41 @@ const Home = () => {
     const handleCodeChange = (e) => {
         setGameCode((e.target.value).toUpperCase());
         setError('');
-    }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await auth.signOut();
+            setMenuOpen(false);
+            navigate('/login');
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
+    };
+
+    const toggleMenu = () => {
+        setMenuOpen(!menuOpen);
+    };
 
     return (
         <div className={styles.Home}>
             <nav className={styles.user}>
-                <h4>{username ? username : ''}</h4>
-                <img 
-                    src={getImageUrl("user/default.png")} 
-                    alt="user" 
-                    className={styles.pfp}
-                />
+                <div className={styles.userInfo} onClick={toggleMenu}>
+                    <h4>{ currentUser.displayName ? currentUser.displayName : currentUser.email.split('@')[0]}</h4>
+                    <img 
+                        src={currentUser?.photoURL ? currentUser.photoURL : getImageUrl("user/default.png")} 
+                        alt="user" 
+                        className={styles.pfp}
+                    />
+                </div>
+                {menuOpen && (
+                    <div className={styles.menu}>
+                        <ul>
+                            <li onClick={handleSignOut}>Sign Out</li>
+                            <li onClick={() => navigate('/profile')}>Profile</li>
+                        </ul>
+                    </div>
+                )}
             </nav>
             <main className={styles.main}>
                 <h1 className={styles.title}>County Hunter</h1>
@@ -51,7 +72,7 @@ const Home = () => {
                 <input 
                     className={styles.gameCode}
                     value={gameCode}
-                    onChange={(e) => {handleCodeChange(e)}}
+                    onChange={(e) => handleCodeChange(e)}
                     placeholder='Enter Game Code'
                     maxLength={8}
                 />
@@ -62,10 +83,7 @@ const Home = () => {
                         className={styles.joinButton}
                         disabled={gameCode.length !== 8}
                     >
-                        { isLoading 
-                            ? 'Loading...'
-                            : 'Join Game'
-                        }
+                        {isLoading ? 'Loading...' : 'Join Game'}
                     </button>
                     <h3>or</h3>
                     <button 
@@ -78,7 +96,7 @@ const Home = () => {
                 </div>
             </main>
         </div>
-    )
-}
+    );
+};
 
 export default Home;

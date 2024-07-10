@@ -1,14 +1,15 @@
 import React from 'react';
 import styles from './PresetCard.module.css';
-import { useUsername } from '../../context/UsernameContext';
+import { useAuth } from '../../context/AuthContext';
 
 const PresetCard = ({ data, onPresetPress, selectedId }) => {
-    const username = useUsername();
+
+    const { currentUser } = useAuth();
 
     const getBackgroundColor = () => {
         if (data.creator === 'County Hunter') {
             return 'red';
-        } else if (data.creator === username) {
+        } else if (data.creator === currentUser.displayName) {
             return 'blue';
         } else {
             return 'darkgray';
@@ -18,7 +19,7 @@ const PresetCard = ({ data, onPresetPress, selectedId }) => {
     const getHoverBackgroundColor = () => {
         if (data.creator === 'County Hunter') {
             return 'darkred';
-        } else if (data.creator === username) {
+        } else if (data.creator === currentUser.displayName) {
             return 'darkblue';
         } else {
             return 'gray';

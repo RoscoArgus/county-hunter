@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { joinLobby, createLobby } from '../../utils/game';
-import { useUsername } from '../../context/UsernameContext';
 
 const Join = () => {
   const [gameCode, setGameCode] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { username } = useUsername();
 
   const handleJoinLobby = async () => {
     //TODO REMOVE
     setError('');
     try {
-      await joinLobby(gameCode, username);
+      //await joinLobby(gameCode, username);
       navigate(`/game/${gameCode}`);
     } catch (error) {
         console.error(error);
@@ -25,7 +23,7 @@ const Join = () => {
     //TODO REMOVE
     setError('');
     try {
-      const newGameCode = await createLobby(username); // Assuming createLobby returns a new game code
+      //const newGameCode = await createLobby(username); // Assuming createLobby returns a new game code
       navigate(`/game/${newGameCode}`);
     } catch (error) {
         console.error(error);

@@ -3,8 +3,10 @@ import styles from './Map.module.css';
 import { MapContainer, TileLayer, Circle, Marker, AttributionControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { FaCrosshairs } from 'react-icons/fa';
-import { startingRange, targetRange } from '../../constants';
+import { STARTING_RANGE, TARGET_RANGE } from '../../constants';
 import 'leaflet/dist/leaflet.css';
+import CustomMarker from '../CustomMarker/CustomMarker';
+import { useAuth } from '../../context/AuthContext';
 
 const tileLayerUrls = {
     openStreetMap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -94,6 +96,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
     const [mapCenter, setMapCenter] = useState(defaultCenter);
     const [mapZoom, setMapZoom] = useState(defaultZoom);
     const [tracking, setTracking] = useState(true); // State for toggle    
+    const { currentUser } = useAuth();
 
     const toggleTracking = () => {
         setTracking(!tracking);
@@ -126,7 +129,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 attribution='<a href="https://leafletjs.com/">Leaflet</a> | &copy;<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy;<a href="https://carto.com/attributions">CARTO</a>'
             />
             {validPlayerLocation(playerLocation) && (
-                <Marker position={[playerLocation.latitude, playerLocation.longitude]} />
+                <CustomMarker position={[playerLocation.latitude, playerLocation.longitude]} profileUrl={currentUser.photoURL} />
             )}
             {validStartingLocation(startingLocation) && (
                 <React.Fragment>
@@ -135,10 +138,10 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                         radius={startingLocation.radius}
                         pathOptions={playAreaOptions}
                     />
-                    {gameMode === 'lobby' && (
+                    {(gameMode === 'lobby' || gameMode === 'create') && (
                         <Circle
                             center={[startingLocation.location.latitude, startingLocation.location.longitude]}
-                            radius={startingRange}
+                            radius={STARTING_RANGE}
                             pathOptions={startOptions}
                         />
                     )}
@@ -154,7 +157,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 <Circle
                     key={index}
                     center={[circle.latitude, circle.longitude]}
-                    radius={targetRange}
+                    radius={TARGET_RANGE}
                     pathOptions={locationOptions}
                 />
             ))}

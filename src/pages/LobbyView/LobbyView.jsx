@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import styles from './LobbyView.module.css';
 import Map from '../../components/Map/Map';
 import { getDistanceInMeters } from '../../utils/calculations';
-import { startingRange } from '../../constants';
-import { updatePlayer } from '../../utils/game';
-import { useUsername } from '../../context/UserContext';
+import { useAuth } from '../../context/AuthContext';
+import { STARTING_RANGE } from '../../constants';
+import { updatePlayer, startGame } from '../../utils/game';
 
 const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, playerLocation }) => {
-  const { username } = useUsername();
   const [sortedPlayers, setSortedPlayers] = useState([]);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -52,6 +52,8 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   }, []);
 
   const isWithinRange = (playerLocation, targetLocation, range) => {
+    if(!playerLocation || !targetLocation || !range) return false;
+
     const distance = getDistanceInMeters(
       playerLocation.latitude, 
       playerLocation.longitude, 
@@ -67,11 +69,11 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   useEffect(() => {
     if (!gameOptions) return;
 
-    if (isWithinRange(playerLocation, gameOptions.startingLocation.location, startingRange) && !lobbyData.players[username].inRange) {
-      updatePlayer('inRange', true, gameCode, username);
+    if (isWithinRange(playerLocation, gameOptions.startingLocation.location, STARTING_RANGE) && !lobbyData.players[currentUser.uid].inRange) {
+      updatePlayer('inRange', true, gameCode, currentUser);
     }
-    else if (!isWithinRange(playerLocation, gameOptions.startingLocation.location, startingRange) && lobbyData.players[username].inRange) {
-      updatePlayer('inRange', false, gameCode, username);
+    else if (!isWithinRange(playerLocation, gameOptions.startingLocation.location, STARTING_RANGE) && lobbyData.players[currentUser.uid].inRange) {
+      updatePlayer('inRange', false, gameCode, currentUser);
     }
   }, [playerLocation]);
 
@@ -122,6 +124,14 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
             </div>
           </div>
         )}
+        {isHost && (
+          <button 
+            className={styles.startButton}
+            onClick={() => startGame(gameCode)}
+          >
+            Start Game
+          </button>
+        )}
       </div>
       <div className={styles.lobbyRight}>
         <div className={styles.map}>
@@ -131,11 +141,13 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
             gameMode='lobby'
           />
         </div>
-        <h3>Game Details</h3>
-        <div><strong>Starting Location:</strong> {gameOptions?.startingLocation.locationName}</div>
-        <div><strong>Targets:</strong> {gameOptions?.gameSize}</div>
-        <div><strong>Time Limit:</strong> {lobbyData?.timeLimit}</div>
-        <div><strong>Max Players:</strong> {lobbyData?.maxPlayers}</div>
+        <div className={styles.gameDetails}>
+          <h3>{gameOptions?.title}</h3>
+          <div><strong>Starting Location:</strong> {gameOptions?.startingLocation.locationName}</div>
+          <div><strong>Targets:</strong> {gameOptions?.targets.length}</div>
+          <div><strong>Time Limit:</strong> {lobbyData?.timeLimit}</div>
+          <div><strong>Max Players:</strong> {lobbyData?.maxPlayers}</div>
+        </div>
       </div>
     </div>
   );

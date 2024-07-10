@@ -5,22 +5,22 @@ import { ref, get, update, onValue } from 'firebase/database';
 import Map from '../../components/Map/Map';
 import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 import styles from './GameView.module.css';
-import { useUsername } from '../../context/UsernameContext';
 import { getDistanceInMeters } from '../../utils/calculations';
 import Timer from '../../components/Timer/Timer';
 import { endGame } from '../../utils/game';
+import { useAuth } from '../../context/AuthContext';
 
-const GameView = ({ isHost, lobbyData, gameCode, playerLocation }) => {
-  const [gameOptions, setGameOptions] = useState(gameOptions);
+const GameView = ({ isHost, lobbyData, gameCode, playerLocation, initGameOptions }) => {
+  const [gameOptions, setGameOptions] = useState(initGameOptions);
   //const [playerLocation, setPlayerLocation] = useState(null);
   const [guessPrompt, setGuessPrompt] = useState(false);
   const [locationGuess, setLocationGuess] = useState(null);
   const [bounds, setBounds] = useState(null);
   const [guessResult, setGuessResult] = useState(null);
   const [endTime, setEndTime] = useState(null);
+  const { currentUser } = useAuth();
 
-  const { username } = useUsername();
-
+  // TODO remove - debug only
   useEffect(() => {
     const handleKeyDown = (event) => {
       const moveDistance = 0.0001;
@@ -80,6 +80,11 @@ const GameView = ({ isHost, lobbyData, gameCode, playerLocation }) => {
     }
   }, [playerLocation, gameOptions]);
 
+  // TODO remove - exists to fix bug with game options not existing
+  useEffect(() => {
+    setGameOptions(initGameOptions);
+  }, [initGameOptions])
+
   useEffect(() => {
     if (playerLocation) {
       updateBounds(playerLocation);
@@ -136,9 +141,9 @@ const GameView = ({ isHost, lobbyData, gameCode, playerLocation }) => {
 
     if (guessedCorrectly) {
       try {
-        const playerRef = ref(rtdb, `games/${gameCode}/players/${username}`);
+        const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
         await update(playerRef, {
-          score: lobbyData.players[username].score + 100,
+          score: lobbyData.players[currentUser.uid].score + 100,
         });
         setGuessPrompt(false);
       } catch (error) {

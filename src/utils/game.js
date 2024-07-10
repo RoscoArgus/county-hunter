@@ -17,16 +17,16 @@ const generateGameCode = () => {
   return result;
 };
 
-export const createLobby = async (userId, presetId, timeLimit, maxPlayers) => {
+export const createLobby = async (currentUser, presetId, timeLimit, maxPlayers) => {
   const gameCode = generateGameCode(); // Generate a random game code
 
   const lobbyRef = ref(rtdb, `games/${gameCode}`);
 
   const initialData = {
-    host: userId,
+    host: currentUser.uid,
     players: {
-      [userId]: {
-        username: userId,
+      [currentUser.uid]: {
+        username: currentUser.displayName,
         score: 0,
         online: true,
         inRange: false,
@@ -45,7 +45,7 @@ export const createLobby = async (userId, presetId, timeLimit, maxPlayers) => {
   return gameCode; // Return the generated game code
 };
 
-export const joinLobby = async (gameCode, userId) => {
+export const joinLobby = async (gameCode, currentUser) => {
   const lobbyRef = ref(rtdb, `games/${gameCode}`);
   const lobbySnapshot = await get(lobbyRef);
 
@@ -58,14 +58,14 @@ export const joinLobby = async (gameCode, userId) => {
     throw new Error("Game has already started");
   }
 
-  if (lobbyData.players[userId]) {
+  if (lobbyData.players[currentUser.uid]) {
     return; // Player already exists in the lobby
   }
 
   const updatedPlayers = {
     ...lobbyData.players,
-    [userId]: {
-      username: userId,
+    [currentUser.uid]: {
+      username: currentUser.displayName,
       score: 0,
       online: true,
       inRange: false,
@@ -89,8 +89,8 @@ export const getLobbyData = async (gameCode) => {
   return lobbySnapshot.val();
 };
 
-export const updatePlayer = async (attr, value, gameCode, userId) => {
-  const lobbyRef = ref(rtdb, `games/${gameCode}/players/${userId}`);
+export const updatePlayer = async (attr, value, gameCode, currentUser) => {
+  const lobbyRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
   await update(lobbyRef, {
     [attr]: value,
   });

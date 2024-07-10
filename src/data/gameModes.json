@@ -3,18 +3,21 @@
         "id": "classic",
         "name": "Classic",
         "description": "Visit each location in any order. Bonuses for finishing first and being the first to guess a location.",
-        "image": "user/default.png"
+        "image": "user/default.png",
+        "enabled": true
     },
     {
         "id": "marathon",
         "name": "Marathon",
         "description": "Visit each location in order. First to finish wins!",
-        "image": "user/default.png"
+        "image": "user/default.png",
+        "enabled": false
     },
     {
         "id": "rush",
         "name": "Rush",
         "description": "Visit as many locations as you can in the time limit.",
-        "image": "user/default.png"
+        "image": "user/default.png",
+        "enabled": false
     }
 ]

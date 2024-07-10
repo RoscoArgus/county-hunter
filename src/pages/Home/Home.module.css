@@ -27,6 +27,44 @@
     border: 1px solid black;
 }
 
+.userInfo {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.pfp {
+  width: 40px; /* Adjust size as needed */
+  height: 40px; /* Adjust size as needed */
+  border-radius: 50%;
+  margin-left: 10px;
+}
+
+.menu {
+  position: absolute;
+  top: 50px; /* Adjust position as needed */
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu li {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.menu li:hover {
+  background-color: #f0f0f0;
+}
+
 .main {
     font-size: 14px;
     text-align: center
@@ -42,7 +80,7 @@
     font-size: 2em;
     border-radius: 10px;
     padding: 10px;
-    margin: 15px 0;
+    margin: 15px 30px;
     text-align: center;
     border: 2px solid black;
 }
@@ -88,5 +126,15 @@
     &:disabled{
         background-color: var(--button-disabled);
         cursor: not-allowed;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .title {
+        font-size: 3em;
+    }
+
+    .gameCode {
+        font-size: 1.5em;
     }
 }

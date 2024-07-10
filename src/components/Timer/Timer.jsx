@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const Timer = React.memo(({ targetTime, onTimeLimitReached }) => {
   const calculateTimeLeft = () => {
-    const difference = targetTime - Date.now() + 14 * 1000;
+    const difference = targetTime - Date.now();
     let timeLeft = {};
 
     if (difference > 0) {

@@ -1,0 +1,25 @@
+/* CustomMarker.module.css */
+.customDivIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .circleMarker {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white; /* Change as needed */
+    border: 1px solid black ; /* Change as needed */
+  }
+  
+  .profilePicture {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  

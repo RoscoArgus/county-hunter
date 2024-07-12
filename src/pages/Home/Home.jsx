@@ -46,6 +46,13 @@ const Home = () => {
         setMenuOpen(!menuOpen);
     };
 
+    const handleKeyDown = (event, action) => {
+        console.log(event.key);
+        if (event.key === 'Enter') {
+          action();
+        }
+    };
+
     return (
         <div className={styles.Home}>
             <nav className={styles.user}>
@@ -75,6 +82,7 @@ const Home = () => {
                     onChange={(e) => handleCodeChange(e)}
                     placeholder='Enter Game Code'
                     maxLength={8}
+                    onKeyDown={(e) => handleKeyDown(e, handleJoinLobby)}
                 />
                 <h3>{error && <p style={{ color: 'red' }}>{error}</p>}</h3>
                 <div className={styles.buttons}>

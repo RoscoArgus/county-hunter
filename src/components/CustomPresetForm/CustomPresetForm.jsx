@@ -5,7 +5,7 @@ import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
 import { getDistanceInMeters } from '../../utils/calculations';
 
 const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsTools, hintTools, gameModeTools, playerLocation }) => {
-    const [bounds, setBounds] = useState(null); // TODO bounds should be player location initially
+    const [bounds, setBounds] = useState(null);
     const { title, setTitle } = titleTools;
     const { startingLocation, setStartingLocation } = SLTools;
     const { radius, setRadius } = radiusTools;
@@ -31,25 +31,41 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
         return 'No Street Data Found';
     };
 
-    // TODO fix console error RE:no constructor
     const updateBounds = (target) => {
-        console.log(target)
-        try {
-            const sw = new window.google.maps.LatLng(
-                target.latitude - 0.05, 
-                target.longitude - 0.05
-            );
-            const ne = new window.google.maps.LatLng(
-                target.latitude + 0.05, 
-                target.longitude + 0.05
-            );
-            const bounds = new window.google.maps.LatLngBounds(sw, ne);
-            setBounds(bounds);
-        } catch (error) {
-            console.error("Error creating LatLng or LatLngBounds:", error);
-        }
+        const tryUpdateBounds = () => {
+            try {
+                const sw = new window.google.maps.LatLng(
+                    target.latitude - 0.05, 
+                    target.longitude - 0.05
+                );
+                const ne = new window.google.maps.LatLng(
+                    target.latitude + 0.05, 
+                    target.longitude + 0.05
+                );
+                const bounds = new window.google.maps.LatLngBounds(sw, ne);
+                setBounds(bounds);
+                console.log('%c Success: Bounds updated successfully!', 'color: green; font-weight: bold;');
+            } catch (error) {
+                // This fixes an issue with maps not being fully loaded yet
+                if (error instanceof TypeError && error.message.includes("window.google.maps.LatLng is not a constructor")) {
+                    console.warn("Issue creating LatLng or LatLngBounds. Trying again in 200ms...", error);
+                    setTimeout(tryUpdateBounds, 200); // Retry after 200 milliseconds
+                } else {
+                    console.error("Error updating bounds: ", error);
+                }
+            }
+        };
+
+        tryUpdateBounds();
     }
     
+    // Remove any reference to place name from the review text
+    const filterText = (text, name) => {
+        const words = name.split(/\s+/).map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const regex = new RegExp(`\\b(${words.join('|')})\\b`, 'gi');
+        const filteredText = (text.slice(0,100)+'...').replace(regex, (match) => '*'.repeat(match.length));
+        return filteredText;
+    };
     
     const handlePlaceChanged = (type, places) => {
         if (places.length <= 0) return;
@@ -60,8 +76,6 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                 latitude: place.geometry.location.lat(),
                 longitude: place.geometry.location.lng(),
             },
-            types: place.types,
-            street: getStreetName(place),
             id: place.place_id,
             locationName: place.name,
         };
@@ -70,6 +84,15 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
             setStartingLocation({ ...target, radius });
             updateBounds(target.location);
         } else if (type === 'target') {
+            target = {
+                ...target, 
+                types: place.types,
+                street: getStreetName(place),
+                reviews: place.reviews.map(review => ({
+                    rating: review.rating, 
+                    text: filterText(review.text, place.name)
+                })),
+            }
             const distance = getDistanceInMeters(startingLocation.location.latitude, startingLocation.location.longitude, place.geometry.location.lat(), place.geometry.location.lng());
             if (distance > radius) {
                 alert('Target is outside of the game radius');

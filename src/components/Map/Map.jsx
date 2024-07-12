@@ -18,8 +18,9 @@ const tileLayerUrls = {
 };
 
 const playAreaOptions = { fillColor: 'transparent', fillOpacity: 1.0 };
-const locationOptions = { fillColor: 'blue', fillOpacity: 0.2 };
+const locationOptions = { fillColor: 'blue', fillOpacity: 0.2, color: 'blue' };
 const startOptions = { fillColor: '#ffaaff', fillOpacity: 0.3, color: '#ffaaff'};
+const selectedOptions = { fillColor: 'yellow', fillOpacity: 0.3, color: 'yellow' };
 
 const mapBounds = [[-180, -180], [180, 180]];
 const defaultCenter = [0, 0];
@@ -158,7 +159,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                     key={index}
                     center={[circle.latitude, circle.longitude]}
                     radius={TARGET_RANGE}
-                    pathOptions={locationOptions}
+                    pathOptions={circle.isSelected ? selectedOptions : locationOptions}
                 />
             ))}
             {locationGuess && (

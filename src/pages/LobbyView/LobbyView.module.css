@@ -37,7 +37,7 @@
 }
 
 .map {
-    width: 20vw;
+    width: 400px;
     aspect-ratio: 1/1;
 }
 
@@ -72,6 +72,7 @@
 
     .map {
         width: 100vw;
+        max-height: 50vh;
     }
 
     .gameDetails {

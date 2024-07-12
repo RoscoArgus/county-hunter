@@ -6,9 +6,16 @@ import { useAuth } from '../../context/AuthContext';
 import { STARTING_RANGE } from '../../constants';
 import { updatePlayer, startGame } from '../../utils/game';
 
-const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, playerLocation }) => {
+const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, /*playerLocation*/ }) => {
   const [sortedPlayers, setSortedPlayers] = useState([]);
   const { currentUser } = useAuth();
+  
+  //TODO REMOVE TEMPORARY
+  const [playerLocation, setPlayerLocation] = useState(null);
+
+  useEffect(() => {
+    setPlayerLocation(gameOptions?.startingLocation.location);
+  }, [gameOptions]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -51,6 +58,8 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
     };
   }, []);
 
+  //END TEMPORARY
+
   const isWithinRange = (playerLocation, targetLocation, range) => {
     if(!playerLocation || !targetLocation || !range) return false;
 
@@ -60,8 +69,6 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
       targetLocation.latitude, 
       targetLocation.longitude
     );
-
-    console.log(distance, range);
 
     return distance <= range;
   };

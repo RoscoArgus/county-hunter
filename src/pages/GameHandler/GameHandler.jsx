@@ -97,6 +97,7 @@ const GameHandler = () => {
         gameCode={gameCode}
         initGameOptions={gameOptions}
         playerLocation={playerLocation}
+        finished={lobbyData.players[currentUser.uid].finished}
       />
     );
   }

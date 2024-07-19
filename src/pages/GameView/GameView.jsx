@@ -9,13 +9,15 @@ import Timer from '../../components/Timer/Timer';
 import { endGame } from '../../utils/game';
 import { useAuth } from '../../context/AuthContext';
 import GuessPrompt from '../../components/GuessPrompt/GuessPrompt';
+import { STARTING_RANGE } from '../../constants';
 
-const GameView = ({ isHost, lobbyData, gameCode, initGameOptions }) => {
+const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) => {
   const [gameOptions, setGameOptions] = useState(initGameOptions);
   const [guessPrompt, setGuessPrompt] = useState(false);
   const [locationGuess, setLocationGuess] = useState(null);
   const [bounds, setBounds] = useState(null);
   const [guessResult, setGuessResult] = useState(null);
+  const [showResult, setShowResult] = useState(false);
   const [endTime, setEndTime] = useState(null);
   const [overlappingTargets, setOverlappingTargets] = useState([]);
   const [selectedTargetId, setSelectedTargetId] = useState(null);
@@ -72,18 +74,37 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions }) => {
   // END TEMP
 
   const getTargetsInRange = (targets, playerLocation) => {
-    return targets.filter(target => {
+    if(!playerLocation) return [];
+    else if(!targets || targets.length === 0) {
       const distance = getDistanceInMeters(
         playerLocation.latitude,
         playerLocation.longitude,
-        target.randOffset.latitude,
-        target.randOffset.longitude
+        gameOptions.startingLocation.location.latitude,
+        gameOptions.startingLocation.location.longitude
       );
-      return distance <= gameOptions.range;
-    });
+      if(distance < STARTING_RANGE) {
+        const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
+        update(playerRef, { finished: true });
+        return [];
+      };
+    }
+    else {
+      return targets.filter(target => {
+        const distance = getDistanceInMeters(
+          playerLocation.latitude,
+          playerLocation.longitude,
+          target.randOffset.latitude,
+          target.randOffset.longitude
+        );
+        return distance <= gameOptions.range;
+      });
+    }
   }
 
   const updateSelectedTargets = (targets, playerLocation) => {
+    if(!targets || targets.length === 0) {
+      getTargetsInRange(targets, playerLocation);
+    }
     if (targets && playerLocation) {
       const targetsInRange = getTargetsInRange(targets, playerLocation);
 
@@ -157,7 +178,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions }) => {
           score: lobbyData.players[currentUser.uid].score + 100
         });
 
-        if (getTargetsInRange(updatedTargets, playerLocation).length === 0) {
+        if (getTargetsInRange(updatedTargets, playerLocation)?.length === 0) {
           setGuessPrompt(false);
         }
       } catch (error) {
@@ -166,7 +187,9 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions }) => {
     }
 
     setGuessResult(guessedCorrectly ? 'Correct Guess!' : 'Wrong Guess!');
-    setTimeout(() => setGuessResult(null), 2000);
+    setShowResult(true);
+    setTimeout(() => setShowResult(false), 2000);
+    setTimeout(() => setGuessResult(null), 5000);
   };
 
   useEffect(() => {
@@ -188,30 +211,33 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions }) => {
     endGame(gameCode);
   };
 
-  if (!gameOptions || !remainingTargets) {
+  if (!gameOptions || remainingTargets === null) {
     return <div>Loading...</div>;
   }
 
-  if (isHost) {
+  if (isHost || finished) {
     return (
-      <ul>
-        {Object.keys(lobbyData.players).map((userId) => (
-          <li key={userId}>
-            {lobbyData.players[userId].username} - Score: {lobbyData.players[userId].score}
-          </li>
-        ))}
-      </ul>
+      <>
+        <ul>
+          {Object.keys(lobbyData.players).map((userId) => (
+            <li key={userId}>
+              {lobbyData.players[userId].username} - Score: {lobbyData.players[userId].score}
+            </li>
+          ))}
+        </ul>
+        {isHost && <button onClick={() => endGame(gameCode)}>End Game</button>}
+      </>
     );
   }
 
   return (
     <div style={{ width: '100vw', height: '100vh'}}>
       <div className={styles.timer}>
+        {!remainingTargets && <div>Get Back to the Start!</div>}
         {endTime && <Timer targetTime={endTime} onTimeLimitReached={handleTimeLimitReached} />}
       </div>
       <Map
-        circles={remainingTargets
-          .map(target => ({
+        circles={remainingTargets?.map(target => ({
             ...target.randOffset,
             isSelected: target.id === selectedTargetId
           }))
@@ -230,7 +256,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions }) => {
         handlePlaceChanged={handlePlaceChanged}
         bounds={bounds}
       />
-      {guessResult && <div className={styles.result}>{guessResult}</div>}
+      <div className={`${styles.result} ${showResult ? styles.shown : ''}`}>{guessResult}</div>
     </div>
   );
 };

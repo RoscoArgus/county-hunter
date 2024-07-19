@@ -70,6 +70,7 @@ export const joinLobby = async (gameCode, currentUser) => {
       online: true,
       inRange: false,
       lastActive: new Date().toISOString(),
+      finished: false,
     },
   };
 
@@ -111,7 +112,7 @@ export const startGame = async (gameCode, targets) => {
 
       const playerUpdates = Object.keys(players).map(playerId => {
         const playerRef = ref(rtdb, `games/${gameCode}/players/${playerId}`);
-        return update(playerRef, { score: 0, remainingTargets: targets });
+        return update(playerRef, { score: 0, remainingTargets: targets, finished: false });
       });
 
       await Promise.all(playerUpdates);

@@ -39,7 +39,7 @@ const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapC
 
     useEffect(() => {
         if (tracking && center && zoom !== undefined) {
-            map.setView(center, zoom);
+            map.setView(center, zoom, { animate: true, duration: 3 });
         }
     }, [center, zoom, map, tracking]);
 
@@ -70,25 +70,29 @@ const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapC
                             L.latLng(startingLocation.location.latitude, startingLocation.location.longitude),
                             L.latLng(playerLocation.latitude, playerLocation.longitude)
                         ]);
-                        map.fitBounds(bounds, { padding: [30, 30] });
+                        map.fitBounds(bounds, { padding: [30, 30], animate: true });
                     } else {
                         setMapCenter([
                             (startingLocation.location.latitude+playerLocation.latitude)/2, 
-                            (startingLocation.location.longitude+playerLocation.longitude)/2]
+                            (startingLocation.location.longitude+playerLocation.longitude)/2],
+                            { animate: true }
                         );
                     }
                 } else if (validStarting) {
-                    setMapCenter([startingLocation.location.latitude, startingLocation.location.longitude]);
+                    setMapCenter(
+                        [startingLocation.location.latitude, startingLocation.location.longitude],
+                        { animate: true }
+                    );
                     if (tracking) 
-                        setMapZoom(15 - (startingLocation.radius / 1750));
+                        setMapZoom(15 - (startingLocation.radius / 1750), { animate: true });
                 } else if (validPlayer) {
-                    setMapCenter([playerLocation.latitude, playerLocation.longitude]);
+                    setMapCenter([playerLocation.latitude, playerLocation.longitude], { animate: true });
                     if (tracking) 
-                        setMapZoom(18);
+                        setMapZoom(18, { animate: true });
                 } else {
-                    setMapCenter(defaultCenter);
+                    setMapCenter(defaultCenter, { animate: true });
                     if (tracking) 
-                        setMapZoom(defaultZoom);
+                        setMapZoom(defaultZoom, { animate: true });
                 }
             } catch (error) {
                 console.log('Error updating map view. Trying again...');
@@ -141,7 +145,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 attribution='<a href="https://leafletjs.com/">Leaflet</a> | &copy;<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy;<a href="https://carto.com/attributions">CARTO</a>'
             />
             {validPlayerLocation(playerLocation) && (
-                <CustomMarker position={[playerLocation.latitude, playerLocation.longitude]} profileUrl={currentUser.photoURL} />
+                <CustomMarker position={[playerLocation.latitude, playerLocation.longitude]} user={currentUser} />
             )}
             {validStartingLocation(startingLocation) && (
                 <React.Fragment>
@@ -150,7 +154,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                         radius={startingLocation.radius}
                         pathOptions={playAreaOptions}
                     />
-                    {(gameMode === 'lobby' || gameMode === 'create') && (
+                    {(gameMode === 'lobby' || gameMode === 'create' || circles?.length === 0) && (
                         <Circle
                             center={[startingLocation.location.latitude, startingLocation.location.longitude]}
                             radius={STARTING_RANGE}

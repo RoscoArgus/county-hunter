@@ -62,33 +62,44 @@ const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapC
         const validStarting = validStartingLocation(startingLocation);
         const validPlayer = validPlayerLocation(playerLocation);
 
-        if (validStarting && validPlayer) {
-            if (tracking) {
-                const bounds = L.latLngBounds([
-                    L.latLng(startingLocation.location.latitude, startingLocation.location.longitude),
-                    L.latLng(playerLocation.latitude, playerLocation.longitude)
-                ]);
-                map.fitBounds(bounds, { padding: [30, 30] });
-            } else {
-                setMapCenter([
-                    (startingLocation.location.latitude+playerLocation.latitude)/2, 
-                    (startingLocation.location.longitude+playerLocation.longitude)/2]
-                );
+        const updateBounds = () => {
+            try {
+                if (validStarting && validPlayer) {
+                    if (tracking) {
+                        const bounds = L.latLngBounds([
+                            L.latLng(startingLocation.location.latitude, startingLocation.location.longitude),
+                            L.latLng(playerLocation.latitude, playerLocation.longitude)
+                        ]);
+                        map.fitBounds(bounds, { padding: [30, 30] });
+                    } else {
+                        setMapCenter([
+                            (startingLocation.location.latitude+playerLocation.latitude)/2, 
+                            (startingLocation.location.longitude+playerLocation.longitude)/2]
+                        );
+                    }
+                } else if (validStarting) {
+                    setMapCenter([startingLocation.location.latitude, startingLocation.location.longitude]);
+                    if (tracking) 
+                        setMapZoom(15 - (startingLocation.radius / 1750));
+                } else if (validPlayer) {
+                    setMapCenter([playerLocation.latitude, playerLocation.longitude]);
+                    if (tracking) 
+                        setMapZoom(18);
+                } else {
+                    setMapCenter(defaultCenter);
+                    if (tracking) 
+                        setMapZoom(defaultZoom);
+                }
+            } catch (error) {
+                console.log('Error updating map view. Trying again...');
+                setTimeout(updateBounds, 1000);
             }
-        } else if (validStarting) {
-            setMapCenter([startingLocation.location.latitude, startingLocation.location.longitude]);
-            if (tracking) 
-                setMapZoom(15 - (startingLocation.radius / 1750));
-        } else if (validPlayer) {
-            setMapCenter([playerLocation.latitude, playerLocation.longitude]);
-            if (tracking) 
-                setMapZoom(18);
-        } else {
-            setMapCenter(defaultCenter);
-            if (tracking) 
-                setMapZoom(defaultZoom);
         }
+
+        updateBounds();
     }, [startingLocation, playerLocation, setMapCenter, setMapZoom, map, tracking]);
+
+        
 
     return null;
 };
@@ -154,14 +165,14 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                     position={[circle.latitude, circle.longitude]} 
                 />
             ))}
-            {gameMode === 'classic' && circles.map((circle, index) => (
-                <Circle
+            {gameMode === 'classic' && circles.map((circle, index) => {
+                return <Circle
                     key={index}
                     center={[circle.latitude, circle.longitude]}
                     radius={TARGET_RANGE}
                     pathOptions={circle.isSelected ? selectedOptions : locationOptions}
                 />
-            ))}
+            })}
             {locationGuess && (
                 <Marker position={[locationGuess.latitude, locationGuess.longitude]} />
             )}

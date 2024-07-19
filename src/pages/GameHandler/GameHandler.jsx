@@ -1,13 +1,14 @@
-import { ref, onValue, onDisconnect, set, off } from 'firebase/database';
+import { ref, onValue, onDisconnect, update, off } from 'firebase/database';
 import { doc, getDoc } from 'firebase/firestore';
 import { db, rtdb } from '../../config/firebase';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import LobbyView from '../LobbyView/LobbyView';
 import GameView from '../GameView/GameView';
 import { startGame } from '../../utils/game';
 import useGeolocation from '../../hooks/useGeolocation';
 import { useAuth } from '../../context/AuthContext';
+import { TARGET_RANGE } from '../../constants';
 
 const GameHandler = () => {
   const { gameCode } = useParams();
@@ -18,6 +19,7 @@ const GameHandler = () => {
 
   const playerLocation = useGeolocation();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (gameCode) {
@@ -31,7 +33,7 @@ const GameHandler = () => {
           setIsHost(data.host === currentUser.uid);
           setGameStatus(data.status);
         } else {
-          alert("This game does not exist");
+          navigate('/lobby-closed');
         }
       };
 
@@ -42,12 +44,11 @@ const GameHandler = () => {
       onValue(connectedRef, (snap) => {
         if (snap.val() === true) {
           // Mark user as online
-          set(playerRef, { username: currentUser.displayName, score: 0, online: true, inRange: false });
+          update(playerRef, { username: currentUser.displayName, online: true, inRange: false });
 
           // Handle disconnection
-          onDisconnect(playerRef).set({
+          onDisconnect(playerRef).update({
             username: currentUser.displayName,
-            score: 0,
             online: false,
             lastActive: new Date().toISOString()
           });
@@ -71,7 +72,7 @@ const GameHandler = () => {
           const updatedGameOptions = {
             ...gameData,
             mode: 'classic',
-            range: 100,
+            range: TARGET_RANGE,
           };
           setGameOptions(updatedGameOptions);
         } else {
@@ -81,7 +82,7 @@ const GameHandler = () => {
     };
 
     fetchGameOptions();
-  }, [lobbyData]);
+  }, [lobbyData?.presetId]);
 
   const handleStartGame = async () => {
     await startGame(gameCode);

@@ -3,14 +3,14 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db, rtdb } from '../../config/firebase';
 import { ref, get, update, onValue } from 'firebase/database';
 import Map from '../../components/Map/Map';
-import PlacesAutocomplete from '../../components/PlacesAutocomplete/PlacesAutocomplete';
 import styles from './GameView.module.css';
 import { getDistanceInMeters } from '../../utils/calculations';
 import Timer from '../../components/Timer/Timer';
 import { endGame } from '../../utils/game';
 import { useAuth } from '../../context/AuthContext';
+import GuessPrompt from '../../components/GuessPrompt/GuessPrompt';
 
-const GameView = ({ isHost, lobbyData, gameCode, /*playerLocation,*/initGameOptions }) => {
+const GameView = ({ isHost, lobbyData, gameCode, initGameOptions }) => {
   const [gameOptions, setGameOptions] = useState(initGameOptions);
   const [guessPrompt, setGuessPrompt] = useState(false);
   const [locationGuess, setLocationGuess] = useState(null);
@@ -20,6 +20,7 @@ const GameView = ({ isHost, lobbyData, gameCode, /*playerLocation,*/initGameOpti
   const [overlappingTargets, setOverlappingTargets] = useState([]);
   const [selectedTargetId, setSelectedTargetId] = useState(null);
   const { currentUser } = useAuth();
+  const [remainingTargets, setRemainingTargets] = useState(null); // State for remaining targets
 
   // TODO TEMP REMOVE
   const [playerLocation, setPlayerLocation] = useState(null);
@@ -102,7 +103,7 @@ const GameView = ({ isHost, lobbyData, gameCode, /*playerLocation,*/initGameOpti
 
   useEffect(() => {
     if(gameOptions && playerLocation)
-      updateSelectedTargets(gameOptions.targets, playerLocation);
+      updateSelectedTargets(remainingTargets, playerLocation);
   }, [playerLocation, gameOptions, selectedTargetId]);
 
   const updateBounds = (location) => {
@@ -138,32 +139,34 @@ const GameView = ({ isHost, lobbyData, gameCode, /*playerLocation,*/initGameOpti
 
   const checkGuess = async () => {
     let guessedCorrectly = false;
-    const targetIndex = gameOptions.targets.findIndex(target => target.id === selectedTargetId);
+    const targetIndex = remainingTargets.findIndex(target => target.id === selectedTargetId);
 
     if (targetIndex !== -1 && locationGuess && locationGuess.id === selectedTargetId) {
       guessedCorrectly = true;
-      const updatedTargets = [...gameOptions.targets];
+      const updatedTargets = [...remainingTargets];
       updatedTargets.splice(targetIndex, 1);
 
-      setGameOptions({ ...gameOptions, targets: updatedTargets });
+      setRemainingTargets(updatedTargets); // Update state
       setLocationGuess(null);
-    }
 
-    setGuessResult(guessedCorrectly ? 'Correct Guess!' : 'Wrong Guess!');
-
-    if (guessedCorrectly) {
       try {
+        // Update RTDB with new remaining targets
         const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
-        await update(playerRef, {
-          score: lobbyData.players[currentUser.uid].score + 100,
+        await update(playerRef, { 
+          remainingTargets: updatedTargets,
+          score: lobbyData.players[currentUser.uid].score + 100
         });
-        if (getTargetsInRange(gameOptions.targets, playerLocation).length === 0) {
+
+        if (getTargetsInRange(updatedTargets, playerLocation).length === 0) {
           setGuessPrompt(false);
         }
       } catch (error) {
-        console.error('Error updating player score:', error);
+        console.error('Error updating player data:', error);
       }
     }
+
+    setGuessResult(guessedCorrectly ? 'Correct Guess!' : 'Wrong Guess!');
+    setTimeout(() => setGuessResult(null), 2000);
   };
 
   useEffect(() => {
@@ -177,15 +180,15 @@ const GameView = ({ isHost, lobbyData, gameCode, /*playerLocation,*/initGameOpti
     return () => unsubscribe();
   }, [gameCode]);
 
+  useEffect(() => {
+    setRemainingTargets(lobbyData.players[currentUser.uid].remainingTargets);
+  }, [lobbyData]);
+
   const handleTimeLimitReached = () => {
     endGame(gameCode);
   };
 
-  const handleTargetSelect = (event) => {
-    setSelectedTargetId(event.target.value);
-  };
-
-  if (!gameOptions) {
+  if (!gameOptions || !remainingTargets) {
     return <div>Loading...</div>;
   }
 
@@ -202,12 +205,12 @@ const GameView = ({ isHost, lobbyData, gameCode, /*playerLocation,*/initGameOpti
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10000 }}>
+    <div style={{ width: '100vw', height: '100vh'}}>
+      <div className={styles.timer}>
         {endTime && <Timer targetTime={endTime} onTimeLimitReached={handleTimeLimitReached} />}
       </div>
       <Map
-        circles={gameOptions.targets
+        circles={remainingTargets
           .map(target => ({
             ...target.randOffset,
             isSelected: target.id === selectedTargetId
@@ -219,36 +222,14 @@ const GameView = ({ isHost, lobbyData, gameCode, /*playerLocation,*/initGameOpti
         gameMode={gameOptions.mode}
         locationGuess={locationGuess}
       />
-      <div className={`${styles.prompt} ${guessPrompt ? '' : styles.hidden}`}>
-        <h2>You are within the range!</h2>
-        {overlappingTargets.length > 1 && (
-          <div>
-            <label>Select target to guess for:</label>
-            <select onChange={handleTargetSelect} value={selectedTargetId || ''}>
-              <option value="" disabled>Select target</option>
-              {overlappingTargets.map(target => (
-                <option key={target.id} value={target.id}>{target.id.slice(-4)}</option>
-              ))}
-            </select>
-          </div>
-        )}
-        <PlacesAutocomplete
-          type='target'
-          handlePlaceChanged={handlePlaceChanged}
-          bounds={bounds}
-        />
-        <button onClick={() => checkGuess()} disabled={!selectedTargetId}>Guess the location</button>
-        <div>Hint: {gameOptions.targets.find(target => target.id === selectedTargetId)?.hint}</div>
-        <div>Street: {gameOptions.targets.find(target => target.id === selectedTargetId)?.street}</div>
-        <div>Types: {gameOptions.targets.find(target => target.id === selectedTargetId)?.types.map((type, index) => {
-          return type + ' '
-        })}</div>
-        <div>Reviews: {gameOptions.targets.find(target => target.id === selectedTargetId)?.reviews?.map((review) => {
-          return <div>Rating: {review.rating} Review: {review.text}</div>
-        })}
-        </div>
-        
-      </div>
+      <GuessPrompt 
+        shown={guessPrompt} 
+        guess={checkGuess} 
+        selectedTargetTools={{ selectedTargetId, setSelectedTargetId }}
+        targets={overlappingTargets}
+        handlePlaceChanged={handlePlaceChanged}
+        bounds={bounds}
+      />
       {guessResult && <div className={styles.result}>{guessResult}</div>}
     </div>
   );

@@ -1,0 +1,32 @@
+.prompt {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    background-color: white;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    transition: transform 0.5s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hidden {
+    transform: translateY(100%);
+}
+
+.toggleButton {
+    position: absolute;
+    top: -40px; /* Adjust based on your button height */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 1100;
+}

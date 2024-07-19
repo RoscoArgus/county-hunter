@@ -7,6 +7,7 @@ import Profile from "./pages/Profile/Profile";
 import Create from './pages/Create/Create';
 import Join from './pages/Join/Join';
 import GameHandler from './pages/GameHandler/GameHandler';
+import LobbyClosed from "./pages/LobbyClosed/LobbyClosed";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedLayout from "./components/ProtectedLayout/ProtectedLayout";
 import RedirectToHome from "./components/RedirectToHome/RedirectToHome";
@@ -24,6 +25,7 @@ function App() {
             <Route path="/create" element={<Create />} />
             <Route path="/join" element={<Join />} />
             <Route path="/game/:gameCode" element={<GameHandler />} />
+            <Route path="/lobby-closed" element={<LobbyClosed />} />
           </Route>
           <Route path="*" element={<RedirectToHome />} />
         </Routes>

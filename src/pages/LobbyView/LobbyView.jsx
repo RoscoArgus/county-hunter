@@ -14,8 +14,12 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   const [playerLocation, setPlayerLocation] = useState(null);
 
   useEffect(() => {
-    setPlayerLocation(gameOptions?.startingLocation.location);
-  }, [gameOptions]);
+    setPlayerLocation({
+      latitude: 53.4026551,
+      longitude: -6.4084278,
+      error: null
+    });
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -134,7 +138,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
         {isHost && (
           <button 
             className={styles.startButton}
-            onClick={() => startGame(gameCode)}
+            onClick={() => startGame(gameCode, gameOptions.targets)}
           >
             Start Game
           </button>

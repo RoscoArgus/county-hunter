@@ -40,7 +40,7 @@ export const createLobby = async (currentUser, presetId, timeLimit, maxPlayers) 
     endTime: null,
   };
 
-  await set(lobbyRef, initialData); // Set data with the generated game code as the key
+  await update(lobbyRef, initialData); // Set data with the generated game code as the key
 
   return gameCode; // Return the generated game code
 };
@@ -96,7 +96,7 @@ export const updatePlayer = async (attr, value, gameCode, currentUser) => {
   });
 }
 
-export const startGame = async (gameCode) => {
+export const startGame = async (gameCode, targets) => {
   const lobbyRef = ref(rtdb, `games/${gameCode}`);
   
   try {
@@ -104,14 +104,23 @@ export const startGame = async (gameCode) => {
     if (lobbySnapshot.exists()) {
       const lobbyData = lobbySnapshot.val();
       const timeLimit = lobbyData.timeLimit;
-      
+      const players = lobbyData.players;
+
       const currentTime = new Date().getTime();
       const endTime = currentTime + timeLimit * 60 * 1000;
+
+      const playerUpdates = Object.keys(players).map(playerId => {
+        const playerRef = ref(rtdb, `games/${gameCode}/players/${playerId}`);
+        return update(playerRef, { score: 0, remainingTargets: targets });
+      });
+
+      await Promise.all(playerUpdates);
       
       await update(lobbyRef, {
         status: "in-progress",
         endTime: endTime,
       });
+
     } else {
       console.error('No such lobby exists!');
     }

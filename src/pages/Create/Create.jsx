@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import useGeolocation from '../../hooks/useGeolocation';
 import { useAuth } from '../../context/AuthContext';
 import { getRandomPointWithinRadius } from '../../utils/calculations';
-import { TARGET_RANGE } from '../../constants';
+import { MAX_TIME, TARGET_RANGE } from '../../constants';
 
 const Create = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -199,7 +199,7 @@ const Create = () => {
                   id="timeLimit"
                   name="timeLimit"
                   min="1"
-                  max="60"
+                  max={MAX_TIME}
                   value={timeLimit}
                   onChange={(e) => setTimeLimit(parseInt(e.target.value, 10))}
                 />
@@ -222,7 +222,7 @@ const Create = () => {
               <div className={styles.buttons}>
                 <button 
                   className={styles.createButton}
-                  disabled={isLoading || (isMissingData() && selectedPreset === 'custom')}
+                  disabled={isLoading || ((isMissingData() && selectedPreset === 'custom') || !selectedPreset)}
                 >
                   Create Game
                 </button>

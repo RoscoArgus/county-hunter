@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import styles from './Timer.module.css';
 const Timer = React.memo(({ targetTime, onTimeLimitReached }) => {
   const calculateTimeLeft = () => {
     const difference = targetTime - Date.now();
@@ -35,7 +35,7 @@ const Timer = React.memo(({ targetTime, onTimeLimitReached }) => {
   }, [targetTime]); // Re-run effect when targetTime changes
 
   return (
-    <div>
+    <div className={styles.Timer}>
       <p>Time left: {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s</p>
     </div>
   );

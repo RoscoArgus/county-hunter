@@ -1,3 +1,10 @@
+.GameView {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    overflow: hidden; /* Added to hide overflow */
+}
+
 .timer { 
     position: absolute;
     top: 5px; 

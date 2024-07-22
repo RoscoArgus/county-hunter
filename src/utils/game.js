@@ -112,7 +112,13 @@ export const startGame = async (gameCode, targets) => {
 
       const playerUpdates = Object.keys(players).map(playerId => {
         const playerRef = ref(rtdb, `games/${gameCode}/players/${playerId}`);
-        return update(playerRef, { score: 0, remainingTargets: targets, finished: false });
+        const remainingTargets = targets.map((target, index) => { 
+          const reviews = { content: target.reviews, isUsed: -1 };
+          const types = {content: target.types, isUsed: false};
+          const street = {content: target.street, isUsed: false};
+          return {...target, index: index+1, reviews: reviews, types: types, street: street};
+        });
+        return update(playerRef, { score: 0, remainingTargets: remainingTargets, finished: false });
       });
 
       await Promise.all(playerUpdates);

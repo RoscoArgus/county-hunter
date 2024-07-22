@@ -39,6 +39,8 @@
 .map {
     width: 400px;
     aspect-ratio: 1/1;
+    border-radius: 15px;
+    overflow: hidden;
 }
 
 .startButton {
@@ -73,6 +75,7 @@
     .map {
         width: 100vw;
         max-height: 50vh;
+        border-radius: 15px 15px 0 0;
     }
 
     .gameDetails {

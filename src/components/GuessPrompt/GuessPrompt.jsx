@@ -1,23 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './GuessPrompt.module.css';
-import { rtdb } from '../../config/firebase';
-import { ref, update } from 'firebase/database';
 import { FaMapSigns, FaInfoCircle, FaCommentDots, FaCheck } from 'react-icons/fa'; // Import checkmark icon
-import { useAuth } from '../../context/AuthContext';
 import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
 
-const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceChanged, onHint, bounds }) => {
+const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceChanged, currentGuess, onHint, bounds }) => {
     const { selectedTargetId, setSelectedTargetId } = selectedTargetTools;
 
     const [showModal, setShowModal] = useState(false); // Add state for modal visibility
     const [hintDetails, setHintDetails] = useState(''); // Add state for hint details
     const [hintType, setHintType] = useState(''); // Add state for hint type
+    const [currentTarget, setCurrentTarget] = useState(null); // Add state for current target
+    const [submitted, setSubmitted] = useState(false); // Add state for guess submission
 
     const handleUseHint = (type, value) => {
         const target = targets.find(target => target.id === selectedTargetId);
         setHintType(type); // Set the hint type
         setHintDetails(target[type].content); // Set the hint details
-        console.log(hintDetails);
         setShowModal(true); // Show the modal
         onHint(type, value, selectedTargetId); // Use the hint
     };
@@ -36,12 +34,22 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
             return target.reviews.isUsed !== -1;
     };
 
+    const handleGuess = () => {
+        setSubmitted(true);
+        guess();
+    }
+
+    useEffect(() => {
+        const target = targets.find(target => target.id === selectedTargetId);
+        setCurrentTarget(target);
+    }, [selectedTargetId, targets]);
+
     return (
         <div className={`${styles.prompt} ${shown ? styles.shown : ''}`}>
             <div className={styles.options}>
                 <h2>You are within the range!</h2>
                 <h3>{selectedTargetId
-                    ? `Location ${targets.find(target => target.id === selectedTargetId)?.index}`
+                    ? `Location ${currentTarget?.index} (Value: ${currentTarget?.value})`
                     : 'No Target Selected'
                 }
                 </h3>
@@ -62,9 +70,11 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                         type='target'
                         handlePlaceChanged={handlePlaceChanged}
                         bounds={bounds}
+                        submittedTools = {{submitted, setSubmitted}}
                     />
-                    <button onClick={() => guess()} disabled={!selectedTargetId}>Guess the location</button>
+                    <button onClick={handleGuess} disabled={!currentGuess}>Guess the location</button>
                 </div>
+                <div>{currentGuess ? currentGuess.name : 'No Location Selected'}</div>
             </div>
             <ul className={styles.hints}>
                 <li onClick={() => handleUseHint('street', true)}>

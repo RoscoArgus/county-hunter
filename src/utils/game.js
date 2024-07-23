@@ -116,7 +116,7 @@ export const startGame = async (gameCode, targets) => {
           const reviews = { content: target.reviews, isUsed: -1 };
           const types = {content: target.types, isUsed: false};
           const street = {content: target.street, isUsed: false};
-          return {...target, index: index+1, reviews: reviews, types: types, street: street};
+          return {...target, index: index+1, reviews: reviews, types: types, street: street, value: 100};
         });
         return update(playerRef, { score: 0, remainingTargets: remainingTargets, finished: false });
       });

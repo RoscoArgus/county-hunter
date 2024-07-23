@@ -121,10 +121,18 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) =>
   const useHint = async (type, value, selectedId) => {
     const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
     let updatedTargets = [...remainingTargets];
-    console.log(updatedTargets);
     const targetIndex = updatedTargets.findIndex(target => target.id === selectedId);
+    console.log(type);
+
+    if((type==='reviews' && updatedTargets[targetIndex][type].isUsed !== -1) || 
+        updatedTargets[targetIndex][type].isUsed === true) return;
+
+    updatedTargets[targetIndex].value -= (type==='reviews' ? 20 : 10);
+    if(updatedTargets[targetIndex].value < 20) // minimum score for a location is 20
+      updatedTargets[targetIndex].value = 20;
+
     updatedTargets[targetIndex][type].isUsed = value;
-    console.log(`Settting ${type} to ${value}`);
+    console.log(updatedTargets[targetIndex]);
     await update(playerRef, { 
         remainingTargets: updatedTargets
     });
@@ -173,23 +181,19 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) =>
   const checkGuess = async () => {
     let guessedCorrectly = false;
     const targetIndex = remainingTargets.findIndex(target => target.id === selectedTargetId);
+    const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
 
     if (targetIndex !== -1 && locationGuess && locationGuess.id === selectedTargetId) {
       guessedCorrectly = true;
+      const value = remainingTargets[targetIndex].value;
       const updatedTargets = [...remainingTargets];
-      updatedTargets.splice(targetIndex, 1);
-      let value = 100;
-      if(remainingTargets[targetIndex].street.isUsed) value -= 10;
-      if(remainingTargets[targetIndex].types.isUsed) value -= 10;
-      if(remainingTargets[targetIndex].reviews.isUsed !== -1) value -= 20;
+      updatedTargets.splice(targetIndex, 1); // Remove target from remaining targets
 
       setRemainingTargets(updatedTargets); // Update state
-      setLocationGuess(null);
       updateSelectedTargets(updatedTargets, playerLocation);
 
       try {
         // Update RTDB with new remaining targets
-        const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
         await update(playerRef, { 
           remainingTargets: updatedTargets,
           score: lobbyData.players[currentUser.uid].score + value
@@ -202,7 +206,22 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) =>
         console.error('Error updating player data:', error);
       }
     }
+    else {
+      if(remainingTargets[targetIndex].value > 20)
+        remainingTargets[targetIndex].value -= 5;
+      const updatedTargets = [...remainingTargets];
 
+      try {
+        // Update RTDB with new remaining targets
+        await update(playerRef, { 
+          remainingTargets: updatedTargets,
+        });
+      } catch (error) {
+        console.error('Error updating player data:', error);
+      }
+    }
+
+    setLocationGuess(null);
     setGuessResult(guessedCorrectly ? 'Correct Guess!' : 'Wrong Guess!');
     setShowResult(true);
     setTimeout(() => setShowResult(false), 2000);
@@ -271,6 +290,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) =>
         selectedTargetTools={{ selectedTargetId, setSelectedTargetId }}
         targets={overlappingTargets}
         handlePlaceChanged={handlePlaceChanged}
+        currentGuess={locationGuess}
         onHint={useHint}
         bounds={bounds}
       />

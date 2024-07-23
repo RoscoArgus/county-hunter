@@ -19,7 +19,7 @@
 
 .prompt.shown {
     max-height: 50%; /* Set a sufficiently large value for max-height */
-    padding: 10px; /* Apply padding when shown */
+    padding: 15px; /* Apply padding when shown */
 }
 
 .options {
@@ -29,7 +29,7 @@
     overflow-wrap: break-word; /* Ensure long words break and wrap */
     word-wrap: break-word; /* Older property for the same purpose */
     max-width: 100%; /* Ensure the container takes full width */
-    margin-bottom: 15px;
+    margin-bottom: 30px;
 }
 
 .input {
@@ -47,6 +47,7 @@
     background-color: white;
     border-radius: 30px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
 }
 
 .hints li {

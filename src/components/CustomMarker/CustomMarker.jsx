@@ -1,6 +1,6 @@
 // CustomMarker.js
 import React from 'react';
-import { Marker, useMap } from 'react-leaflet';
+import { Marker } from 'react-leaflet';
 import L from 'leaflet';
 import styles from './CustomMarker.module.css'; // Import the CSS module
 
@@ -12,8 +12,6 @@ const getColorFromName = (name) => {
 };
 
 const CustomMarker = ({ position, user }) => {
-  const map = useMap();
-
   // Get the first letter of the displayName and use it to generate a color
   const displayName = user?.displayName || 'U';
   const backgroundColor = getColorFromName(displayName);

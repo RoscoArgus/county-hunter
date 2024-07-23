@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: '1'
 
       - name: Install dependencies
         run: npm install
@@ -36,9 +36,9 @@ jobs:
 
       - name: Prepare Netlify deployment
         run: |
-          mkdir -p dist
-          cp -r build/* dist
+          # Create the `_redirects` file in the `dist` folder
           echo '/*    /index.html   200' > dist/_redirects
+
 
       - name: Deploy to Netlify
         run: |

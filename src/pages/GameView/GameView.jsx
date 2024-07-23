@@ -109,11 +109,11 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) =>
       const targetsInRange = getTargetsInRange(targets, playerLocation);
 
       setOverlappingTargets(targetsInRange);
-      setGuessPrompt(targetsInRange.length > 0);
+      setGuessPrompt(targetsInRange?.length > 0);
 
       // Keep the selected target if it's still in range
-      if (!targetsInRange.find(target => target.id === selectedTargetId)) {
-        setSelectedTargetId(targetsInRange.length === 1 ? targetsInRange[0].id : null);
+      if (!targetsInRange?.find(target => target.id === selectedTargetId)) {
+        setSelectedTargetId(targetsInRange?.length === 1 ? targetsInRange[0]?.id : null);
       }
     }
   }

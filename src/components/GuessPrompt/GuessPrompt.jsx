@@ -27,7 +27,8 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
     // Function to check if a hint is used
     const isHintUsed = (type) => {
         if(!selectedTargetId) return false;
-        const target = targets.find(target => target.id === selectedTargetId);
+        const target = targets?.find(target => target.id === selectedTargetId);
+        if(!target) return false;
         if(type !== 'reviews')
             return target[type].isUsed;
         else
@@ -40,7 +41,7 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
     }
 
     useEffect(() => {
-        const target = targets.find(target => target.id === selectedTargetId);
+        const target = targets?.find(target => target.id === selectedTargetId);
         setCurrentTarget(target);
     }, [selectedTargetId, targets]);
 
@@ -53,8 +54,8 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                     : 'No Target Selected'
                 }
                 </h3>
-                <div>Hint: {targets.find(target => target.id === selectedTargetId)?.hint}</div>
-                {targets.length > 1 && (
+                <div>Hint: {targets?.find(target => target.id === selectedTargetId)?.hint}</div>
+                {targets?.length > 1 && (
                 <div>
                     <label>Select target to guess for:</label>
                     <select onChange={(e) => setSelectedTargetId(e.target.value)} value={selectedTargetId || ''}>

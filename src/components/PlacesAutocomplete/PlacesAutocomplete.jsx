@@ -6,7 +6,6 @@ const libraries = ["places"];
 const PlacesAutocomplete = ({ type, handlePlaceChanged, bounds, submittedTools }) => {
     const searchBoxRef = useRef(null);
     const inputElementRef = useRef(null); // New ref for the input element
-    const { submitted, setSubmitted } = submittedTools;
 
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -14,14 +13,14 @@ const PlacesAutocomplete = ({ type, handlePlaceChanged, bounds, submittedTools }
     });
 
     useEffect(() => {
-        if (submitted) {
+        if (submittedTools?.submitted) {
             // Clear the input value
             if (inputElementRef.current) {
                 inputElementRef.current.value = '';
             }
-            setSubmitted(false);
+            submittedTools?.setSubmitted(false);
         }
-    }, [submitted, setSubmitted]);
+    }, [submittedTools]);
 
     if (loadError) {
         return <div>Error Loading Maps</div>;

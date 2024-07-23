@@ -11,7 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 import GuessPrompt from '../../components/GuessPrompt/GuessPrompt';
 import { STARTING_RANGE } from '../../constants';
 
-const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) => {
+const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, playerLocation }) => {
   const [gameOptions, setGameOptions] = useState(initGameOptions);
   const [guessPrompt, setGuessPrompt] = useState(false);
   const [locationGuess, setLocationGuess] = useState(null);
@@ -24,7 +24,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) =>
   const { currentUser } = useAuth();
   const [remainingTargets, setRemainingTargets] = useState(null); // State for remaining targets
 
-  // TODO TEMP REMOVE
+  /* TODO TEMP REMOVE
   const [playerLocation, setPlayerLocation] = useState(null);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished }) =>
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-  // END TEMP
+  // END TEMP*/
 
   const getTargetsInRange = (targets, playerLocation) => {
     if(!playerLocation) return [];

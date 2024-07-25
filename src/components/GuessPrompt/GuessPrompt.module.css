@@ -77,15 +77,15 @@
     font-weight: bold;
 }
 
-.hints .street-name {
+.hints .street {
     background-color: red;
 }
 
-.hints .establishment-types {
+.hints .types {
     background-color: blue;
 }
 
-.hints .random-review {
+.hints .reviews {
     background-color: green;
 }
 

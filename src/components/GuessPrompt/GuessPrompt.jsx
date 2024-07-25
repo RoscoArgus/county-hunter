@@ -12,12 +12,18 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
     const [currentTarget, setCurrentTarget] = useState(null); // Add state for current target
     const [submitted, setSubmitted] = useState(false); // Add state for guess submission
 
-    const handleUseHint = (type, value) => {
+    const hintTypes = [
+        { type: 'street', value: 10, usedValue: true },
+        { type: 'types', value: 10, usedValue: true },
+        { type: 'reviews', value: 20, usedValue: 0}
+    ]
+
+    const handleUseHint = (type, usedValue, hintValue) => {
         const target = targets.find(target => target.id === selectedTargetId);
         setHintType(type); // Set the hint type
         setHintDetails(target[type].content); // Set the hint details
         setShowModal(true); // Show the modal
-        onHint(type, value, selectedTargetId); // Use the hint
+        onHint(type, usedValue, hintValue, selectedTargetId); // Use the hint
     };
 
     const handleCloseModal = () => {
@@ -78,27 +84,37 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                 <div>{currentGuess ? currentGuess.name : 'No Location Selected'}</div>
             </div>
             <ul className={styles.hints}>
-                <li onClick={() => handleUseHint('street', true)}>
-                    <div className={`${styles.icon} ${styles['street-name']}`}>
-                        <FaMapSigns />
-                        {isHintUsed('street') && <FaCheck className={styles.checkmark} />} {/* Show checkmark if used */}
-                    </div>
-                    <label>Street Name <br/>(-10 points)</label>
-                </li>
-                <li onClick={() => handleUseHint('types', true)}>
-                    <div className={`${styles.icon} ${styles['establishment-types']}`}>
-                        <FaInfoCircle />
-                        {isHintUsed('types') && <FaCheck className={styles.checkmark} />} {/* Show checkmark if used */}
-                    </div>
-                    <label>Establishment Types <br/>(-10 points)</label>
-                </li>
-                <li onClick={() => handleUseHint('reviews', 0)}>
-                    <div className={`${styles.icon} ${styles['random-review']}`}>
-                        <FaCommentDots />
-                        {isHintUsed('reviews') && <FaCheck className={styles.checkmark} />} {/* Show checkmark if used */}
-                    </div>
-                    <label>Random Review <br/>(-20 points)</label>
-                </li>
+                {hintTypes.map((item, _) => {
+                    let hintValue = 0;
+                    let disabled = false;
+                    const target = targets.find(target => target.id === selectedTargetId);
+                    switch(item.type) {
+                        case 'street':
+                            disabled = !target?.street;
+                            hintValue = 10;
+                            break;
+                        case 'types':
+                            disabled = !target?.types.length === 0;
+                            hintValue = target?.types.content.length > 1 ? 10 : 5;
+                            break;
+                        case 'reviews':
+                            disabled = !target?.reviews.length === 0;
+                            hintValue = 20;
+                            break;
+                        default:
+                            break;
+                    }
+                    
+                    return (
+                        <li onClick={() => handleUseHint(item.type, item.usedValue, hintValue)}>
+                            <div className={`${styles.icon} ${styles[type]}`}>
+                                <FaMapSigns />
+                                {isHintUsed(type) && <FaCheck className={styles.checkmark} />} {/* Show checkmark if used */}
+                            </div>
+                            <label>Street Name <br/>(-{hintValue} points)</label>
+                        </li>
+                    );
+                })}
             </ul>
 
             {/* Modal JSX */}

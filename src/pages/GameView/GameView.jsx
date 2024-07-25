@@ -118,7 +118,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     }
   }
 
-  const useHint = async (type, value, selectedId) => {
+  const useHint = async (type, usedValue, hintValue, selectedId) => {
     const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
     let updatedTargets = [...remainingTargets];
     const targetIndex = updatedTargets.findIndex(target => target.id === selectedId);
@@ -127,11 +127,11 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     if((type==='reviews' && updatedTargets[targetIndex][type].isUsed !== -1) || 
         updatedTargets[targetIndex][type].isUsed === true) return;
 
-    updatedTargets[targetIndex].value -= (type==='reviews' ? 20 : 10);
+    updatedTargets[targetIndex].value -= hintValue
     if(updatedTargets[targetIndex].value < 20) // minimum score for a location is 20
       updatedTargets[targetIndex].value = 20;
 
-    updatedTargets[targetIndex][type].isUsed = value;
+    updatedTargets[targetIndex][type].isUsed = usedValue;
     console.log(updatedTargets[targetIndex]);
     await update(playerRef, { 
         remainingTargets: updatedTargets

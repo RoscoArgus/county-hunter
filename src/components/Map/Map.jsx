@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import styles from './Map.module.css';
 import { MapContainer, TileLayer, Circle, Marker, AttributionControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { FaCrosshairs } from 'react-icons/fa';
 import { STARTING_RANGE, TARGET_RANGE } from '../../constants';
 import 'leaflet/dist/leaflet.css';
@@ -16,6 +19,15 @@ const tileLayerUrls = {
     esriWorldImagery: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     esriWorldTopoMap: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
 };
+
+// Set the default icon to use the correct images
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
 const playAreaOptions = { fillColor: 'transparent', fillOpacity: 1.0 };
 const locationOptions = { fillColor: 'blue', fillOpacity: 0.2, color: 'blue' };

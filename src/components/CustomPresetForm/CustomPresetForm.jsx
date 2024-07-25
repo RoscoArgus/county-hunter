@@ -23,12 +23,13 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
     }, [playerLocation])
 
     const getStreetName = (place) => {
+        // check longname for first route component (non-building number)
         for (let component of place.address_components) {
             if (component.types.includes('route')) {
                 return component.long_name;
             }
         }
-        return 'No Street Data Found';
+        return null;
     };
 
     const updateBounds = (target) => {
@@ -70,6 +71,7 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
     const handlePlaceChanged = (type, places) => {
         if (places.length <= 0) return;
         const place = places[0];
+        console.log('Place:', place);
 
         let target = {
             location: {
@@ -86,12 +88,14 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
         } else if (type === 'target') {
             target = {
                 ...target, 
-                types: place.types,
+                types: place.types ? place.types : [],
                 street: getStreetName(place),
-                reviews: place.reviews.map(review => ({
-                    rating: review.rating, 
-                    text: filterText(review.text, place.name)
-                })),
+                reviews: place.reviews 
+                    ? place.reviews.map(review => ({
+                        rating: review.rating, 
+                        text: filterText(review.text, place.name)
+                    }))
+                    : []
             }
             const distance = getDistanceInMeters(startingLocation.location.latitude, startingLocation.location.longitude, place.geometry.location.lat(), place.geometry.location.lng());
             if (distance > radius) {

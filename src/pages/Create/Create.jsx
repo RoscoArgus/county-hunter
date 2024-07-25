@@ -10,7 +10,7 @@ import { createLobby, createPreset } from '../../utils/game';
 import { useNavigate } from 'react-router-dom';
 import useGeolocation from '../../hooks/useGeolocation';
 import { useAuth } from '../../context/AuthContext';
-import { getRandomPointWithinRadius } from '../../utils/calculations';
+import { getRandomPointWithinRadius, getDistanceInMeters } from '../../utils/calculations';
 import { MAX_TIME, TARGET_RANGE } from '../../constants';
 
 const Create = () => {
@@ -155,6 +155,21 @@ const Create = () => {
     );
   };
 
+  const areTargetsInRange = () => {
+    for(target in targets) {
+      if(getDistanceInMeters(
+          startingLocation?.location.latitude, 
+          startingLocation?.location.longitude, 
+          target?.location.latitude, 
+          target?.location.longitude
+        ) > radius) 
+      {
+          return false;
+      }
+      return true;
+    }
+  }
+
   if(isLoading) {
     return <h1>Loading...</h1>
   }
@@ -235,6 +250,7 @@ const Create = () => {
                   {!startingLocation && <li>Starting location is required</li>}
                   {!targets.every(target => target) && <li>Targets are required</li>}
                   {hasDuplicates(targets) && <li>Targets must be unique</li>}
+                  {!areTargetsInRange && <li>All targets must be in range</li>}
                   {!hints.every(hint => hint) && <li>Hints are required</li>}
                   {!radius && <li>Radius is required</li>}
                   {!gameMode && <li>Game mode is required</li>}

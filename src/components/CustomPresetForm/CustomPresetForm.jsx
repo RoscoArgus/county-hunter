@@ -88,14 +88,14 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
         } else if (type === 'target') {
             target = {
                 ...target, 
-                types: place.types ? place.types : [],
+                types: place.types ? place.types : null,
                 street: getStreetName(place),
                 reviews: place.reviews 
                     ? place.reviews.map(review => ({
                         rating: review.rating, 
                         text: filterText(review.text, place.name)
                     }))
-                    : []
+                    : null
             }
             const distance = getDistanceInMeters(startingLocation.location.latitude, startingLocation.location.longitude, place.geometry.location.lat(), place.geometry.location.lng());
             if (distance > radius) {
@@ -219,10 +219,10 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                                 backgroundColor: targets[index] ? targets.filter(target => targets[index]?.id === target?.id).length > 1 ? 'yellow' : '#70ff2a' : '', 
                                 border: currentTargetIndex === index ? '2px solid black' : '2px solid transparent',
                                 outline: getDistanceInMeters (
-                                            startingLocation?.location.latitude, 
-                                            startingLocation?.location.longitude, 
-                                            targets[index]?.location.latitude, 
-                                            targets[index]?.location.longitude
+                                            startingLocation?.location?.latitude, 
+                                            startingLocation?.location?.longitude, 
+                                            targets[index]?.location?.latitude, 
+                                            targets[index]?.location?.longitude
                                         ) > radius ? '2px solid red' : '2px solid transparent',
                             }}
                         >

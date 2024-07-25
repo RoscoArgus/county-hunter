@@ -53,7 +53,7 @@ const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapC
         if (tracking && center && zoom !== undefined) {
             map.setView(center, zoom, { animate: true, duration: 3 });
         }
-    }, [center, zoom, map, tracking]);
+    }, [startingLocation, center, zoom, map, tracking]);
 
     useEffect(() => {
         map.zoomControl[tracking ? 'disable' : 'enable']();

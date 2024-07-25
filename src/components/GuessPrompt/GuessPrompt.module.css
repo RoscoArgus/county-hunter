@@ -13,12 +13,14 @@
     justify-content: space-around;
     border-radius: 10px 10px 0 0; /* Apply border-radius when shown */
     max-height: 0; /* Start with height 0 */
+    min-height: 0;
     padding: 0; /* Start with no padding */
     margin: 0; /* Ensure no margin is causing the gap */
 }
 
 .prompt.shown {
     max-height: 50%; /* Set a sufficiently large value for max-height */
+    min-height: 30%;
     padding: 15px; /* Apply padding when shown */
 }
 
@@ -50,15 +52,18 @@
     margin-bottom: 15px;
 }
 
-.hints li {
+.hints button {
     display: flex;
+    background: none;
+    border: none;
+    cursor: pointer;
     flex-direction: column;
     align-items: center;
     margin: 0 20px;
     width: 80px;
 }
 
-.hints li label {
+.hints button label {
     margin-top: 10px;
     font-size: 14px;
     font-weight: bold;
@@ -89,6 +94,10 @@
     background-color: green;
 }
 
+.hints .disabled {
+    background-color: gray;
+}
+
 @media screen and (max-width: 800px) {
     .prompt {
         flex-direction: column;
@@ -114,6 +123,9 @@
 
 .modalContent {
     background: white;
+    max-width: 100%;
+    overflow-wrap: break-word; /* Ensure long words break and wrap */
+    word-wrap: break-word; /* Older property for the same purpose */
     padding: 20px;
     border-radius: 5px;
     position: relative;

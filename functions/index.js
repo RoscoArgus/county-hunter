@@ -1,19 +1,61 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+admin.initializeApp();
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+const db = admin.database();
+const FIVE_MINUTES = 5 * 60 * 1000;
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+// Function to remove inactive players
+exports.removeInactivePlayers = functions.pubsub.schedule("every 5 minutes")
+    .onRun(async (context) => {
+      const now = Date.now();
+      const gamesRef = db.ref("games");
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+      const snapshot = await gamesRef.once("value");
+      const updates = {};
+
+      snapshot.forEach((gameSnap) => {
+        const gameKey = gameSnap.key;
+        const playersRef = gameSnap.child("players");
+        playersRef.forEach((playerSnap) => {
+          const playerKey = playerSnap.key;
+          const playerData = playerSnap.val();
+          if (playerData.lastActive && now - new Date(playerData.lastActive)
+              .getTime() > FIVE_MINUTES) {
+            updates[`/games/${gameKey}/players/${playerKey}`] = null;
+          }
+        });
+      });
+
+      await db.ref().update(updates);
+      return null;
+    });
+
+// Function to delete lobbies without a host
+exports.removeEmptyLobbies = functions.pubsub.schedule("every 5 minutes")
+    .onRun(async (context) => {
+      const gamesRef = db.ref("games");
+      const snapshot = await gamesRef.once("value");
+      const updates = {};
+
+      snapshot.forEach((gameSnap) => {
+        const gameKey = gameSnap.key;
+        const gameData = gameSnap.val();
+        const playersRef = gameSnap.child("players");
+        let hostExists = false;
+
+        playersRef.forEach((playerSnap) => {
+          const playerKey = playerSnap.key;
+          if (playerKey === gameData.host) {
+            hostExists = true;
+          }
+        });
+
+        if (!hostExists) {
+          updates[`/games/${gameKey}`] = null;
+        }
+      });
+
+      await db.ref().update(updates);
+      return null;
+    });

@@ -24,7 +24,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   const { currentUser } = useAuth();
   const [remainingTargets, setRemainingTargets] = useState(null); // State for remaining targets
 
-  /* TODO TEMP REMOVE
+   /*TODO TEMP REMOVE
   const [playerLocation, setPlayerLocation] = useState(null);
 
   useEffect(() => {
@@ -82,11 +82,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
         gameOptions.startingLocation.location.latitude,
         gameOptions.startingLocation.location.longitude
       );
-      if(distance < STARTING_RANGE) {
-        const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
-        update(playerRef, { finished: true });
-        return [];
-      };
+      setGuessPrompt(distance < STARTING_RANGE);
     }
     else {
       return targets.filter(target => {
@@ -122,17 +118,15 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
     let updatedTargets = [...remainingTargets];
     const targetIndex = updatedTargets.findIndex(target => target.id === selectedId);
-    console.log(type);
 
     if((type==='reviews' && updatedTargets[targetIndex][type].isUsed !== -1) || 
         updatedTargets[targetIndex][type].isUsed === true) return;
 
-    updatedTargets[targetIndex].value -= hintValue
+    updatedTargets[targetIndex].value -= hintValue;
     if(updatedTargets[targetIndex].value < 20) // minimum score for a location is 20
       updatedTargets[targetIndex].value = 20;
 
     updatedTargets[targetIndex][type].isUsed = usedValue;
-    console.log(updatedTargets[targetIndex]);
     await update(playerRef, { 
         remainingTargets: updatedTargets
     });
@@ -228,6 +222,11 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     setTimeout(() => setGuessResult(null), 5000);
   };
 
+  const handleEndGame = () => {
+    const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
+    update(playerRef, { finished: true });
+  };
+
   useEffect(() => {
     const lobbyRef = ref(rtdb, `games/${gameCode}/endTime`);
     const unsubscribe = onValue(lobbyRef, (snapshot) => {
@@ -293,6 +292,8 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
         currentGuess={locationGuess}
         onHint={useHint}
         bounds={bounds}
+        startingLocation={gameOptions.startingLocation}
+        endGame={handleEndGame}
       />
       <div className={`${styles.result} ${showResult ? styles.shown : ''}`}>{guessResult}</div>
     </div>

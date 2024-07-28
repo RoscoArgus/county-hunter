@@ -33,7 +33,7 @@ const GameHandler = () => {
           setIsHost(data.host === currentUser.uid);
           setGameStatus(data.status);
         } else {
-          navigate('/lobby-closed');
+          navigate('/no-lobby');
         }
       };
 

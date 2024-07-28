@@ -25,7 +25,7 @@ function App() {
             <Route path="/create" element={<Create />} />
             <Route path="/join" element={<Join />} />
             <Route path="/game/:gameCode" element={<GameHandler />} />
-            <Route path="/lobby-closed" element={<LobbyClosed />} />
+            <Route path="/no-lobby" element={<LobbyClosed />} />
           </Route>
           <Route path="*" element={<RedirectToHome />} />
         </Routes>

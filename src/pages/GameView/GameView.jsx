@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { rtdb } from '../../config/firebase';
+import { rtdb, db } from '../../config/firebase';
 import { ref, update, onValue } from 'firebase/database';
+import { doc, getDoc } from 'firebase/firestore';
 import Map from '../../components/Map/Map';
 import styles from './GameView.module.css';
 import { getDistanceInMeters } from '../../utils/calculations';
@@ -137,19 +138,27 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   }, [initGameOptions]);
 
   useEffect(() => {
-    const players = lobbyData.players;
-    const newPlayers = Object.keys(players)
-    .filter(playerId => playerId !== currentUser.uid)
-    .map(playerId => {
-      return {
-        displayName: players[playerId].username,
-        location: players[playerId].location,
-        photoURL: null
-      };
-    });
-    
-    setOtherPlayers(newPlayers);
-  }, [lobbyData.players])
+    const fetchPlayerData = async () => {
+        const players = lobbyData.players;
+        const newPlayers = await Promise.all(
+            Object.keys(players)
+                .filter(playerId => playerId !== currentUser.uid)
+                .map(async (playerId) => {
+                    const playerDoc = await getDoc(doc(db, 'users', playerId));
+                    const playerData = playerDoc.data();
+                    return {
+                        displayName: players[playerId].username,
+                        location: players[playerId].location,
+                        photoURL: playerData?.photoURL || null
+                    };
+                })
+        );
+
+        setOtherPlayers(newPlayers);
+    };
+
+    fetchPlayerData();
+  }, [lobbyData.players, currentUser.uid]);
 
   useEffect(() => {
     if(gameOptions && playerLocation)

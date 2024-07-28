@@ -48,7 +48,6 @@ const Home = () => {
     };
 
     const handleKeyDown = (event, action) => {
-        console.log(event.key);
         if (event.key === 'Enter') {
           action();
         }

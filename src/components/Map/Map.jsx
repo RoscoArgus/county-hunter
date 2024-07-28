@@ -186,7 +186,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
             {validPlayerLocation(playerLocation) && (
                 <CustomMarker position={[playerLocation?.latitude, playerLocation.longitude]} user={currentUser} />
             )}
-            {gameMode === 'create' && circles.map((circle, index) => (
+            {(gameMode === 'create' || gameMode === 'lobby') && circles.map((circle, index) => (
                 <Marker 
                     key={index} 
                     position={[circle.latitude, circle.longitude]} 

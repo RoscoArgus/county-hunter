@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from './LobbyView.module.css';
 import Map from '../../components/Map/Map';
+import { db } from '../../config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { getDistanceInMeters } from '../../utils/calculations';
 import { useAuth } from '../../context/AuthContext';
 import { STARTING_RANGE } from '../../constants';
@@ -100,20 +102,29 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   }, [lobbyData]);
 
   useEffect(() => {
-    if(!lobbyData) return;
-    const players = lobbyData?.players;
-    const newPlayers = Object.keys(players)
-    .filter(playerId => playerId !== currentUser.uid)
-    .map(playerId => {
-      return {
-        displayName: players[playerId].username,
-        location: players[playerId].location,
-        photoURL: null
-      };
-    });
-    
-    setMapPlayers(newPlayers);
-  }, [lobbyData?.players])
+    if (!lobbyData) return;
+    const fetchPlayerData = async () => {
+        const players = lobbyData.players;
+        const newPlayers = await Promise.all(
+            Object.keys(players)
+                .filter(playerId => playerId !== currentUser.uid)
+                .map(async (playerId) => {
+                    const playerDoc = await getDoc(doc(db, 'users', playerId));
+                    const playerData = playerDoc.data();
+
+                    return {
+                        displayName: players[playerId].username,
+                        location: players[playerId].location,
+                        photoURL: playerData?.photoURL || null
+                    };
+                })
+        );
+
+        setMapPlayers(newPlayers);
+    };
+
+    fetchPlayerData();
+  }, [lobbyData?.players, currentUser.uid]);
 
   return (
     <div className={styles.LobbyView}>
@@ -166,6 +177,11 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
           <Map
             playerLocation={playerLocation}
             startingLocation={gameOptions?.startingLocation}
+            circles={isHost ? gameOptions?.targets?.map(target => ({
+              ...target.location
+            }))
+            .sort((a, b) => a.isSelected - b.isSelected) // Sort to ensure selected circle is rendered on top
+            : []}
             gameMode='lobby'
             players={mapPlayers}
           />

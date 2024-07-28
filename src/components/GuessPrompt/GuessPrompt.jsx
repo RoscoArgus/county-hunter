@@ -29,7 +29,7 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                 setShowModal(true); // Show the modal
             } else {
                 setSelectedReviewIndex(target.reviews.isUsed); // Set the selected review index
-                setHintDetails(target.reviews.content[target.reviews.isUsed].text); // Set the hint details to the selected review
+                setHintDetails(target.reviews.content[target.reviews.isUsed]); // Set the hint details to the selected review
                 onHint(type, usedValue, hintValue, selectedTargetId); // Use the hint
                 setShowModal(true); // Show the modal
             }
@@ -48,7 +48,7 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
     const handleSelectReview = (index) => {
         const target = targets.find(target => target.id === selectedTargetId);
         setSelectedReviewIndex(index);
-        setHintDetails(target.reviews.content[index].text);
+        setHintDetails(target.reviews.content[index]);
         onHint(hintType, index, 5 + (target.reviews.content.length > 2 ? 5 * (target.reviews.content.length - 2) : 0), selectedTargetId);
     };
 
@@ -120,26 +120,32 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                         const target = targets?.find(target => target.id === selectedTargetId);
                         const disabled = target ? !(target[item.type]?.content ?? false) : true;
                         let hintValue = (item.type === 'street'
-                            ? 10
-                            : item.type === 'reviews'
-                                ? 5 + (target?.reviews?.content?.length > 2 ? 5 * (target?.reviews?.content?.length - 2) : 0)
-                                : item.type === 'types'
-                                    ? target?.types.content?.length > 1 ? 10 : 5
-                                    : 0
+                        ? 10
+                        : item.type === 'reviews'
+                            ? 5 + (target?.reviews?.content?.length > 2 ? 5 * (target?.reviews?.content?.length - 2) : 0)
+                            : item.type === 'types'
+                                ? target?.types.content?.length > 1 ? 10 : 5
+                                : 0
                         );
 
                         return (
-                            <button key={item.type} disabled={disabled} onClick={() => handleUseHint(item.type, item.usedValue, hintValue)}>
-                                <div className={`${styles.icon} ${styles[item.type]} ${disabled ? styles.disabled : ''}`}>
-                                    {item.icon}
-                                    {isHintUsed(item.type) && <FaCheck className={styles.checkmark} />} {/* Show checkmark if used */}
+                        <button key={item.type} disabled={disabled} onClick={() => handleUseHint(item.type, item.usedValue, hintValue)}>
+                            <div className={`${styles.icon} ${styles[item.type]} ${disabled ? styles.disabled : ''}`}>
+                            {item.icon}
+                            {isHintUsed(item.type) && 
+                                <div className={styles.checkmark}>
+                                    <FaCheck />
                                 </div>
-                                <label>{item.title} <br />({hintValue ? '-' : ''}{hintValue} points)</label>
-                            </button>
+                            }
+                            </div>
+                            <label>
+                                {item.title} <br/>
+                                {disabled ? "(Disabled)" : isHintUsed(item.type) ? "(Used)" : <>({hintValue ? '-' : ''}{hintValue} points)</>}
+                            </label>
+                        </button>
                         );
                     })}
                 </ul>
-
                 {/* Modal JSX */}
                 {showModal && (
                     <div className={styles.modal}>
@@ -158,10 +164,28 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                                         </ul>
                                     </div>
                                 ) : (
-                                    <p>{`Hint: ${hintDetails}`}</p>
+                                    <React.Fragment>
+                                        <h2>Review</h2>
+                                        <h3>Rating: </h3> {hintDetails.rating}
+                                        <h3>Content: </h3> {hintDetails.text}
+                                    </React.Fragment>
                                 )
                             ) : (
-                                <p>{`Hint: ${hintDetails}`}</p>
+                                <React.Fragment>
+                                    <h2>{Array.isArray(hintDetails) ? "Establishment Types" : "Street Name"}</h2>
+                                    {Array.isArray(hintDetails) 
+                                        ?   
+                                        <>
+                                            {hintDetails.map((item) => {
+                                                return <h3>{item.replaceAll("_", " ")}</h3>})}
+                                        </>
+                                        : 
+                                        <>
+                                            {hintDetails}
+                                        </>
+                                    }
+                                    
+                                </React.Fragment>
                             )}
                             {/* Additional modal content or instructions */}
                         </div>

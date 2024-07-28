@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db, rtdb } from '../../config/firebase';
-import { ref, get, update, onValue } from 'firebase/database';
+import { rtdb } from '../../config/firebase';
+import { ref, update, onValue } from 'firebase/database';
 import Map from '../../components/Map/Map';
 import styles from './GameView.module.css';
 import { getDistanceInMeters } from '../../utils/calculations';
@@ -82,7 +81,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
         gameOptions.startingLocation.location.latitude,
         gameOptions.startingLocation.location.longitude
       );
-      setGuessPrompt(distance < STARTING_RANGE);
+      setGuessPrompt(!isHost && distance < STARTING_RANGE);
     }
     else {
       return targets.filter(target => {
@@ -105,7 +104,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
       const targetsInRange = getTargetsInRange(targets, playerLocation);
 
       setOverlappingTargets(targetsInRange);
-      setGuessPrompt(targetsInRange?.length > 0);
+      setGuessPrompt(!isHost && targetsInRange?.length > 0);
 
       // Keep the selected target if it's still in range
       if (!targetsInRange?.find(target => target.id === selectedTargetId)) {
@@ -250,6 +249,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     return <div>Loading...</div>;
   }
 
+  /*
   if (isHost || finished) {
     return (
       <>
@@ -261,9 +261,21 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
           ))}
         </ul>
         {isHost && <button onClick={() => endGame(gameCode)}>End Game</button>}
+        <Map
+          circles={remainingTargets?.map(target => ({
+              ...target.randOffset,
+              isSelected: target.id === selectedTargetId
+            }))
+            .sort((a, b) => a.isSelected - b.isSelected) // Sort to ensure selected circle is rendered on top
+          }
+          playerLocation={playerLocation}
+          startingLocation={gameOptions.startingLocation}
+          gameMode={gameOptions.mode}
+          locationGuess={locationGuess}
+        />
       </>
     );
-  }
+  }*/
 
   return (
     <div className={styles.GameView}>

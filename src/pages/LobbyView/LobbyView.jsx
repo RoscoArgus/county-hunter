@@ -8,6 +8,7 @@ import { updatePlayer, startGame } from '../../utils/game';
 
 const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, playerLocation }) => {
   const [sortedPlayers, setSortedPlayers] = useState([]);
+  const [mapPlayers, setMapPlayers] = useState([]);
   const { currentUser } = useAuth();
   
   /*TODO REMOVE TEMPORARY
@@ -98,6 +99,22 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
     }
   }, [lobbyData]);
 
+  useEffect(() => {
+    if(!lobbyData) return;
+    const players = lobbyData?.players;
+    const newPlayers = Object.keys(players)
+    .filter(playerId => playerId !== currentUser.uid)
+    .map(playerId => {
+      return {
+        displayName: players[playerId].username,
+        location: players[playerId].location,
+        photoURL: null
+      };
+    });
+    
+    setMapPlayers(newPlayers);
+  }, [lobbyData?.players])
+
   return (
     <div className={styles.LobbyView}>
       <div className={styles.lobbyLeft}>
@@ -150,6 +167,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
             playerLocation={playerLocation}
             startingLocation={gameOptions?.startingLocation}
             gameMode='lobby'
+            players={mapPlayers}
           />
         </div>
         <div className={styles.gameDetails}>

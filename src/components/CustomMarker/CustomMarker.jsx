@@ -3,13 +3,7 @@ import React from 'react';
 import { Marker } from 'react-leaflet';
 import L from 'leaflet';
 import styles from './CustomMarker.module.css'; // Import the CSS module
-
-const getColorFromName = (name) => {
-  // Generate a hash from the name and convert it to a color
-  const hash = Array.from(name).reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const color = `hsl(${hash % 360}, 100%, 80%)`;
-  return color;
-};
+import { getColorFromName } from '../../utils/user';
 
 const CustomMarker = ({ position, user }) => {
   // Get the first letter of the displayName and use it to generate a color
@@ -30,6 +24,7 @@ const CustomMarker = ({ position, user }) => {
     iconAnchor: [15, 15],
   });
 
+  if(!position) return null;
   return <Marker position={position} icon={icon} />;
 };
 

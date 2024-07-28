@@ -120,7 +120,7 @@ const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapC
     return null;
 };
 
-const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locationGuess }) => {
+const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locationGuess, players }) => {
     const [mapCenter, setMapCenter] = useState(defaultCenter);
     const [mapZoom, setMapZoom] = useState(defaultZoom);
     const [tracking, setTracking] = useState(true); // State for toggle    
@@ -156,9 +156,6 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 url={tileLayerUrls.cartoDBVoyager}
                 attribution='<a href="https://leafletjs.com/">Leaflet</a> | &copy;<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy;<a href="https://carto.com/attributions">CARTO</a>'
             />
-            {validPlayerLocation(playerLocation) && (
-                <CustomMarker position={[playerLocation.latitude, playerLocation.longitude]} user={currentUser} />
-            )}
             {validStartingLocation(startingLocation) && (
                 <React.Fragment>
                     <Circle
@@ -174,6 +171,20 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                         />
                     )}
                 </React.Fragment>
+            )}
+            {players && players.map((player, index) => {
+                if(!player.location) return null;
+                return (
+                    <CustomMarker 
+                        key={index} 
+                        position={[player.location.latitude, player.location.longitude]} 
+                        user={player} 
+                    />
+                );
+                }
+            )}
+            {validPlayerLocation(playerLocation) && (
+                <CustomMarker position={[playerLocation?.latitude, playerLocation.longitude]} user={currentUser} />
             )}
             {gameMode === 'create' && circles.map((circle, index) => (
                 <Marker 

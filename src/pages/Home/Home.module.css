@@ -21,8 +21,11 @@
 }
 
 .pfp {
+    display: flex;
     height: 40px;
     width: 40px;
+    justify-content: center;
+    align-items: center;
     margin-left: 10px;
     border-radius: 50%;
     border: 1px solid black;

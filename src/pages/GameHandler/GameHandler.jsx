@@ -44,8 +44,8 @@ const GameHandler = () => {
       onValue(connectedRef, (snap) => {
         if (snap.val() === true) {
           // Mark user as online
-          update(playerRef, { username: currentUser.displayName, online: true, inRange: false });
-
+          const location = playerLocation ?? { latitude: 0, longitude: 0 };
+          update(playerRef, { username: currentUser.displayName, online: true, inRange: false, lastActive: null, location: location});
           // Handle disconnection
           onDisconnect(playerRef).update({
             username: currentUser.displayName,
@@ -60,6 +60,17 @@ const GameHandler = () => {
       };
     }
   }, [gameCode]);
+
+  //TODO I'm concerned this will use a lot of data for the RTDB. Monitor usage.
+  useEffect(() => {
+    const handleUpdateLocation = () => {
+      const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
+      if(playerLocation.latitude && playerLocation.longitude)
+        update(playerRef, {location: playerLocation});
+    };
+
+    handleUpdateLocation();
+  }, [playerLocation])
 
   useEffect(() => {
     const fetchGameOptions = async () => {

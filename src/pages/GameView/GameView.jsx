@@ -22,6 +22,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   const [selectedTargetId, setSelectedTargetId] = useState(null);
   const { currentUser } = useAuth();
   const [remainingTargets, setRemainingTargets] = useState(null); // State for remaining targets
+  const [otherPlayers, setOtherPlayers] = useState([]);
 
    /*TODO TEMP REMOVE
   const [playerLocation, setPlayerLocation] = useState(null);
@@ -134,6 +135,21 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   useEffect(() => {
     setGameOptions(initGameOptions);
   }, [initGameOptions]);
+
+  useEffect(() => {
+    const players = lobbyData.players;
+    const newPlayers = Object.keys(players)
+    .filter(playerId => playerId !== currentUser.uid)
+    .map(playerId => {
+      return {
+        displayName: players[playerId].username,
+        location: players[playerId].location,
+        photoURL: null
+      };
+    });
+    
+    setOtherPlayers(newPlayers);
+  }, [lobbyData.players])
 
   useEffect(() => {
     if(gameOptions && playerLocation)
@@ -249,10 +265,9 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     return <div>Loading...</div>;
   }
 
-  /*
   if (isHost || finished) {
     return (
-      <>
+      <div className={styles.GameView}>
         <ul>
           {Object.keys(lobbyData.players).map((userId) => (
             <li key={userId}>
@@ -261,21 +276,28 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
           ))}
         </ul>
         {isHost && <button onClick={() => endGame(gameCode)}>End Game</button>}
-        <Map
-          circles={remainingTargets?.map(target => ({
-              ...target.randOffset,
-              isSelected: target.id === selectedTargetId
-            }))
-            .sort((a, b) => a.isSelected - b.isSelected) // Sort to ensure selected circle is rendered on top
-          }
-          playerLocation={playerLocation}
-          startingLocation={gameOptions.startingLocation}
-          gameMode={gameOptions.mode}
-          locationGuess={locationGuess}
-        />
-      </>
+        <div className={styles.map}>
+          <div className={styles.timer}>
+            {!remainingTargets && <div>Get Back to the Start!</div>}
+            {endTime && <Timer targetTime={endTime} onTimeLimitReached={handleTimeLimitReached} />}
+          </div>
+          <Map
+            circles={remainingTargets?.map(target => ({
+                ...target.randOffset,
+                isSelected: target.id === selectedTargetId
+              }))
+              .sort((a, b) => a.isSelected - b.isSelected) // Sort to ensure selected circle is rendered on top
+            }
+            playerLocation={playerLocation}
+            startingLocation={gameOptions.startingLocation}
+            gameMode={gameOptions.mode}
+            locationGuess={locationGuess}
+            players={otherPlayers}
+          />
+        </div>
+      </div>
     );
-  }*/
+  }
 
   return (
     <div className={styles.GameView}>

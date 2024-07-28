@@ -5,6 +5,7 @@ import { joinLobby } from '../../utils/game';
 import { getImageUrl } from '../../utils/image';
 import { auth } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
+import { getColorFromName } from '../../utils/user';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -58,11 +59,16 @@ const Home = () => {
             <nav className={styles.user}>
                 <div className={styles.userInfo} onClick={toggleMenu}>
                     <h4>{ currentUser.displayName ? currentUser.displayName : currentUser.email.split('@')[0]}</h4>
-                    <img 
-                        src={currentUser?.photoURL ? currentUser.photoURL : getImageUrl("user/default.png")} 
-                        alt="user" 
-                        className={styles.pfp}
-                    />
+                    { currentUser.photoURL 
+                        ? <img 
+                            src={currentUser.photoURL} 
+                            alt="user" 
+                            className={styles.pfp}
+                        />
+                        : <div class={styles.pfp} style={{backgroundColor: getColorFromName(currentUser.displayName)}}>
+                            {currentUser.displayName.charAt(0).toUpperCase()}
+                        </div>
+                    }
                 </div>
                 {menuOpen && (
                     <div className={styles.menu}>

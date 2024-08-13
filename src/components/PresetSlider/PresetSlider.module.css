@@ -1,3 +1,5 @@
+@import '../../vars.css';
+
 .sliderContainer {
     position: relative;
     width: 100%;
@@ -7,20 +9,22 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    -webkit-tap-highlight-color: transparent;
   }
   
   .slider {
-    width: 100%;
+    width: auto;
     overflow: hidden; /* Hide any overflow */
+    border-radius: 10px;
+    margin: 0 15px;
   }
   
   .leftCaret, .rightCaret {
-    position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--button-default);
     color: white;
     border: none;
+    border-radius: 10px;
     padding: 10px;
     cursor: pointer;
     z-index: 1;
@@ -33,7 +37,26 @@
   .rightCaret {
     right: 10px;
   }
+
+  .leftIcon, .rightIcon {
+    font-size: 1.2rem;
+  }
+
+  .leftIcon {
+    transform: translateX(-6%);
+  }
+
+  .rightIcon {
+    transform: translateX(6%);
+  }
   
   .leftCaret:hover, .rightCaret:hover {
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: var(--button-default-hover);
   }  
+
+  @media screen and (max-width: 768px) {
+    .sliderContainer {
+      width: 50%;
+      min-width: 325px;
+    }
+  }

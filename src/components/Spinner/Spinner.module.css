@@ -1,0 +1,50 @@
+@import '../../vars.css';
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinnerContainer {
+  display: flex;
+  color: var(--button-tertiary); /* Circle color */
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.globe {
+  font-size: 7.5rem; /* Diameter of the visible circle */
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orbit {
+  width: 140px; /* Diameter of the orbit */
+  height: 140px;
+  position: relative;
+  animation: rotate 3s infinite ease-in-out;
+}
+
+.plane {
+  font-size: 2.5rem; /* Width of the rectangle */
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px) rotate(-20deg); /* Position the rectangle outside the circle */
+}
+
+/* Orbiting animation */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

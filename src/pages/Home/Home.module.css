@@ -8,6 +8,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
 }
 
 .user {
@@ -35,6 +36,7 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .pfp {
@@ -76,7 +78,7 @@
 
 .title {
     font-size: 4em;
-    color: red;
+    color: var(--button-tertiary);
     margin: 15px 0;
 }
 

@@ -2,6 +2,7 @@
 
 .Create {
     display: flex;
+    justify-content: space-between;
     flex-direction: row;
     position: fixed;
     height: 100%;
@@ -12,18 +13,56 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
     position: relative;
 }
 
-.leftButton {
+.nav button, .map button {
     position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    gap: 5px;
+    border: none;
+}
+
+.icon {
+    font-size: 1.5rem;
+}
+
+.backIcon {
+    transform: translateX(-4%);
+}
+
+.leftButton {
+    background-color: var(--button-primary);
     left: 0;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-primary-hover);
+    }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
 }
 
 .rightButton {
-    position: absolute;
+    background-color: var(--button-secondary);
     right: 0;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-secondary-hover);
+    }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
 }
 
 .title {
@@ -32,14 +71,48 @@
 }
 
 .options {
-    flex: 3;
+    width: 60%;
     padding: 30px;
     overflow: auto;
 }
 
+.options::-webkit-scrollbar {
+    display: none;
+}
+
 .map {
-    flex: 2;
-    height: 100vh;
+    position: relative;
+    width: 40%;
+    height: 100%;
+}
+
+.map .mapButton {
+    display: none;
+    background-color: var(--button-secondary);
+    right: 0;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-secondary-hover);
+    }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
+}
+
+.map .slash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    text-shadow:
+        -2px -2px 0 black, /* Top left shadow */
+        2px -2px 0 black,  /* Top right shadow */
+        -2px 2px 0 black,  /* Bottom left shadow */
+        2px 2px 0 black;   /* Bottom right shadow */
+    font-size: 2rem;
+    color: red;
 }
 
 form {
@@ -66,31 +139,69 @@ form {
     margin-bottom: 15px;
 }
 
-.input-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
+input[type="number"] {
+    /* Hide the spinner in Firefox */
+    -moz-appearance: textfield; 
 }
 
-.input-container button {
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    /* Hide the spinner in WebKit browsers */
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+form {
+    margin-top: 15px;
+}
+
+.inputContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.inputContainer label {
+    font-family: var(--font-roboto);
+    font-weight: bold;
+}
+
+.inputContainer button {
     width: 30px;
     height: 30px;
     font-size: 18px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    background-color: var(--button-secondary);
+    color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0 5px; /* Space between buttons and input */
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-secondary-hover);
+    }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
 }
 
-.input-container input {
+.inputField {
     width: 60px;
     height: 30px;
     text-align: center;
     font-size: 16px;
     border: 1px solid #ccc;
-    margin: 0 5px;
+    border-radius: 5px;
+}
+
+ul li {
+    margin-left: 18px;
 }
 
 .buttons {
@@ -105,7 +216,7 @@ form {
     padding: 10px 20px;
     margin: 5px;
     border-radius: 10px;
-    border: 0px solid black;
+    border: none;
     color: var(--color-text);
 }
 
@@ -118,7 +229,7 @@ form {
         background-color: var(--button-secondary-hover);
     }
 
-    &:disabled{
+    &:disabled {
         background-color: var(--button-disabled);
         cursor: not-allowed;
     }
@@ -130,10 +241,49 @@ form {
     }
 
     .options {
-        padding: 10px;
+        padding: 15px;
+        height: auto;
+        width: 100%;
     }
 
     .map {
-        height: 50vh;
+        width: 100%;
+        min-height: 0;
+        transition: all 0.5s ease-in-out;
+    }
+
+    .map .mapButton {
+        height: 50px;
+        aspect-ratio: 1/1;
+        display: block;
+        position: absolute;
+        right: 15px;
+        top: -62px;
+    }
+
+    .expanded {
+        height: 50%;
+        min-height: 50vh;
+    }
+
+    .contracted {
+        height: 0;
+    }
+
+    .nav {
+        min-height: 50px;
+    }
+
+    .nav button {
+        height: 50px;
+        aspect-ratio: 1/1;
+    }
+
+    .nav button .icon {
+        font-size: 1.75rem;
+    }
+
+    .nav button h2{
+        display: none;
     }
 }

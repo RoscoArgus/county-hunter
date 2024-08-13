@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './PresetCard.module.css';
 import { useAuth } from '../../context/AuthContext';
+import { getColorFromName } from '../../utils/user';
 
 const PresetCard = ({ data, onPresetPress, selectedId }) => {
 
@@ -26,6 +27,13 @@ const PresetCard = ({ data, onPresetPress, selectedId }) => {
         }
     };
 
+    const reduceToInitials = (str) => {
+        return str
+          .split(' ')
+          .map(word => word[0].toUpperCase())
+          .join('');
+    };
+
     return (
         <button 
             className={styles.button} 
@@ -33,7 +41,13 @@ const PresetCard = ({ data, onPresetPress, selectedId }) => {
             onClick={() => onPresetPress(data)}
         >
             <div className={styles.thumbnail}>
-                <img src={data.thumbnail} alt={data.title} />
+                {data?.thumbnail 
+                ? <img src={data.thumbnail} alt={data.title} />
+                : 
+                <div className={styles.noThumbnail} style={{backgroundColor: getColorFromName(data.id)}}>
+                    <h1>{reduceToInitials(data.title)}</h1>
+                </div>
+                }
             </div>
             <div 
                 className={styles.title} 

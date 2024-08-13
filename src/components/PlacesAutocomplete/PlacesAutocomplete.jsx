@@ -3,7 +3,7 @@ import { useJsApiLoader, StandaloneSearchBox } from '@react-google-maps/api';
 
 const libraries = ["places"];
 
-const PlacesAutocomplete = ({ type, handlePlaceChanged, bounds, submittedTools }) => {
+const PlacesAutocomplete = ({ type, handlePlaceChanged, bounds, submittedTools, style }) => {
     const searchBoxRef = useRef(null);
     const inputElementRef = useRef(null); // New ref for the input element
 
@@ -37,6 +37,7 @@ const PlacesAutocomplete = ({ type, handlePlaceChanged, bounds, submittedTools }
                     type="text" 
                     placeholder="Enter a location"
                     ref={inputElementRef} // Set the ref to the input element
+                    style={style}
                 />
             </StandaloneSearchBox>
         ) : (

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
 import { joinLobby } from '../../utils/game';
-import { getImageUrl } from '../../utils/image';
 import { auth } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { getColorFromName } from '../../utils/user';

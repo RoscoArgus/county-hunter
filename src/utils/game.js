@@ -4,6 +4,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export const createPreset = async (gameData) => {
+  console.log(gameData);
   const docRef = await addDoc(collection(db, "presets"), gameData);
   return docRef.id;
 };

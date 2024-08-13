@@ -4,6 +4,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import styles from './PresetSlider.module.css';
 import PresetCard from '../PresetCard/PresetCard';
+import { FaCaretLeft, FaCaretRight } from 'react-icons/fa';
 
 const PresetSlider = ({ slides, onPresetPress, selectedId }) => {
   const sliderRef = useRef(null);
@@ -18,13 +19,13 @@ const PresetSlider = ({ slides, onPresetPress, selectedId }) => {
     swipeToSlide: true,
     responsive: [
       {
-        breakpoint: 1024,
+        breakpoint: 1360,
         settings: {
           slidesToShow: 2,
         }
       },
       {
-        breakpoint: 768,
+        breakpoint: 1080,
         settings: {
           slidesToShow: 1,
         }
@@ -38,13 +39,17 @@ const PresetSlider = ({ slides, onPresetPress, selectedId }) => {
 
   return (
     <div className={styles.sliderContainer}>
-      <button className={styles.leftCaret} onClick={() => sliderRef.current.slickPrev()}>&lt;</button>
+      <button className={styles.leftCaret} onClick={() => sliderRef.current.slickPrev()}>
+        <FaCaretLeft className={styles.leftIcon}/>
+      </button>
       <Slider ref={sliderRef} {...settings}>
         {displaySlides.map((d, index) => (
           <PresetCard key={index} data={d} onPresetPress={onPresetPress} selectedId={selectedId}/>
         ))}
       </Slider>
-      <button className={styles.rightCaret} onClick={() => sliderRef.current.slickNext()}>&gt;</button>
+      <button className={styles.rightCaret} onClick={() => sliderRef.current.slickNext()}>
+        <FaCaretRight className={styles.rightIcon}/>
+      </button>
     </div>
   );
 };

@@ -4,7 +4,7 @@ import gameModes from '../../data/gameModes';
 import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
 import { getDistanceInMeters } from '../../utils/calculations';
 
-const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsTools, hintTools, gameModeTools, playerLocation }) => {
+const CustomPresetForm = ({ titleTools, SLTools, radiusTools, targetsTools, hintTools, gameModeTools, playerLocation }) => {
     const [bounds, setBounds] = useState(null);
     const { title, setTitle } = titleTools;
     const { startingLocation, setStartingLocation } = SLTools;
@@ -69,7 +69,10 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
     };
     
     const handlePlaceChanged = (type, places) => {
-        if (places.length <= 0) return;
+        if (places.length != 1) {
+            alert('Please select a specific location.');
+            return;
+        }
         const place = places[0];
         console.log('Place:', place);
 
@@ -134,6 +137,10 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
         setCurrentTargetIndex(0);
     };
 
+    const hasDuplicateTargets = (index) => {
+        return targets.filter(target => targets[index]?.id === target?.id).length > 1
+    }
+
     return (
         <form>
             {/* Title */}
@@ -147,6 +154,8 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                     onChange={(e) => setTitle(e.target.value)}
                 />
             </div>
+            <hr />
+            
             {/* Gamemode */}
             <div className={styles.section}>
                 <div className={styles.sectionLabel}>Game Mode:</div>
@@ -166,6 +175,7 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                 </div>
                 <p>{gameModes.find((mode) => mode.id === gameMode).description}</p>
             </div>
+            <hr />
             
             {/* Starting Location */}
             <div className={styles.section}>
@@ -179,11 +189,13 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                     <div className={styles.locationName}>{startingLocation ? startingLocation.locationName : 'No Location Selected'}</div>
                 </span>
             </div>
+            <hr />
 
             {/* Play Area Radius */}
             <div className={styles.section}>
                 <div className={styles.sectionLabel}>Game Radius: {radius/1000}KM</div>
                 <input
+                    className={styles.radiusInput}
                     type="range"
                     min="500"
                     max="5000"
@@ -192,6 +204,7 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                     onChange={(e) => setRadius(e)}
                 />
             </div>
+            <hr />
 
             {/* Number of Targets */}
             <div className={styles.section}>
@@ -202,12 +215,13 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                     <option value={15}>Large (15 targets)</option>
                 </select>
             </div>
+            <hr />
 
             {/* Target Locations */}
             <div className={styles.section}>
                 <div className={styles.sectionLabel}>Choose targets:</div>
                 { startingLocation ? <>
-                <div style={{ display: 'grid', gridTemplateColumns: `repeat(5, 1fr)` }}>
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(5, 1fr)`, gap: '10px' }}>
                     {Array.from({ length: gameSize }, (_, index) => (
                         <button
                             type="button"
@@ -215,8 +229,9 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                             onClick={() => setCurrentTargetIndex(index)}
                             style={{ 
                                 padding: '10px', 
-                                margin: '5px', 
-                                backgroundColor: targets[index] ? targets.filter(target => targets[index]?.id === target?.id).length > 1 ? 'yellow' : '#70ff2a' : '', 
+                                borderRadius: "10px",
+                                marginBottom: '10px',
+                                backgroundColor: targets[index] ?  hasDuplicateTargets(index) ? 'yellow' : !hints[index] ? 'orange' : '#70ff2a' : '', 
                                 border: currentTargetIndex === index ? '2px solid black' : '2px solid transparent',
                                 outline: getDistanceInMeters (
                                             startingLocation?.location?.latitude, 
@@ -233,15 +248,20 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                 {targets.map((target, index) => {
                     return (
                         <div key={index} style={{ display: index === currentTargetIndex ? 'block' : 'none' }}>
-                            <div className={styles.locationName}>{target ? target.locationName : 'No Location Selected'}</div>
-                            <PlacesAutocomplete
-                                type='target'
-                                handlePlaceChanged={handlePlaceChanged}
-                                bounds={bounds}
-                            />
+                            <div className={styles.locationName}>Target Location</div>
+                            <span className={styles.startingLocation}>
+                                <PlacesAutocomplete
+                                    type='target'
+                                    handlePlaceChanged={handlePlaceChanged}
+                                    bounds={bounds}
+                                    style={{border: (targets[index] && !hasDuplicateTargets(index) ? '2px solid black' : '2px solid red')}}
+                                />
+                                <div className={styles.locationName}>{target ? target.locationName : 'No Location Selected'}</div>
+                            </span>
                            <div className={styles.locationName}>Personal Hint</div>
                            <input
                                placeholder='Enter your hint'
+                               style={{border: (hints[index] ? '2px solid black' : '2px solid red')}}
                                onChange={(e) => handleHintChanged(e)}
                                value={hints[index]}
                            />
@@ -249,7 +269,7 @@ const CustomPresetForm = ({ onSubmit, titleTools, SLTools, radiusTools, targetsT
                     );
                 })}
                 </> 
-                : <div>Please select a starting location to choose targets</div>}
+                : <p>Please select a starting location to choose targets</p>}
             </div>
         </form>
     )

@@ -6,10 +6,14 @@
     --color-dark: #0b2447;
     --color-bg: white;
 
+    --button-default: #666666;
+    --button-default-hover: #444444;
     --button-primary: #3C6CFD;
     --button-primary-hover: #1E3888;
     --button-secondary: #00BA4D;
     --button-secondary-hover: #009A40;
+    --button-tertiary: #FF4343;
+    --button-tertiary-hover: #D80000;
     --button-disabled: #BBBBBB;
   
     /* Fonts */

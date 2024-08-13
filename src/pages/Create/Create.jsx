@@ -11,7 +11,9 @@ import { useNavigate } from 'react-router-dom';
 import useGeolocation from '../../hooks/useGeolocation';
 import { useAuth } from '../../context/AuthContext';
 import { getRandomPointWithinRadius, getDistanceInMeters } from '../../utils/calculations';
-import { MAX_TIME, TARGET_RANGE } from '../../constants';
+import { MAX_PLAYERS, MAX_TIME, TARGET_RANGE } from '../../constants';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
+import { FaHome, FaAngleLeft, FaSave, FaMap, FaSlash } from 'react-icons/fa';
 
 const Create = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +28,7 @@ const Create = () => {
   const [timeLimit, setTimeLimit] = useState(30);
   const [maxPlayers, setMaxPlayers] = useState(8);
   const [showCustom, setShowCustom] = useState(false);
+  const [showMap, setShowMap] = useState(true);
 
   const navigate = useNavigate();
   const playerLocation = useGeolocation();
@@ -56,6 +59,20 @@ const Create = () => {
     }
   }, [currentUser])
 
+  const handleValueChange = (setter, value, min, max) => {
+    console.log(value)
+    const newValue = parseInt(value);
+    if (newValue >= 1 && newValue <= max) {
+      setter(newValue);
+    }
+    else if (newValue < 1) {
+      setter(min);
+    }
+    else if (newValue > max) {
+      setter(max);
+    }
+  };
+
   const hasDuplicates = (array) => {
     const ids = new Set();
     return array.some(item => {
@@ -65,7 +82,44 @@ const Create = () => {
         ids.add(item?.id);
         return false;
     });
-};
+  };
+
+  const handlePresetSave = async (creator) => {
+    const targetData = targets.map((target, index) => { 
+      return { 
+        ...target, 
+        randOffset: getRandomPointWithinRadius(
+          target.location.latitude, 
+          target.location.longitude, 
+          TARGET_RANGE, 
+          startingLocation.location.latitude, 
+          startingLocation.location.longitude, 
+          startingLocation.radius
+        ),
+        hint: hints[index] 
+      } 
+    });
+    const gameData = {
+      title: title,
+      creator: creator,
+      gameMode: gameMode,
+      startingLocation,
+      radius,
+      targets: targetData,
+    };
+
+    try {
+      const presetId = await createPreset(gameData);
+      setSelectedPreset(presetId);
+      setDefaultPresets([...defaultPresets, { id: presetId, ...gameData }]);
+      alert("Preset saved successfully!");
+      return presetId;
+    } catch (e) {
+      alert("Error creating preset. Please try again.");
+      console.error("Error creating preset: ", e);
+      return null;
+    }
+  };
 
   const handlePresetSelect = (preset) => {
     if(preset.gamemode === 'custom') {
@@ -90,50 +144,16 @@ const Create = () => {
       setStartingLocation({ ...startingLocation, radius: newRadius });
   };
 
-  const decreaseValue = (setter, value, min) => {
-    if (value > min) {
-      setter(value - 1);
-    }
-  };
-
-  const increaseValue = (setter, value, max) => {
-    if (value < max) {
-      setter(value + 1);
-    }
-  };
-
   const handleSubmit = async (event) => {
     setIsLoading(true);
     event.preventDefault();
-    const targetData = targets.map((target, index) => { 
-      return { 
-        ...target, 
-        randOffset: getRandomPointWithinRadius(
-          target.location.latitude, 
-          target.location.longitude, 
-          TARGET_RANGE, 
-          startingLocation.location.latitude, 
-          startingLocation.location.longitude, 
-          startingLocation.radius
-        ),
-        hint: hints[index] 
-      } 
-    });
-    const gameData = {
-      title: title,
-      creator: currentUser.displayName,
-      gameMode: gameMode,
-      startingLocation,
-      radius,
-      targets: targetData,
-    };
-
+    
     try {
       // if custom preset, create preset in DB
       let presetId = selectedPreset;
       if(selectedPreset === 'custom')
-        presetId = await createPreset(gameData);
-        const gameCode = await createLobby(currentUser, presetId, timeLimit, maxPlayers);
+        presetId = await handlePresetSave('Temporary');
+      const gameCode = await createLobby(currentUser, presetId, timeLimit, maxPlayers);
       navigate(`/game/${gameCode}`);
     } catch (e) {
       console.error("Error creating game: ", e);
@@ -156,22 +176,26 @@ const Create = () => {
   };
 
   const areTargetsInRange = () => {
-    for(target in targets) {
-      if(getDistanceInMeters(
-          startingLocation?.location.latitude, 
-          startingLocation?.location.longitude, 
-          target?.location.latitude, 
-          target?.location.longitude
-        ) > radius) 
-      {
-          return false;
-      }
-      return true;
+    for (const target of targets) {
+        if (!target) {
+            return false;
+        }
+        if (getDistanceInMeters(
+                startingLocation?.location.latitude, 
+                startingLocation?.location.longitude, 
+                target?.location.latitude, 
+                target?.location.longitude
+            ) > radius) 
+        {
+            return false;
+        }
     }
+    return true;
   }
 
+
   if(isLoading) {
-    return <h1>Loading...</h1>
+    return <LoadingScreen />
   }
 
   return (
@@ -181,14 +205,22 @@ const Create = () => {
           ? 
           <React.Fragment>
             <nav className={styles.nav}>
-              <button onClick={() => setShowCustom(false)} className={styles.leftButton}>Back</button>
+              <button onClick={() => setShowCustom(false)} className={styles.leftButton}>
+                <FaAngleLeft className={`${styles.icon} ${styles.backIcon}`} />
+                <h2>Back</h2>
+              </button>
               <h2 className={styles.title}>Custom Preset</h2>
-              {/* TODO show when logged in, allow player to save under their handle */}
-              <button onClick={() => console.log("TODO save preset")} className={styles.rightButton}>Save to Profile</button>
+              <button 
+                onClick={() => handlePresetSave(currentUser.displayName)} 
+                disabled={isLoading || isMissingData() || !areTargetsInRange()}
+                className={styles.rightButton}
+              >
+                <FaSave className={styles.icon} />
+                <h2>Save</h2>
+              </button>
             </nav>
             
             <CustomPresetForm 
-              onSubmit={handlePresetSelect}
               titleTools={{title, setTitle}}
               SLTools={{startingLocation, setStartingLocation}}
               radiusTools={{radius, setRadius: handleRadiusChanged}}
@@ -201,56 +233,85 @@ const Create = () => {
           : 
           <React.Fragment>
             <nav className={styles.nav}>
-              <button onClick={() => navigate('/home')} className={styles.leftButton}>Home</button>
+              <button onClick={() => navigate('/home')} className={styles.leftButton}>
+                <FaHome className={styles.icon}/>
+                <h2>Home</h2>
+              </button>
               <h2 className={styles.title}>Create Game</h2>
             </nav>
             <PresetSlider slides={defaultPresets} onPresetPress={handlePresetSelect} selectedId={selectedPreset}/>
             <form onSubmit={handleSubmit}>
-              <div className="input-container">
+              <div className={styles.inputContainer}>
                 <label htmlFor="timeLimit">Time Limit (max 60 minutes):</label>
-                <button type="button" onClick={() => decreaseValue(setTimeLimit, timeLimit, 5)}>-</button>
-                <input
-                  type="number"
-                  id="timeLimit"
-                  name="timeLimit"
-                  min="1"
-                  max={MAX_TIME}
-                  value={timeLimit}
-                  onChange={(e) => setTimeLimit(parseInt(e.target.value, 10))}
-                />
-                <button type="button" onClick={() => increaseValue(setTimeLimit, timeLimit, 120)}>+</button>
+                <div style={{display: "flex", flexDirection: "row"}}>
+                  <button 
+                    type="button" 
+                    onClick={() => handleValueChange(setTimeLimit, timeLimit-1, 5, MAX_TIME)} 
+                    className={styles.adjustButton}
+                    disabled={timeLimit <= 5}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    id="timeLimit"
+                    name="timeLimit"
+                    min="1"
+                    max={MAX_TIME}
+                    value={timeLimit}
+                    onChange={(e) => handleValueChange(setTimeLimit, e.target.value, 5, MAX_TIME)}
+                    className={styles.inputField}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => handleValueChange(setTimeLimit, timeLimit+1, 5, MAX_TIME)} 
+                    className={styles.adjustButton}
+                    disabled={timeLimit >= MAX_TIME}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-              <div className="input-container">
+              <div className={styles.inputContainer}>
                 <label htmlFor="maxPlayers">Max Players:</label>
-                <button type="button" onClick={() => decreaseValue(setMaxPlayers, maxPlayers, 2)}>-</button>
-                <input
-                  type="number"
-                  id="maxPlayers"
-                  name="maxPlayers"
-                  min="2"
-                  max="8"
-                  value={maxPlayers}
-                  onChange={(e) => setMaxPlayers(parseInt(e.target.value, 10))}
-                />
-                <button type="button" onClick={() => increaseValue(setMaxPlayers, maxPlayers, 8)}>+</button>
-              </div>
-              <div className={styles.buttons}>
-                <button 
-                  className={styles.createButton}
-                  disabled={isLoading || ((isMissingData() && selectedPreset === 'custom') || !selectedPreset)}
-                >
-                  Create Game
-                </button>
+                <div style={{display: "flex", flexDirection: "row"}}>
+                  <button 
+                    type="button" 
+                    onClick={() => handleValueChange(setMaxPlayers, maxPlayers-1, 2, MAX_PLAYERS)} 
+                    className={styles.adjustButton}
+                    disabled={maxPlayers <= 2}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    id="maxPlayers"
+                    name="maxPlayers"
+                    min="2"
+                    max={MAX_PLAYERS}
+                    value={maxPlayers}
+                    onChange={(e) => handleValueChange(setMaxPlayers, e.target.value, 2, MAX_PLAYERS)}
+                    className={styles.inputField}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => handleValueChange(setMaxPlayers, maxPlayers+1, 2, MAX_PLAYERS)} 
+                    className={styles.adjustButton}
+                    disabled={maxPlayers >= MAX_PLAYERS}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
               {/*errors*/}
-              {selectedPreset === 'custom' && 
+              {selectedPreset === 'custom' && isMissingData() &&
                 <ul>
                   <h3>Requirements for Custom Game</h3>
                   {!title && <li>Title is required</li>}
                   {!startingLocation && <li>Starting location is required</li>}
                   {!targets.every(target => target) && <li>Targets are required</li>}
                   {hasDuplicates(targets) && <li>Targets must be unique</li>}
-                  {!areTargetsInRange && <li>All targets must be in range</li>}
+                  {!areTargetsInRange() && <li>All targets must be in range</li>}
                   {!hints.every(hint => hint) && <li>Hints are required</li>}
                   {!radius && <li>Radius is required</li>}
                   {!gameMode && <li>Game mode is required</li>}
@@ -258,11 +319,33 @@ const Create = () => {
                   {!maxPlayers && <li>Max players is required</li>}
                 </ul>
               }
+
+              <div className={styles.buttons}>
+                <button 
+                  className={styles.createButton}
+                  disabled={
+                    isLoading || 
+                    ((isMissingData() && selectedPreset === 'custom') || 
+                    !selectedPreset ||
+                    !areTargetsInRange()
+                  )}
+                >
+                  Create Game
+                </button>
+              </div>
             </form>
           </React.Fragment>
         }
       </div>
-      <div className={styles.map}>
+      <div className={`${styles.map} ${showMap ? styles.expanded : styles.contracted}`}>
+        <button 
+          onClick={() => setShowMap(!showMap)} 
+          className={styles.mapButton}
+        >
+          <FaMap className={styles.icon} />
+          {showMap && <FaSlash className={`${styles.icon} ${styles.slash}`}/>}
+
+        </button>
         <Map
           circles={targets.filter(loc => loc).map(loc => loc.location)}
           startingLocation={startingLocation}

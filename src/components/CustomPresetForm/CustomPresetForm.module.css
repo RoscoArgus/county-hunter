@@ -1,12 +1,33 @@
-.section {
-    margin-bottom: 20px;
+@import '../../vars.css';
+
+hr {
+    margin: 20px 0;
+    opacity: 0.5;
 }
-.sectionLabel {
+
+.section p {
+    font-family: var(--font-roboto);
+}
+
+.section .sectionLabel {
     font-size: 1.2em;
     font-weight: bold;
     font-family: 'Outfit', sans-serif;
-    margin-bottom: 5px;
 }
+
+.section input {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    border-radius: 10px;
+    padding: 5px;
+    text-align: center;
+    border: 2px solid black;
+}
+
+
+.section .radiusInput {
+    padding: 0;
+}   
 
 .gameModes label {
     position: relative;
@@ -21,9 +42,11 @@
 .startingLocation {
     display: flex;
     flex-direction: row;
-}
+    align-items: center;
+} 
 
 .startingLocation .locationName {
+    font-family: var(--font-roboto);
     margin-left: 15px;
     font-weight: bold;
 }

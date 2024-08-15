@@ -26,11 +26,6 @@ const Login = () => {
     <main className={styles.Login}>
       <h2>Welcome to</h2>
       <h1 className={styles.title}>County Hunter</h1>
-      <div className={styles.target}>
-        <div className={styles.outer}>
-          <div className={styles.inner}/>
-        </div>
-      </div>
       <input
         type="text"
         value={email}

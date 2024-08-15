@@ -56,4 +56,3 @@
 .button:hover .title {
     background-color: var(--hover-bg-color, gray);
 }
-

@@ -3,27 +3,27 @@ import styles from './PresetCard.module.css';
 import { useAuth } from '../../context/AuthContext';
 import { getColorFromName } from '../../utils/user';
 
-const PresetCard = ({ data, onPresetPress, selectedId }) => {
+const PresetCard = ({ data, onPresetPress, selected }) => {
 
     const { currentUser } = useAuth();
 
     const getBackgroundColor = () => {
         if (data.creator === 'County Hunter') {
-            return 'red';
+            return '#FF4343';
         } else if (data.creator === currentUser.displayName) {
-            return 'blue';
+            return '#3C6CFD';
         } else {
-            return 'darkgray';
+            return '#00BA4D';
         }
     };
 
     const getHoverBackgroundColor = () => {
         if (data.creator === 'County Hunter') {
-            return 'darkred';
+            return '#D80000';
         } else if (data.creator === currentUser.displayName) {
-            return 'darkblue';
+            return '#1E3888';
         } else {
-            return 'gray';
+            return '#009A40';
         }
     };
 
@@ -37,7 +37,7 @@ const PresetCard = ({ data, onPresetPress, selectedId }) => {
     return (
         <button 
             className={styles.button} 
-            style={{ border: selectedId === data.id ? '5px solid black' : 'none' }} 
+            style={{ border: selected ? '5px solid black' : 'none' }} 
             onClick={() => onPresetPress(data)}
         >
             <div className={styles.thumbnail}>

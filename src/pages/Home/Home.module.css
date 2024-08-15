@@ -62,12 +62,16 @@
   margin: 0;
 }
 
-.menu li {
+.menu ul .destructive {
+  color: var(--button-tertiary);
+}
+
+.menu ul li {
   padding: 10px 20px;
   cursor: pointer;
 }
 
-.menu li:hover {
+.menu ul li:hover {
   background-color: #f0f0f0;
 }
 
@@ -135,7 +139,7 @@
     }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width:768px) {
     .title {
         font-size: 3em;
     }

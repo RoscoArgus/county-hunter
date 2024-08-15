@@ -24,3 +24,7 @@
     background-color: #007bff;
     color: #fff;
 }
+
+.request-popup .leaflet-popup-content-wrapper {
+    border-radius: 0px;
+}

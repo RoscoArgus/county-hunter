@@ -44,7 +44,7 @@ const PresetSlider = ({ slides, onPresetPress, selectedId }) => {
       </button>
       <Slider ref={sliderRef} {...settings}>
         {displaySlides.map((d, index) => (
-          <PresetCard key={index} data={d} onPresetPress={onPresetPress} selectedId={selectedId}/>
+          <PresetCard key={index} data={d} onPresetPress={onPresetPress} selected={selectedId === d.id}/>
         ))}
       </Slider>
       <button className={styles.rightCaret} onClick={() => sliderRef.current.slickNext()}>

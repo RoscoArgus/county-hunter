@@ -178,7 +178,10 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
             playerLocation={playerLocation}
             startingLocation={gameOptions?.startingLocation}
             circles={isHost ? gameOptions?.targets?.map(target => ({
-              ...target.location
+              ...target,
+              latitude: target.location.latitude,
+              longitude: target.location.longitude,
+              location: null
             }))
             .sort((a, b) => a.isSelected - b.isSelected) // Sort to ensure selected circle is rendered on top
             : []}

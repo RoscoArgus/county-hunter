@@ -6,14 +6,14 @@ import { getImageUrl } from '../../utils/image';
 import PresetSlider from '../../components/PresetSlider/PresetSlider';
 import Map from '../../components/Map/Map';
 import CustomPresetForm from '../../components/CustomPresetForm/CustomPresetForm';
-import { createLobby, createPreset } from '../../utils/game';
+import { createLobby, createPreset, deletePreset } from '../../utils/game';
 import { useNavigate } from 'react-router-dom';
 import useGeolocation from '../../hooks/useGeolocation';
 import { useAuth } from '../../context/AuthContext';
 import { getRandomPointWithinRadius, getDistanceInMeters } from '../../utils/calculations';
 import { MAX_PLAYERS, MAX_TIME, TARGET_RANGE } from '../../constants';
 import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
-import { FaHome, FaAngleLeft, FaSave, FaMap, FaSlash } from 'react-icons/fa';
+import { FaHome, FaAngleLeft, FaSave, FaMap, FaSlash, FaTrash } from 'react-icons/fa';
 
 const Create = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -27,6 +27,9 @@ const Create = () => {
   const [gameMode, setGameMode] = useState('classic');
   const [timeLimit, setTimeLimit] = useState(30);
   const [maxPlayers, setMaxPlayers] = useState(8);
+  // Temporary states for input values
+  const [tempTimeLimit, setTempTimeLimit] = useState(timeLimit);
+  const [tempMaxPlayers, setTempMaxPlayers] = useState(maxPlayers);
   const [showCustom, setShowCustom] = useState(false);
   const [showMap, setShowMap] = useState(true);
 
@@ -59,18 +62,15 @@ const Create = () => {
     }
   }, [currentUser])
 
-  const handleValueChange = (setter, value, min, max) => {
-    console.log(value)
-    const newValue = parseInt(value);
-    if (newValue >= 1 && newValue <= max) {
-      setter(newValue);
+  const handleValueChange = (setter, tempSetter, value, min, max) => {
+    let newValue = parseInt(value, 10);
+    if (isNaN(newValue) || newValue < min) {
+      newValue = min;
+    } else if (newValue > max) {
+      newValue = max;
     }
-    else if (newValue < 1) {
-      setter(min);
-    }
-    else if (newValue > max) {
-      setter(max);
-    }
+    tempSetter(newValue);
+    setter(newValue);
   };
 
   const hasDuplicates = (array) => {
@@ -133,8 +133,25 @@ const Create = () => {
       return;
     }
     setStartingLocation(preset.startingLocation);
-    setTargets(preset.targets.map(target => ({ location: target.location, radius: target.radius })));
+    setTargets(preset.targets);
     setSelectedPreset(preset.id);
+  }
+
+  const handlePresetDelete = async (presetId) => {
+    const presetName = defaultPresets.find(preset => preset.id === presetId)?.title;
+    const confirmed = window.confirm(`Are you sure you want to delete preset (${presetId}) "${presetName}"?`);
+
+    if(confirmed) {
+      setDefaultPresets(defaultPresets.filter(preset => preset.id !== presetId));
+      setSelectedPreset(null);
+      setTitle('');
+      setStartingLocation(null);
+      setRadius(1000);
+      setTargets(Array(5).fill(null));
+      setHints(Array(5).fill(''));
+      setGameMode('classic');
+      deletePreset(presetId);
+    }
   }
 
   const handleRadiusChanged = (event) => {
@@ -238,16 +255,25 @@ const Create = () => {
                 <h2>Home</h2>
               </button>
               <h2 className={styles.title}>Create Game</h2>
+              { defaultPresets.find(preset => preset.id === selectedPreset)?.creator === currentUser.displayName &&
+                <button onClick={() => handlePresetDelete(selectedPreset)} className={`${styles.rightButton} ${styles.destructive}`}>
+                  <FaTrash className={styles.icon}/>
+                  <h2>Delete</h2>
+                </button>
+              }
             </nav>
             <PresetSlider slides={defaultPresets} onPresetPress={handlePresetSelect} selectedId={selectedPreset}/>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className={styles.mainForm}>
               <div className={styles.inputContainer}>
-                <label htmlFor="timeLimit">Time Limit (max 60 minutes):</label>
-                <div style={{display: "flex", flexDirection: "row"}}>
-                  <button 
-                    type="button" 
-                    onClick={() => handleValueChange(setTimeLimit, timeLimit-1, 5, MAX_TIME)} 
-                    className={styles.adjustButton}
+                <label htmlFor="timeLimit">{`Time Limit (max ${MAX_TIME} minutes):`}</label>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempTimeLimit(timeLimit - 1);
+                      handleValueChange(setTimeLimit, setTempTimeLimit, timeLimit - 1, 5, MAX_TIME);
+                    }}
+                    className={styles.decreaseButton}
                     disabled={timeLimit <= 5}
                   >
                     -
@@ -258,27 +284,35 @@ const Create = () => {
                     name="timeLimit"
                     min="1"
                     max={MAX_TIME}
-                    value={timeLimit}
-                    onChange={(e) => handleValueChange(setTimeLimit, e.target.value, 5, MAX_TIME)}
+                    value={tempTimeLimit}
+                    onChange={(e) => setTempTimeLimit(e.target.value)}
+                    onBlur={() => handleValueChange(setTimeLimit, setTempTimeLimit, tempTimeLimit, 5, MAX_TIME)}
                     className={styles.inputField}
                   />
-                  <button 
-                    type="button" 
-                    onClick={() => handleValueChange(setTimeLimit, timeLimit+1, 5, MAX_TIME)} 
-                    className={styles.adjustButton}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempTimeLimit(timeLimit + 1);
+                      handleValueChange(setTimeLimit, setTempTimeLimit, timeLimit + 1, 5, MAX_TIME);
+                    }}
+                    className={styles.increaseButton}
                     disabled={timeLimit >= MAX_TIME}
                   >
                     +
                   </button>
                 </div>
               </div>
+
               <div className={styles.inputContainer}>
                 <label htmlFor="maxPlayers">Max Players:</label>
-                <div style={{display: "flex", flexDirection: "row"}}>
-                  <button 
-                    type="button" 
-                    onClick={() => handleValueChange(setMaxPlayers, maxPlayers-1, 2, MAX_PLAYERS)} 
-                    className={styles.adjustButton}
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempMaxPlayers(maxPlayers - 1);
+                      handleValueChange(setMaxPlayers, setTempMaxPlayers, maxPlayers - 1, 2, MAX_PLAYERS);
+                    }}
+                    className={styles.decreaseButton}
                     disabled={maxPlayers <= 2}
                   >
                     -
@@ -289,14 +323,18 @@ const Create = () => {
                     name="maxPlayers"
                     min="2"
                     max={MAX_PLAYERS}
-                    value={maxPlayers}
-                    onChange={(e) => handleValueChange(setMaxPlayers, e.target.value, 2, MAX_PLAYERS)}
+                    value={tempMaxPlayers}
+                    onChange={(e) => setTempMaxPlayers(e.target.value)}
+                    onBlur={() => handleValueChange(setMaxPlayers, setTempMaxPlayers, tempMaxPlayers, 2, MAX_PLAYERS)}
                     className={styles.inputField}
                   />
-                  <button 
-                    type="button" 
-                    onClick={() => handleValueChange(setMaxPlayers, maxPlayers+1, 2, MAX_PLAYERS)} 
-                    className={styles.adjustButton}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempMaxPlayers(maxPlayers + 1);
+                      handleValueChange(setMaxPlayers, setTempMaxPlayers, maxPlayers + 1, 2, MAX_PLAYERS);
+                    }}
+                    className={styles.increaseButton}
                     disabled={maxPlayers >= MAX_PLAYERS}
                   >
                     +
@@ -305,7 +343,7 @@ const Create = () => {
               </div>
               {/*errors*/}
               {selectedPreset === 'custom' && isMissingData() &&
-                <ul>
+                <ul className={styles.requirements}>
                   <h3>Requirements for Custom Game</h3>
                   {!title && <li>Title is required</li>}
                   {!startingLocation && <li>Starting location is required</li>}
@@ -347,7 +385,7 @@ const Create = () => {
 
         </button>
         <Map
-          circles={targets.filter(loc => loc).map(loc => loc.location)}
+          circles={targets.filter(loc => loc).map(loc => { return { ...loc, location: null, latitude: loc.location.latitude, longitude: loc.location.longitude}} )}
           startingLocation={startingLocation}
           playerLocation={playerLocation}
           gameMode='create'

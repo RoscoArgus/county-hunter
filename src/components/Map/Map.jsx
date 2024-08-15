@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Map.module.css';
-import { MapContainer, TileLayer, Circle, Marker, AttributionControl, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Circle, Marker, AttributionControl, useMap, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { FaCrosshairs } from 'react-icons/fa';
 import { STARTING_RANGE, TARGET_RANGE } from '../../constants';
 import 'leaflet/dist/leaflet.css';
-import CustomMarker from '../CustomMarker/CustomMarker';
+import UserMarker from '../UserMarker/UserMarker';
+import TargetMarker from '../TargetMarker/TargetMarker';
 import { useAuth } from '../../context/AuthContext';
 
 const tileLayerUrls = {
@@ -19,15 +17,6 @@ const tileLayerUrls = {
     esriWorldImagery: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     esriWorldTopoMap: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
 };
-
-// Set the default icon to use the correct images
-delete L.Icon.Default.prototype._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
 
 const playAreaOptions = { fillColor: 'transparent', fillOpacity: 1.0 };
 const locationOptions = { fillColor: 'blue', fillOpacity: 0.2, color: 'blue' };
@@ -175,7 +164,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
             {players && players.map((player, index) => {
                 if(!player.location) return null;
                 return (
-                    <CustomMarker 
+                    <UserMarker 
                         key={index} 
                         position={[player.location.latitude, player.location.longitude]} 
                         user={player} 
@@ -184,13 +173,21 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 }
             )}
             {validPlayerLocation(playerLocation) && (
-                <CustomMarker position={[playerLocation?.latitude, playerLocation.longitude]} user={currentUser} />
+                <UserMarker position={[playerLocation?.latitude, playerLocation.longitude]} user={currentUser} />
             )}
             {(gameMode === 'create' || gameMode === 'lobby') && circles.map((circle, index) => (
-                <Marker 
+                <TargetMarker 
                     key={index} 
                     position={[circle.latitude, circle.longitude]} 
-                />
+                >
+                    <Popup className="request-popup">
+                        <h3>{circle.locationName}</h3>
+                        <h4>Hint: {circle.hint}</h4>
+                        <h4>Street: {circle.street ? circle.street : 'None'}</h4>
+                        <h4>Reviews: {circle.reviews ? 'Yes' : 'No'}</h4>
+                        <h4>Types: {circle.types?.length > 1 ? 'Yes' : 'No'}</h4>
+                    </Popup>
+                </TargetMarker>
             ))}
             {gameMode === 'classic' && circles.map((circle, index) => {
                 return <Circle

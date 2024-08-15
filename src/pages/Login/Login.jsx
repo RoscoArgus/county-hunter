@@ -23,7 +23,14 @@ const Login = () => {
   }
 
   return (
-    <div className={styles.Login}>
+    <main className={styles.Login}>
+      <h2>Welcome to</h2>
+      <h1 className={styles.title}>County Hunter</h1>
+      <div className={styles.target}>
+        <div className={styles.outer}>
+          <div className={styles.inner}/>
+        </div>
+      </div>
       <input
         type="text"
         value={email}
@@ -43,7 +50,7 @@ const Login = () => {
 
       <button onClick={() => handleLogin(handleLoginWithGoogle)}>Login with Google</button>
       <div>{error}</div>
-    </div>
+    </main>
   );
 };
 

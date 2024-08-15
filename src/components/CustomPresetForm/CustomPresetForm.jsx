@@ -74,7 +74,6 @@ const CustomPresetForm = ({ titleTools, SLTools, radiusTools, targetsTools, hint
             return;
         }
         const place = places[0];
-        console.log('Place:', place);
 
         let target = {
             location: {

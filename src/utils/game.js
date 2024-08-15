@@ -1,13 +1,29 @@
 import { ref, set, get, update } from "firebase/database";
 import { rtdb } from "../config/firebase";
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export const createPreset = async (gameData) => {
-  console.log(gameData);
-  const docRef = await addDoc(collection(db, "presets"), gameData);
-  return docRef.id;
+  try {
+    // Perform add operation
+    const docRef = await addDoc(collection(db, "presets"), gameData);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding document:', error);
+    alert('Failed to create preset.');
+  }
 };
+
+export const deletePreset = async (presetId) => {
+  try {
+    // Perform delete operation
+    await deleteDoc(doc(db, 'presets', presetId));
+    alert('Preset deleted successfully.');
+  } catch (error) {
+      console.error('Error deleting preset:', error);
+      alert('Failed to delete preset.');
+  }
+}
 
 const generateGameCode = () => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

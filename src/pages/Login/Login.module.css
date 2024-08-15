@@ -5,3 +5,38 @@
     align-items: center;
     height: 100vh;
 }
+
+.title {
+    font-size: 4em;
+    color: var(--button-tertiary);
+    margin: 0 0 15px 0;
+}
+
+.target {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    margin-left: 115px;
+    
+    border-radius: 50%;
+    border: 8px solid red;
+    width: 8px;
+    height: 8px;
+  }
+  
+  .target::after {
+    position: absolute;
+    content: '';
+    width: 0px;
+    height: 0px;
+    bottom: -30px;
+    left: -6px;
+    border: 10px solid transparent;
+    border-top: 17px solid red;
+  }
+
+@media screen and (max-width:768px) {
+    .title {
+        font-size: 3em;
+    }
+}

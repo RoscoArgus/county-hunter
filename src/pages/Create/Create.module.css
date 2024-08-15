@@ -65,6 +65,22 @@
     }
 }
 
+.inputContainer .decreaseButton, .destructive {
+    background-color: var(--button-tertiary);
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-tertiary-hover);
+    }
+}
+
+.inputContainer .increaseButton {
+    background-color: var(--button-secondary);
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-secondary-hover);
+    }
+}
+
 .title {
     flex: 1;
     text-align: center;
@@ -109,12 +125,13 @@
         -2px 2px 0 black,  /* Bottom left shadow */
         2px 2px 0 black;   /* Bottom right shadow */
     font-size: 2rem;
-    color: red;
+    color: var(--button-tertiary);
 }
 
-form {
+.mainForm {
     display: flex;
     flex-direction: column;
+    margin-top: 40px;
 }
 
 .gameModes {
@@ -148,15 +165,13 @@ input[type="number"]::-webkit-outer-spin-button {
     margin: 0; 
 }
 
-form {
-    margin-top: 15px;
-}
-
 .inputContainer {
     display: flex;
     align-items: center;
+    max-width: 75%;
     justify-content: space-between;
     margin-bottom: 15px;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .inputContainer label {
@@ -197,7 +212,12 @@ form {
     border-radius: 5px;
 }
 
-ul li {
+.options ul {
+    color: var(--button-tertiary);
+    margin-top: 15px;
+}
+
+.options ul li {
     margin-left: 18px;
 }
 
@@ -248,7 +268,7 @@ ul li {
         min-height: 0;
         border-top: 4px solid var(--button-default);
         border-left: none;
-        transition: all 0.5s ease-in-out;
+        transition: height 0.5s ease-in-out, min-height 0.5s ease-in-out;
     }
 
     .map .mapButton {
@@ -258,6 +278,19 @@ ul li {
         position: absolute;
         right: 15px;
         top: -62px;
+    }
+
+    .mainForm {
+        align-items: center;
+    }
+
+    .inputContainer {
+        flex-direction: column;
+        
+        > label {
+            margin-bottom: 10px;
+            text-align: center;
+        }
     }
 
     .expanded {

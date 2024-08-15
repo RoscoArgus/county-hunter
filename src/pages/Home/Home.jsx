@@ -71,8 +71,8 @@ const Home = () => {
                 {menuOpen && (
                     <div className={styles.menu}>
                         <ul>
-                            <li onClick={handleSignOut}>Sign Out</li>
                             <li onClick={() => navigate('/profile')}>Profile</li>
+                            <li onClick={handleSignOut} className={styles.destructive}>Sign Out</li>
                         </ul>
                     </div>
                 )}

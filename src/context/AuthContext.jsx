@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
                 email: email,
                 photoURL: null
             });
-            console.log('User signed up:', userCredential.user);
+            console.log('User signed up successfully!');
             return userCredential;
         } catch (error) {
             setError(error.message);
@@ -69,9 +69,9 @@ export const AuthProvider = ({ children }) => {
                     email: user.email,
                     photoURL: null
                 });
-                console.log('New user signed in with Google and display name updated to lowercase:', user);
+                console.log('New user signed in with Google and display name updated to lowercase.');
             } else {
-                console.log('Existing user signed in with Google:', user);
+                console.log('Existing user signed in with Google');
             }
     
             return userCredential;

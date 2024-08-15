@@ -168,12 +168,20 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                         key={index} 
                         position={[player.location.latitude, player.location.longitude]} 
                         user={player} 
-                    />
+                    >
+                        <Popup>
+                            <h3>{player.displayName}</h3>
+                        </Popup>
+                    </UserMarker>
                 );
                 }
             )}
             {validPlayerLocation(playerLocation) && (
-                <UserMarker position={[playerLocation?.latitude, playerLocation.longitude]} user={currentUser} />
+                <UserMarker position={[playerLocation?.latitude, playerLocation.longitude]} user={currentUser}>
+                    <Popup>
+                        <h3>{currentUser?.displayName} (You)</h3>
+                    </Popup>
+                </UserMarker>
             )}
             {(gameMode === 'create' || gameMode === 'lobby') && circles.map((circle, index) => (
                 <TargetMarker 

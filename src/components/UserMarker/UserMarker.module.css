@@ -16,6 +16,10 @@
     background-color: white; /* Change as needed */
     border: 1px solid black ; /* Change as needed */
   }
+
+  .self {
+    border: 2px solid var(--button-tertiary) ; /* Change as needed */
+  }
   
   .profilePicture {
     width: 100%;

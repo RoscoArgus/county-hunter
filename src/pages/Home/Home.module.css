@@ -64,6 +64,7 @@
 
 .menu ul .destructive {
   color: var(--button-tertiary);
+  width: 120px;
 }
 
 .menu ul li {

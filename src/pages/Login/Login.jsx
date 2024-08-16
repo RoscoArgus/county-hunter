@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 import { useAuth } from '../../context/AuthContext';
+import { FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { error, currentUser, handleLoginWithEmailAndPassword, handleLoginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
@@ -26,25 +28,47 @@ const Login = () => {
     <main className={styles.Login}>
       <h2>Welcome to</h2>
       <h1 className={styles.title}>County Hunter</h1>
+      <h2>Login</h2>
       <input
         type="text"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Enter your email"
       />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Enter your password"
-      />
-      <br/>
-      <button onClick={() => handleLogin(handleLoginWithEmailAndPassword)}>Login</button>
-      <br/> or
-      <button onClick={() => navigate('/signup')}>Sign Up</button>
-
-      <button onClick={() => handleLogin(handleLoginWithGoogle)}>Login with Google</button>
-      <div>{error}</div>
+      <div className={styles.passwordContainer}>
+        <input
+          type={showPassword ? 'text' : 'password'}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
+          className={styles.input}
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className={styles.showButton}
+        >
+          {showPassword ? <FaEyeSlash /> : <FaEye />}
+        </button>
+      </div>
+      <div className={styles.error}>{error}</div>
+      <div className={styles.buttons}>
+        <div className={styles.or}>
+          <button 
+            onClick={() => handleLogin(handleLoginWithEmailAndPassword)} 
+            className={styles.loginButton}
+          >
+            Login
+          </button>
+          or
+          <button onClick={() => navigate('/signup')} className={styles.signupButton}>
+            Sign Up
+          </button>
+        </div>
+        <button onClick={() => handleLogin(handleLoginWithGoogle)} className={styles.googleButton}>
+          <img src='/google.svg' className={styles.googleIcon} />Continue with Google
+        </button>
+      </div>
     </main>
   );
 };

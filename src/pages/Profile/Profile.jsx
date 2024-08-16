@@ -76,7 +76,6 @@ const Profile = () => {
             )}
             <h2>Update Profile</h2>
             <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-            <input type="email" disabled={isGoogleUser} placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
             <button onClick={() => handleUpdateProfile(name, email)}>Update</button>
 
             <button style={{ display: isGoogleUser ? 'none' : '' }} onClick={handleResetPassword}>Reset Password</button>

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged, updateProfile, deleteUser, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, getDocs, deleteDoc, collection, query, where, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../config/firebase';
 import { GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -36,21 +36,46 @@ export const AuthProvider = ({ children }) => {
         setupAuthStateListener();
     }, []);
 
-    const handleSignUp = async (email, password) => {
+    const handleSignUp = async (email, username, password, confirmPassword) => {
         try {
+            if (password !== confirmPassword) {
+                throw new Error('Passwords do not match. Please try again.');
+            }
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('username', '==', username));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                throw new Error('Username already exists. Please choose a different username.');
+            }
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const displayName = email.split('@')[0].toLowerCase();
-            await updateProfile(userCredential.user, { displayName: displayName });
+            await updateProfile(userCredential.user, { displayName: username });
             await setDoc(doc(db, 'users', userCredential.user.uid), {
-                username: displayName,
+                username: username,
                 email: email,
                 photoURL: null
             });
             console.log('User signed up successfully!');
             return userCredential;
         } catch (error) {
-            setError(error.message);
-            console.error('Error signing up:', error);
+            let message;
+            switch(error.code) {
+                case 'auth/invalid-email':
+                    message = 'Invalid email';
+                    break;
+                case 'auth/missing-password':
+                    message = 'Password is required';
+                    break;
+                case 'auth/popup-closed-by-user':
+                    message = 'There was an error signing in with Google';
+                    break;
+                case 'auth/email-already-in-use':
+                    message = 'Email already in use';
+                    break;
+                default:
+                    message = error.message;
+            }
+            setError(message);
+            console.error('Error signing in:', error);
         }
     };
 
@@ -76,7 +101,9 @@ export const AuthProvider = ({ children }) => {
     
             return userCredential;
         } catch (error) {
-            setError(error.message);
+            if(error.code === 'auth/popup-closed-by-user') {
+                setError(error.message);
+            }
             console.error('Error signing in with Google:', error);
         }
     };
@@ -88,6 +115,7 @@ export const AuthProvider = ({ children }) => {
             return userCredential;
         } catch (error) {
             let message;
+            console.log(error);
             switch(error.code) {
                 case 'auth/user-not-found':
                     message = 'User not found';
@@ -112,15 +140,26 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const handleUpdateProfile = async (name, email) => {
+    const handleUpdateProfile = async (username, email) => {
         try {
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('username', '==', username));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                throw new Error('Username already exists. Please choose a different username.');
+            }
             await updateProfile(currentUser, {
-                displayName: name,
+                displayName: username,
                 email: email,
+            });
+            await updateDoc(doc(db, 'users', currentUser.uid), {
+                username,
+                email,
             });
             alert('Profile updated successfully!');
         } catch (error) {
-
+            setError(error.message);
+            console.error('Error updating profile:', error);
         }
     };
 

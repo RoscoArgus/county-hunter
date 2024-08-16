@@ -142,7 +142,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
             />
             <AttributionControl position="bottomright" prefix={false} />
             <TileLayer
-                url={tileLayerUrls.cartoDBVoyager}
+                url={tileLayerUrls.esriWorldStreetMap}
                 attribution='<a href="https://leafletjs.com/">Leaflet</a> | &copy;<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy;<a href="https://carto.com/attributions">CARTO</a>'
             />
             {validStartingLocation(startingLocation) && (

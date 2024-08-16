@@ -1,0 +1,106 @@
+@import '../../vars.css';
+
+.Login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.title {
+    font-size: 4em;
+    color: var(--button-tertiary);
+    margin: 0 0 15px 0;
+}
+
+.Login input{
+    font-family: 'Outfit', sans-serif;
+    width: 275px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    padding: 5px 35px;
+    text-align: center;
+    border: 2px solid black;
+    margin-top: 5px;
+}
+
+.error {
+    color: red;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.passwordContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+  
+.showButton {
+    position: absolute;
+    right: 10px;
+    top: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.buttons button {
+    font-size: 1.1rem;
+    font-family: var(--font-roboto);
+    height: 45px; /* don't like this, but needed with Google Icon to ensure consistent height */
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 10px;
+    border: none;
+    color: var(--color-text);
+}
+
+.buttons p {
+    font-family: var(--font-roboto);
+    margin: 15px 0 5px 0;
+}
+
+.buttons .loginButton {
+    background-color: var(--button-primary)
+}
+
+.buttons .signupButton {
+    background-color: var(--button-secondary)
+}
+
+.buttons .googleButton {
+    display: flex;
+    align-items: center;
+    background-color: #4285F4;
+}
+
+.buttons .googleButton .googleIcon {
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    padding: 2px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+@media screen and (max-width:768px) {
+    .title {
+        font-size: 3em;
+    }
+}

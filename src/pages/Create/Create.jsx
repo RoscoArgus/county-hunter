@@ -25,7 +25,7 @@ const Create = () => {
   const [targets, setTargets] = useState(Array(5).fill(null));
   const [hints, setHints] = useState(Array(5).fill(''));
   const [gameMode, setGameMode] = useState('classic');
-  const [timeLimit, setTimeLimit] = useState(30);
+  const [timeLimit, setTimeLimit] = useState(60);
   const [maxPlayers, setMaxPlayers] = useState(8);
   // Temporary states for input values
   const [tempTimeLimit, setTempTimeLimit] = useState(timeLimit);

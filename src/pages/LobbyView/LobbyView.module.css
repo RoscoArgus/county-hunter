@@ -33,6 +33,12 @@
     padding: 0;
 }
 
+.playerInfo li {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
 .playerInfo .inRange {
     margin-top: 22px;
 }

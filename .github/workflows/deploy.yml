@@ -32,6 +32,7 @@ jobs:
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
           VITE_FIREBASE_DATABASE_URL: ${{ secrets.VITE_FIREBASE_DATABASE_URL }}
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+          VITE_JAWG_ACCESS_TOKEN: ${{ secrets.VITE_JAWG_ACCESS_TOKEN }}
         run: npm run build
 
       - name: Prepare Netlify deployment

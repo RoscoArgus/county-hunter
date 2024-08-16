@@ -136,7 +136,7 @@ export const startGame = async (gameCode, targets) => {
           const street = {content: target.street, isUsed: false};
           return {...target, index: index+1, reviews: reviews, types: types, street: street, value: 100};
         });
-        return update(playerRef, { score: 0, remainingTargets: remainingTargets, finished: false });
+        return update(playerRef, { score: 0, completionTime: 0, remainingTargets: remainingTargets, finished: false });
       });
 
       await Promise.all(playerUpdates);

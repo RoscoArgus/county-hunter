@@ -11,7 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 import GuessPrompt from '../../components/GuessPrompt/GuessPrompt';
 import { STARTING_RANGE } from '../../constants';
 
-const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, playerLocation }) => {
+const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, /*playerLocation*/ }) => {
   const [gameOptions, setGameOptions] = useState(initGameOptions);
   const [guessPrompt, setGuessPrompt] = useState(false);
   const [locationGuess, setLocationGuess] = useState(null);
@@ -22,10 +22,11 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   const [overlappingTargets, setOverlappingTargets] = useState([]);
   const [selectedTargetId, setSelectedTargetId] = useState(null);
   const { currentUser } = useAuth();
+  const [score, setScore] = useState(0);
   const [remainingTargets, setRemainingTargets] = useState(null); // State for remaining targets
   const [otherPlayers, setOtherPlayers] = useState([]);
 
-   /*TODO TEMP REMOVE
+     //TODO TEMP REMOVE
   const [playerLocation, setPlayerLocation] = useState(null);
 
   useEffect(() => {
@@ -198,58 +199,101 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
 
   const checkGuess = async () => {
     let guessedCorrectly = false;
+    let bonusEligible = true;
     const targetIndex = remainingTargets.findIndex(target => target.id === selectedTargetId);
     const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
 
     if (targetIndex !== -1 && locationGuess && locationGuess.id === selectedTargetId) {
-      guessedCorrectly = true;
-      const value = remainingTargets[targetIndex].value;
-      const updatedTargets = [...remainingTargets];
-      updatedTargets.splice(targetIndex, 1); // Remove target from remaining targets
+        guessedCorrectly = true;
+        let value = remainingTargets[targetIndex].value;
+        const updatedTargets = [...remainingTargets];
+        updatedTargets.splice(targetIndex, 1); // Remove target from remaining targets
 
-      setRemainingTargets(updatedTargets); // Update state
-      updateSelectedTargets(updatedTargets, playerLocation);
+        setRemainingTargets(updatedTargets); // Update state
+        updateSelectedTargets(updatedTargets, playerLocation);
 
-      try {
-        // Update RTDB with new remaining targets
-        await update(playerRef, { 
-          remainingTargets: updatedTargets,
-          score: lobbyData.players[currentUser.uid].score + value
-        });
-
-        if (getTargetsInRange(updatedTargets, playerLocation)?.length === 0) {
-          setGuessPrompt(false);
+        // Check if any other player still has this target in their remainingTargets
+        for (const playerId in lobbyData.players) {
+            if (playerId !== currentUser.uid) { // Skip the current player
+                const otherPlayerTargets = lobbyData.players[playerId].remainingTargets || [];
+                if (!otherPlayerTargets.some(target => target.id === selectedTargetId)) {
+                    bonusEligible = false;
+                    break;
+                }
+            }
         }
-      } catch (error) {
-        console.error('Error updating player data:', error);
-      }
-    }
-    else {
-      if(remainingTargets[targetIndex].value > 20)
-        remainingTargets[targetIndex].value -= 5;
-      const updatedTargets = [...remainingTargets];
 
-      try {
-        // Update RTDB with new remaining targets
-        await update(playerRef, { 
-          remainingTargets: updatedTargets,
-        });
-      } catch (error) {
-        console.error('Error updating player data:', error);
-      }
+        try {
+            // Update RTDB with new remaining targets and score
+            await update(playerRef, { 
+                remainingTargets: updatedTargets,
+                score: lobbyData.players[currentUser.uid].score + value + (bonusEligible ? 20 : 0),
+            });
+
+            if (getTargetsInRange(updatedTargets, playerLocation)?.length === 0) {
+                setGuessPrompt(false);
+            }
+        } catch (error) {
+            console.error('Error updating player data:', error);
+        }
+        setGuessResult(<pre>{`Correct Guess!\n+${value}` + (bonusEligible ? '\n+20 First-Find Bonus' : '')}</pre>);
+    } else {
+        if (remainingTargets[targetIndex].value > 20)
+            remainingTargets[targetIndex].value -= 5;
+        const updatedTargets = [...remainingTargets];
+
+        try {
+            // Update RTDB with new remaining targets
+            await update(playerRef, { 
+                remainingTargets: updatedTargets,
+            });
+        } catch (error) {
+            console.error('Error updating player data:', error);
+        }
+        setGuessResult('Wrong Guess!');
     }
 
     setLocationGuess(null);
-    setGuessResult(guessedCorrectly ? 'Correct Guess!' : 'Wrong Guess!');
     setShowResult(true);
-    setTimeout(() => setShowResult(false), 2000);
-    setTimeout(() => setGuessResult(null), 5000);
+    setTimeout(() => setShowResult(false), 5000);
+    setTimeout(() => setGuessResult(null), 8000);
   };
 
-  const handleEndGame = () => {
+  const handleEndGame = async () => {
+    // Reference to the player's data
     const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
-    update(playerRef, { finished: true });
-  };
+    
+    // Fetch the lobby data to check player statuses
+    const lobbyRef = ref(rtdb, `games/${gameCode}/players`);
+    const snapshot = await get(lobbyRef);
+
+    let isFirstToFinish = true;
+
+    if (snapshot.exists()) {
+        // Check if there's any player who is already finished
+        const players = snapshot.val();
+        for (const playerId in players) {
+            if (playerId !== currentUser.uid && players[playerId].finished) {
+                isFirstToFinish = false;
+                break;
+            }
+        }
+    }
+
+    // Update player's finish status and completion time
+    const updates = {
+        finished: true,
+        completionTime: lobbyData?.timeLimit * 60 * 1000 - (endTime - Date.now())
+    };
+
+    // Add bonus if the player is the first to finish
+    if (isFirstToFinish) {
+        updates.score = (players[currentUser.uid]?.score || 0) + 50;
+    }
+
+    await update(playerRef, updates);
+};
+
 
   useEffect(() => {
     const lobbyRef = ref(rtdb, `games/${gameCode}/endTime`);
@@ -288,7 +332,12 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
         <div className={styles.map}>
           <div className={styles.timer}>
             {!remainingTargets && <div>Get Back to the Start!</div>}
-            {endTime && <Timer targetTime={endTime} onTimeLimitReached={handleTimeLimitReached} />}
+            {endTime && 
+              <Timer 
+                targetTime={endTime} 
+                onTimeLimitReached={handleTimeLimitReached} 
+              />
+              }
           </div>
           <Map
             circles={remainingTargets?.map(target => ({
@@ -312,7 +361,13 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     <div className={styles.GameView}>
       <div className={styles.timer}>
         {!remainingTargets && <div>Get Back to the Start!</div>}
-        {endTime && <Timer targetTime={endTime} onTimeLimitReached={handleTimeLimitReached} />}
+        {endTime && 
+          <Timer 
+            targetTime={endTime} 
+            onTimeLimitReached={handleTimeLimitReached} 
+            score={lobbyData.players[currentUser.uid].score}
+          />
+        }
       </div>
       <Map
         circles={remainingTargets?.map(target => ({
@@ -338,7 +393,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
         startingLocation={gameOptions.startingLocation}
         endGame={handleEndGame}
       />
-      <div className={`${styles.result} ${showResult ? styles.shown : ''}`}>{guessResult}</div>
+      <p className={`${styles.result} ${showResult ? styles.shown : ''}`}>{guessResult}</p>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 .Timer {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     font-size: 1rem;
@@ -8,4 +9,5 @@
     padding: 10px;
     border-radius: 10px;
     border: 2px solid black;
+    gap: 5px;
 }

@@ -16,6 +16,7 @@ const tileLayerUrls = {
     esriWorldStreetMap: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
     esriWorldImagery: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     esriWorldTopoMap: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+    jawgCustom: `https://tile.jawg.io/9368b365-f96a-4a6b-b1d0-899ae62b8c83/{z}/{x}/{y}{r}.png?access-token=${import.meta.env.VITE_JAWG_ACCESS_TOKEN}`
 };
 
 const playAreaOptions = { fillColor: 'transparent', fillOpacity: 1.0 };
@@ -142,8 +143,8 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
             />
             <AttributionControl position="bottomright" prefix={false} />
             <TileLayer
-                url={tileLayerUrls.esriWorldStreetMap}
-                attribution='<a href="https://leafletjs.com/">Leaflet</a> | &copy;<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy;<a href="https://carto.com/attributions">CARTO</a>'
+                url={tileLayerUrls.jawgCustom}
+                attribution='<a href="https://leafletjs.com/">Leaflet</a> | <a href=\"https://www.jawg.io?utm_medium=map&utm_source=attribution\" target=\"_blank\">&copy; Jawg</a> - <a href=\"https://www.openstreetmap.org?utm_medium=map-attribution&utm_source=jawg\" target=\"_blank\">&copy; OpenStreetMap</a>&nbsp;contributors'
             />
             {validStartingLocation(startingLocation) && (
                 <React.Fragment>

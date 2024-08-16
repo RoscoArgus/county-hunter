@@ -192,7 +192,7 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                     </div>
                 )}
             </React.Fragment>
-            : <button onClick={endGame}>End Game</button>}
+            : <button onClick={endGame} className={styles.endButton}>End Game</button>}
         </div>
     );
 };

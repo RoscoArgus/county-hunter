@@ -15,6 +15,7 @@
 
 .result {
     position: absolute;
+    text-align: center;
     top: -100px;
     left: 50%;
     transform: translateX(-50%);

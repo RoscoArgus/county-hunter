@@ -115,6 +115,29 @@
     border: 2px solid white;
 }
 
+.endButton {
+    font-size: 1.5em;
+    font-family: var(--font-roboto);
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 10px;
+    border: none;
+    color: var(--color-text);
+
+    background-color: var(--button-tertiary);
+    color: white;
+    cursor: pointer;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-tertiary-hover);
+    }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
+}
+
 @media screen and (max-width: 800px) {
     .prompt {
         flex-direction: column;

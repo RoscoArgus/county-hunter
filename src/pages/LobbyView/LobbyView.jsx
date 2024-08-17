@@ -10,13 +10,13 @@ import { updatePlayer, startGame, leaveGame, deleteLobby } from '../../utils/gam
 import RoundStatistics from '../../components/RoundStatistics/RoundStatistics';
 import { useNavigate } from 'react-router-dom';
 
-const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, /*playerLocation*/ }) => {
+const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, playerLocation }) => {
   const [sortedPlayers, setSortedPlayers] = useState([]);
   const [mapPlayers, setMapPlayers] = useState([]);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   
-  //TODO REMOVE TEMPORARY
+  /*TODO REMOVE TEMPORARY
   const [playerLocation, setPlayerLocation] = useState(null);
 
   useEffect(() => {

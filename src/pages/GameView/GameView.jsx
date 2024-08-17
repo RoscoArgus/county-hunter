@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { rtdb, db } from '../../config/firebase';
-import { ref, update, onValue } from 'firebase/database';
+import { ref, update, onValue, get } from 'firebase/database';
 import { doc, getDoc } from 'firebase/firestore';
 import Map from '../../components/Map/Map';
 import styles from './GameView.module.css';
@@ -11,7 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 import GuessPrompt from '../../components/GuessPrompt/GuessPrompt';
 import { STARTING_RANGE } from '../../constants';
 
-const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, /*playerLocation*/ }) => {
+const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, playerLocation }) => {
   const [gameOptions, setGameOptions] = useState(initGameOptions);
   const [guessPrompt, setGuessPrompt] = useState(false);
   const [locationGuess, setLocationGuess] = useState(null);
@@ -26,7 +26,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, /*pl
   const [remainingTargets, setRemainingTargets] = useState(null); // State for remaining targets
   const [otherPlayers, setOtherPlayers] = useState([]);
 
-     //TODO TEMP REMOVE
+  /*TODO TEMP REMOVE
   const [playerLocation, setPlayerLocation] = useState(null);
 
   useEffect(() => {
@@ -183,6 +183,10 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, /*pl
   }, [playerLocation]);
 
   const handlePlaceChanged = (_, places) => {
+    if (places.length != 1) {
+      alert('Please select a specific location.');
+      return;
+    }
     if (places.length > 0) {
       const place = places[0];
       const location = {
@@ -288,7 +292,11 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, /*pl
 
     // Add bonus if the player is the first to finish
     if (isFirstToFinish) {
-        updates.score = (players[currentUser.uid]?.score || 0) + 50;
+        // award 50 points for being the first to finish
+        updates.score = (lobbyData?.players[currentUser.uid]?.score || 0) + 50;
+    } else {
+        // award 20 points for finishing at all
+        updates.score = (lobbyData?.players[currentUser.uid]?.score || 0) + 20;
     }
 
     await update(playerRef, updates);
@@ -323,6 +331,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, /*pl
       <div className={styles.GameView}>
         <ul>
           {Object.keys(lobbyData.players).map((userId) => (
+            (userId === lobbyData.host) ? '' :
             <li key={userId}>
               {lobbyData.players[userId].username} - Score: {lobbyData.players[userId].score}
             </li>
@@ -393,7 +402,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, /*pl
         startingLocation={gameOptions.startingLocation}
         endGame={handleEndGame}
       />
-      <p className={`${styles.result} ${showResult ? styles.shown : ''}`}>{guessResult}</p>
+      <div className={`${styles.result} ${showResult ? styles.shown : ''}`}>{guessResult}</div>
     </div>
   );
 };

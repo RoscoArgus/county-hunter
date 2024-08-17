@@ -112,7 +112,8 @@ const Create = () => {
       const presetId = await createPreset(gameData);
       setSelectedPreset(presetId);
       setDefaultPresets([...defaultPresets, { id: presetId, ...gameData }]);
-      alert("Preset saved successfully!");
+      if(creator !== 'Temporary')
+        alert("Preset saved successfully!");
       return presetId;
     } catch (e) {
       alert("Error creating preset. Please try again.");
@@ -250,7 +251,7 @@ const Create = () => {
           : 
           <React.Fragment>
             <nav className={styles.nav}>
-              <button onClick={() => navigate('/home')} className={styles.leftButton}>
+              <button onClick={() => navigate('/')} className={styles.leftButton}>
                 <FaHome className={styles.icon}/>
                 <h2>Home</h2>
               </button>
@@ -341,22 +342,37 @@ const Create = () => {
                   </button>
                 </div>
               </div>
-              {/*errors*/}
-              {selectedPreset === 'custom' && isMissingData() &&
-                <ul className={styles.requirements}>
-                  <h3>Requirements for Custom Game</h3>
-                  {!title && <li>Title is required</li>}
-                  {!startingLocation && <li>Starting location is required</li>}
-                  {!targets.every(target => target) && <li>Targets are required</li>}
-                  {hasDuplicates(targets) && <li>Targets must be unique</li>}
-                  {!areTargetsInRange() && <li>All targets must be in range</li>}
-                  {!hints.every(hint => hint) && <li>Hints are required</li>}
-                  {!radius && <li>Radius is required</li>}
-                  {!gameMode && <li>Game mode is required</li>}
-                  {!timeLimit && <li>Time limit is required</li>}
-                  {!maxPlayers && <li>Max players is required</li>}
-                </ul>
-              }
+              <div className={styles.info}>
+                {/*details*/}
+                {selectedPreset &&
+                  <ul className={styles.details}>
+                    <h3>Game Details</h3>
+                    <li><b>Time Limit:</b> {timeLimit} minutes</li>
+                    <li><b>Max Players:</b> {maxPlayers}</li>
+                    <li><b>Game Mode:</b> {gameMode.charAt(0).toUpperCase().concat(gameMode.slice(1))}</li>
+                    <li><b>Starting Location:</b> {startingLocation ? startingLocation.locationName : 'TBD'}</li>
+                    <li><b>Radius:</b> {radius} meters</li>
+                    <li><b>Targets:</b> {targets.every(target => target) ? targets.length : 'TBD'}</li>
+                  </ul>
+                }
+
+                {/*errors*/}
+                {selectedPreset === 'custom' && isMissingData() &&
+                  <ul className={styles.requirements}>
+                    <h3>Requirements for Custom Game</h3>
+                    {!title && <li>Title is required</li>}
+                    {!startingLocation && <li>Starting location is required</li>}
+                    {!targets.every(target => target) && <li>Targets are required</li>}
+                    {hasDuplicates(targets) && <li>Targets must be unique</li>}
+                    {!areTargetsInRange() && <li>All targets must be in range</li>}
+                    {!hints.every(hint => hint) && <li>Hints are required</li>}
+                    {!radius && <li>Radius is required</li>}
+                    {!gameMode && <li>Game mode is required</li>}
+                    {!timeLimit && <li>Time limit is required</li>}
+                    {!maxPlayers && <li>Max players is required</li>}
+                  </ul>
+                }
+              </div>
 
               <div className={styles.buttons}>
                 <button 
@@ -368,7 +384,7 @@ const Create = () => {
                     !areTargetsInRange()
                   )}
                 >
-                  Create Game
+                  <h2>Create Game</h2>
                 </button>
               </div>
             </form>

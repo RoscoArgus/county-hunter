@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Timer.module.css';
-const Timer = React.memo(({ targetTime, onTimeLimitReached }) => {
+const Timer = React.memo(({ targetTime, onTimeLimitReached, score }) => {
   const calculateTimeLeft = () => {
     const difference = targetTime - Date.now();
     let timeLeft = {};
@@ -36,7 +36,8 @@ const Timer = React.memo(({ targetTime, onTimeLimitReached }) => {
 
   return (
     <div className={styles.Timer}>
-      <p>Time left: {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s</p>
+      <div>Time left: {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s</div>
+      {score!==undefined && <div>Score: {score}</div>}
     </div>
   );
 });

@@ -174,3 +174,32 @@ export const endGame = async (gameCode) => {
     console.error('Error fetching lobby data or updating game status:', error);
   }
 };
+
+export const leaveGame = async (gameCode, currentUser) => {
+  const lobbyRef = ref(rtdb, `games/${gameCode}`);
+  const lobbySnapshot = await get(lobbyRef);
+
+  if (!lobbySnapshot.exists()) {
+    throw new Error("Game does not exist");
+  }
+
+  const lobbyData = lobbySnapshot.val();
+  const players = lobbyData.players;
+
+  if (players[currentUser.uid]) {
+    delete players[currentUser.uid];
+  }
+
+  await update(lobbyRef, {
+    players: players,
+  });
+}
+
+export const deleteLobby = async (gameCode) => {
+  try {
+    const lobbyRef = ref(rtdb, `games/${gameCode}`);
+    set(lobbyRef, null);
+  } catch (error) {
+    console.error('Error deleting lobby:', error);
+  }
+}

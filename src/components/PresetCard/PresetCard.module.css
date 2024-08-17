@@ -3,12 +3,12 @@
 .button {
     width: 200px;
     height: 150px;
-    margin: auto;
+    margin: 30px auto;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     border-radius: 30px;
-    border: 1px solid black;
+    border: 1px solid #ccc;
     align-items: center;
     background-color: transparent;
     padding: 0;

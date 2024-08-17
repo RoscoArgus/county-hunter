@@ -6,14 +6,17 @@ import { doc, getDoc } from 'firebase/firestore';
 import { getDistanceInMeters } from '../../utils/calculations';
 import { useAuth } from '../../context/AuthContext';
 import { STARTING_RANGE } from '../../constants';
-import { updatePlayer, startGame } from '../../utils/game';
+import { updatePlayer, startGame, leaveGame, deleteLobby } from '../../utils/game';
+import RoundStatistics from '../../components/RoundStatistics/RoundStatistics';
+import { useNavigate } from 'react-router-dom';
 
-const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, playerLocation }) => {
+const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, /*playerLocation*/ }) => {
   const [sortedPlayers, setSortedPlayers] = useState([]);
   const [mapPlayers, setMapPlayers] = useState([]);
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   
-  /*TODO REMOVE TEMPORARY
+  //TODO REMOVE TEMPORARY
   const [playerLocation, setPlayerLocation] = useState(null);
 
   useEffect(() => {
@@ -80,6 +83,19 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
     return distance <= range;
   };
 
+  const handleLeaveGame = () => {
+    const confirmed = window.confirm(`${isHost ? 'Leaving will close this lobby.' : ''} Are you sure you want to leave?`);
+    if(!confirmed) return;
+    leaveGame(gameCode, currentUser);
+    if(isHost) 
+      deleteLobby(gameCode);
+    navigate('/');
+  };
+
+  const allPlayersInRange = () => {
+    return Object.values(lobbyData.players).every(player => player.inRange);
+  };
+
   useEffect(() => {
     if (!gameOptions) return;
 
@@ -94,8 +110,8 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   useEffect(() => {
     if(lobbyData) {
       setSortedPlayers(Object.entries(lobbyData.players).sort(([key1, player1], [key2, player2]) => {
-        if (player1.username === lobbyData.host) return -1;
-        if (player2.username === lobbyData.host) return 1;
+        if (key1 === lobbyData.host) return -1;
+        if (key2 === lobbyData.host) return 1;
         return 0;
       }));
     }
@@ -138,7 +154,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
                 {sortedPlayers.map(([userId, player]) => (
                   <li key={userId}>
                     {
-                      player.username === lobbyData.host
+                      userId === lobbyData.host
                         ? <strong>{player.username} (Host)</strong>
                         : player.username
                     }
@@ -163,14 +179,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
             </div>
           </div>
         )}
-        {isHost && (
-          <button 
-            className={styles.startButton}
-            onClick={() => startGame(gameCode, gameOptions.targets)}
-          >
-            Start Game
-          </button>
-        )}
+        <RoundStatistics players={sortedPlayers.slice(1)}/>
       </div>
       <div className={styles.lobbyRight}>
         <div className={styles.map}>
@@ -190,11 +199,28 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
           />
         </div>
         <div className={styles.gameDetails}>
-          <h3>{gameOptions?.title}</h3>
+          <h3>Game Details:</h3>
           <div><strong>Starting Location:</strong> {gameOptions?.startingLocation.locationName}</div>
           <div><strong>Targets:</strong> {gameOptions?.targets.length}</div>
           <div><strong>Time Limit:</strong> {lobbyData?.timeLimit}</div>
           <div><strong>Max Players:</strong> {lobbyData?.maxPlayers}</div>
+        </div>
+        <div className={styles.buttons}>
+          {isHost && (
+            <button 
+              className={styles.startButton}
+              onClick={() => startGame(gameCode, gameOptions.targets)}
+              disabled={!allPlayersInRange()}
+            >
+              <h2>Start Game</h2>
+            </button>
+          )}
+          <button 
+            className={styles.leaveButton}
+            onClick={() => handleLeaveGame()}
+          >
+            <h2>{isHost ? 'Close Lobby' : 'Leave Game'}</h2>
+          </button>
         </div>
       </div>
     </div>

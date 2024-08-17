@@ -15,6 +15,8 @@
     --button-tertiary: #FF4343;
     --button-tertiary-hover: #D80000;
     --button-disabled: #BBBBBB;
+    --button-special: #FFD117;
+    --button-special-hover: #FFC000;
   
     /* Fonts */
     --font-roboto: "Roboto";

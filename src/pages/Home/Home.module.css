@@ -77,8 +77,12 @@
 }
 
 .main {
+    display: flex;
+    flex-direction: column;
     font-size: 14px;
-    text-align: center
+    text-align: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .title {
@@ -88,6 +92,7 @@
 }
 
 .gameCode {
+    width: 400px;
     font-size: 2em;
     border-radius: 10px;
     padding: 10px;
@@ -97,29 +102,33 @@
 }
 
 .buttons {
-    margin: 15px 0;
+    width: 400px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
 }
 
 .buttons button {
-    font-size: 1.5em;
-    font-family: var(--font-roboto);
-    padding: 10px 20px;
-    margin: 5px;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 10px;
     border-radius: 10px;
-    border: 0px solid black;
-    color: var(--color-text);
+    gap: 5px;
+    border: none;
 }
 
 .buttons .joinButton {
     background-color: var(--button-primary);
-    color: white;
-    cursor: pointer;
 
     &:hover, &:focus, &:active {
         background-color: var(--button-primary-hover);
     }
 
-    &:disabled{
+    &:disabled {
         background-color: var(--button-disabled);
         cursor: not-allowed;
     }
@@ -127,17 +136,19 @@
 
 .buttons .createButton {
     background-color: var(--button-secondary);
-    color: white;
-    cursor: pointer;
 
     &:hover, &:focus, &:active {
         background-color: var(--button-secondary-hover);
     }
 
-    &:disabled{
+    &:disabled {
         background-color: var(--button-disabled);
         cursor: not-allowed;
     }
+}
+
+.icon {
+    font-size: 1.4rem;
 }
 
 @media screen and (max-width:768px) {

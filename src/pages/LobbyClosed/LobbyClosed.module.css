@@ -1,0 +1,66 @@
+.LobbyClosed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+}
+
+.title {
+    font-size: 1.5em;
+    color: var(--button-tertiary);
+    margin: 15px 0;
+    text-align: center;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.buttons button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    gap: 5px;
+    border: none;
+}
+
+.homeButton {
+    background-color: var(--button-primary);
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-primary-hover);
+    }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
+}
+
+.createButton {
+    background-color: var(--button-secondary);
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-secondary-hover);
+    }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
+}
+
+.icon {
+    font-size: 1.45rem;
+}
+
+@media screen and (max-width:768px) {
+    .title {
+        font-size: 2em;
+    }
+}

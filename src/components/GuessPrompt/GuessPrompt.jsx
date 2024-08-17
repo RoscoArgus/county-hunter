@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './GuessPrompt.module.css';
-import { FaMapSigns, FaInfoCircle, FaCommentDots, FaCheck } from 'react-icons/fa'; // Import checkmark icon
+import { FaMapSigns, FaInfoCircle, FaCommentDots, FaCheck, FaStar, FaPaperPlane } from 'react-icons/fa'; // Import checkmark icon
 import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
 import { getDistanceInMeters } from '../../utils/calculations';
 
@@ -92,9 +92,9 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                         : 'No Target Selected'
                     }
                     </h3>
-                    <div>Hint: {targets?.find(target => target.id === selectedTargetId)?.hint}</div>
+                    <div><b>Hint:</b> {targets?.find(target => target.id === selectedTargetId)?.hint}</div>
                     {targets?.length > 1 && (
-                        <div>
+                        <div className={styles.targetSelect}>
                             <label>Select target to guess for:</label>
                             <select onChange={(e) => setSelectedTargetId(e.target.value)} value={selectedTargetId || ''}>
                                 <option value="" disabled>Select target</option>
@@ -111,7 +111,13 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                             bounds={bounds}
                             submittedTools={{ submitted, setSubmitted }}
                         />
-                        <button onClick={handleGuess} disabled={!currentGuess || !isGuessInRange()}>Guess the location</button>
+                        <button 
+                            onClick={handleGuess} 
+                            disabled={!currentGuess || !isGuessInRange()}
+                            className={styles.guessButton}
+                        >
+                            <FaPaperPlane />
+                        </button>
                     </div>
                     <div>{currentGuess ? currentGuess.name : 'No Location Selected'}</div>
                 </div>
@@ -153,21 +159,24 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                             <span className={styles.close} onClick={handleCloseModal}>&times;</span>
                             {hintType === 'reviews' ? (
                                 selectedReviewIndex === null ? (
-                                    <div>
-                                        <p>Select a review:</p>
-                                        <ul>
+                                    <div className={styles.reviewsContainer}>
+                                        <h2>Select a Review:</h2>
+                                        <div className={styles.reviewButtonsContainer}>
                                             {hintDetails?.content?.map((review, index) => (
-                                                <li key={index} onClick={() => handleSelectReview(index)}>
-                                                    Review {index + 1}: Rating - {review.rating}
-                                                </li>
+                                                <button key={index} className={styles.reviewButton} onClick={() => handleSelectReview(index)}>
+                                                    <FaStar className={styles.star} /> {review.rating}
+                                                </button>
                                             ))}
-                                        </ul>
+                                        </div>
                                     </div>
                                 ) : (
                                     <React.Fragment>
                                         <h2>Review</h2>
-                                        <h3>Rating: </h3> {hintDetails.rating}
-                                        <h3>Content: </h3> {hintDetails.text}
+                                        <div className={styles.reviewView}>
+                                            <FaStar className={styles.star} />
+                                            <p>{hintDetails.rating}</p>
+                                        </div>
+                                        {hintDetails.text}
                                     </React.Fragment>
                                 )
                             ) : (
@@ -175,10 +184,10 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                                     <h2>{Array.isArray(hintDetails) ? "Establishment Types" : "Street Name"}</h2>
                                     {Array.isArray(hintDetails) 
                                         ?   
-                                        <>
+                                        <div className={styles.types}>
                                             {hintDetails.map((item) => {
-                                                return <h3>{item.replaceAll("_", " ")}</h3>})}
-                                        </>
+                                                return <h3>- {item.replaceAll("_", " ")} -</h3>})}
+                                        </div>
                                         : 
                                         <>
                                             {hintDetails}

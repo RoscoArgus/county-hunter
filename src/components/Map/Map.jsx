@@ -153,6 +153,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                         radius={startingLocation.radius}
                         pathOptions={playAreaOptions}
                     />
+                    {/*Starting Circle*/}
                     {(gameMode === 'lobby' || gameMode === 'create' || circles?.length === 0) && (
                         <Circle
                             center={[startingLocation.location.latitude, startingLocation.location.longitude]}
@@ -207,7 +208,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 />
             })}
             {locationGuess && (
-                <Marker position={[locationGuess.latitude, locationGuess.longitude]} />
+                <TargetMarker position={[locationGuess.latitude, locationGuess.longitude]} />
             )}
 
             <div className={`${styles.leafletControl} leaflet-top leaflet-right`}>

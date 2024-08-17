@@ -1,0 +1,20 @@
+.stats table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stats th {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stats td {
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stats tr:last-child td {
+  border-bottom: none;
+}
+

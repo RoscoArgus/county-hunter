@@ -1,4 +1,4 @@
-import { ref, onValue, onDisconnect, update, off } from 'firebase/database';
+import { ref, onValue, onDisconnect, update, off, get, set } from 'firebase/database';
 import { doc, getDoc } from 'firebase/firestore';
 import { db, rtdb } from '../../config/firebase';
 import { useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import { startGame } from '../../utils/game';
 import useGeolocation from '../../hooks/useGeolocation';
 import { useAuth } from '../../context/AuthContext';
 import { TARGET_RANGE } from '../../constants';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 
 const GameHandler = () => {
   const { gameCode } = useParams();
@@ -16,6 +17,7 @@ const GameHandler = () => {
   const [isHost, setIsHost] = useState(false);
   const [gameStatus, setGameStatus] = useState('waiting');
   const [gameOptions, setGameOptions] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const playerLocation = useGeolocation();
   const { currentUser } = useAuth();
@@ -25,52 +27,94 @@ const GameHandler = () => {
     if (gameCode) {
       const lobbyRef = ref(rtdb, `games/${gameCode}`);
       const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
-
+      const connectedRef = ref(rtdb, '.info/connected');
+  
       const handleDataChange = (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
+        const data = snapshot.val();
+        if (!snapshot.exists()) {
+          navigate('/no-lobby');
+        } else {
           setLobbyData(data);
           setIsHost(data.host === currentUser.uid);
           setGameStatus(data.status);
+          setIsLoading(false);
+  
+          // Filter out the host by comparing with the host's document ID
+          const allPlayersFinished = Object.entries(data.players || {})
+            .filter(([playerId, player]) => playerId !== data.host)
+            .every(([, player]) => player.finished === true);
+  
+          if (allPlayersFinished && data.status !== 'waiting') {
+            // Update the status to 'waiting' if all non-host players are finished
+            update(lobbyRef, { status: 'waiting' })
+              .catch((error) => console.error("Failed to update game status:", error));
+          }
+        }
+      };
+  
+      // Check if the lobby exists first
+      get(lobbyRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          // Listen to the entire lobby data for any changes
+          onValue(lobbyRef, handleDataChange);
+  
+          // Handle online presence
+          onValue(connectedRef, (snap) => {
+            if (snap.val() === true) {
+              // Mark user as online with location
+              const location = playerLocation ?? { latitude: 0, longitude: 0 };
+              update(playerRef, { 
+                username: currentUser.displayName, 
+                online: true, 
+                inRange: false, 
+                lastActive: null, 
+                location: location 
+              });
+  
+              // Handle disconnection
+              onDisconnect(playerRef).update({
+                username: currentUser.displayName,
+                online: false,
+                lastActive: new Date().toISOString()
+              });
+            }
+          });
         } else {
+          // Lobby doesn't exist, navigate to a different page or handle the error
+          console.log("Lobby doesn't exist, navigating to /no-lobby");
           navigate('/no-lobby');
         }
-      };
-
-      onValue(lobbyRef, handleDataChange);
-
-      // Handle online presence
-      const connectedRef = ref(rtdb, '.info/connected');
-      onValue(connectedRef, (snap) => {
-        if (snap.val() === true) {
-          // Mark user as online
-          const location = playerLocation ?? { latitude: 0, longitude: 0 };
-          update(playerRef, { username: currentUser.displayName, online: true, inRange: false, lastActive: null, location: location});
-          // Handle disconnection
-          onDisconnect(playerRef).update({
-            username: currentUser.displayName,
-            online: false,
-            lastActive: new Date().toISOString()
-          });
-        }
+      }).catch((error) => {
+        console.error("Error checking lobby existence: ", error);
       });
-
+  
+      // Cleanup function to remove the listener when component unmounts or effect re-runs
       return () => {
         off(lobbyRef, 'value', handleDataChange);
+        off(connectedRef);
       };
     }
-  }, [gameCode]);
-
-  //TODO I'm concerned this will use a lot of data for the RTDB. Monitor usage.
+  }, [gameCode, currentUser.uid, playerLocation, navigate]);
+  
+  
+  // TODO: Monitor RTDB usage as this might use significant data.
   useEffect(() => {
     const handleUpdateLocation = () => {
-      const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
-      if(playerLocation.latitude && playerLocation.longitude)
-        update(playerRef, {location: playerLocation});
+      // Only update location if the lobby exists
+      const lobbyRef = ref(rtdb, `games/${gameCode}`);
+      get(lobbyRef).then((snapshot) => {
+        if (snapshot.exists() && playerLocation.latitude && playerLocation.longitude) {
+          const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
+          update(playerRef, { location: playerLocation });
+        }
+      }).catch((error) => {
+        console.error("Error checking lobby existence for location update: ", error);
+      });
     };
-
+  
     handleUpdateLocation();
-  }, [playerLocation])
+  }, [playerLocation, gameCode]);
+  
 
   useEffect(() => {
     const fetchGameOptions = async () => {
@@ -98,6 +142,10 @@ const GameHandler = () => {
   const handleStartGame = async () => {
     await startGame(gameCode);
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   if (gameStatus === 'in-progress') {
     return (

@@ -5,6 +5,7 @@ import { joinLobby } from '../../utils/game';
 import { auth } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { getColorFromName } from '../../utils/user';
+import { FaPlayCircle, FaDraftingCompass } from 'react-icons/fa';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -95,15 +96,16 @@ const Home = () => {
                         className={styles.joinButton}
                         disabled={gameCode.length !== 8}
                     >
-                        {isLoading ? 'Loading...' : 'Join Game'}
+                        <FaPlayCircle className={styles.icon}/>
+                        <h2>{isLoading ? 'Loading...' : 'Join Game'}</h2>
                     </button>
-                    <h3>or</h3>
                     <button 
                         onClick={() => navigate('/create')}
                         className={styles.createButton}
                         disabled={isLoading}
                     >
-                        Create Game
+                        <FaDraftingCompass className={styles.icon}/>
+                        <h2>Create Game</h2>
                     </button>
                 </div>
             </main>

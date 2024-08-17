@@ -71,6 +71,11 @@
     &:hover, &:focus, &:active {
         background-color: var(--button-tertiary-hover);
     }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
+    }
 }
 
 .inputContainer .increaseButton {
@@ -78,6 +83,11 @@
 
     &:hover, &:focus, &:active {
         background-color: var(--button-secondary-hover);
+    }
+
+    &:disabled {
+        background-color: var(--button-disabled);
+        cursor: not-allowed;
     }
 }
 
@@ -101,11 +111,11 @@
 
 .map .mapButton {
     display: none;
-    background-color: var(--button-secondary);
+    background-color: var(--button-special);
     right: 0;
 
     &:hover, &:focus, &:active {
-        background-color: var(--button-secondary-hover);
+        background-color: var(--button-special-hover);
     }
 
     &:disabled {
@@ -168,6 +178,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .inputContainer {
     display: flex;
     align-items: center;
+    width: 400px;
     max-width: 75%;
     justify-content: space-between;
     margin-bottom: 15px;
@@ -210,15 +221,27 @@ input[type="number"]::-webkit-outer-spin-button {
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
+
+    &:focus {
+        outline: none;
+        border: 2px solid var(--button-special);
+    }
 }
 
 .options ul {
-    color: var(--button-tertiary);
     margin-top: 15px;
 }
 
-.options ul li {
-    margin-left: 18px;
+.requirements {
+    color: var(--button-tertiary);
+
+    > li {
+        margin-left: 18px;
+    }
+}
+
+.details {
+    list-style: none;
 }
 
 .buttons {
@@ -228,8 +251,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .buttons button {
-    font-size: 1.5em;
-    font-family: var(--font-roboto);
     padding: 10px 20px;
     margin: 5px;
     border-radius: 10px;
@@ -294,8 +315,8 @@ input[type="number"]::-webkit-outer-spin-button {
     }
 
     .expanded {
-        height: 50%;
-        min-height: 50vh;
+        height: 40%;
+        min-height: 40vh;
     }
 
     .contracted {

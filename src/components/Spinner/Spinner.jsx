@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styles from './Spinner.module.css';
 import { FaGlobeEurope, FaRunning } from 'react-icons/fa';
 
-const Spinner = () => {
+const Spinner = memo(() => {
   return (
     <div className={styles.spinnerContainer}>
       <FaGlobeEurope className={styles.globe} />
@@ -11,6 +11,6 @@ const Spinner = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Spinner;

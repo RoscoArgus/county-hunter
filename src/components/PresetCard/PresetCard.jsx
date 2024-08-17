@@ -37,7 +37,7 @@ const PresetCard = ({ data, onPresetPress, selected }) => {
     return (
         <button 
             className={styles.button} 
-            style={{ border: selected ? '5px solid black' : 'none' }} 
+            style={{ border: selected ? '4px solid #FFD117' : '' }} 
             onClick={() => onPresetPress(data)}
         >
             <div className={styles.thumbnail}>

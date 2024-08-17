@@ -202,7 +202,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
           <h3>Game Details:</h3>
           <div><strong>Title:</strong> {gameOptions?.title}</div>
           <div><strong>Creator:</strong> {gameOptions?.creator}</div>
-          <div><strong>Game Mode:</strong> {gameOptions?.gameMode}</div>
+          <div><strong>Game Mode:</strong> {gameOptions?.gameMode.charAt(0).toUpperCase().concat(gameOptions?.gameMode.slice(1))}</div>
           <div><strong>Starting Location:</strong> {gameOptions?.startingLocation.locationName}</div>
           <div><strong>Targets:</strong> {gameOptions?.targets.length}</div>
           <div><strong>Time Limit:</strong> {lobbyData?.timeLimit} minutes</div>

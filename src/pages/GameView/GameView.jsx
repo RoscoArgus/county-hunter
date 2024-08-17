@@ -22,7 +22,6 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   const [overlappingTargets, setOverlappingTargets] = useState([]);
   const [selectedTargetId, setSelectedTargetId] = useState(null);
   const { currentUser } = useAuth();
-  const [score, setScore] = useState(0);
   const [remainingTargets, setRemainingTargets] = useState(null); // State for remaining targets
   const [otherPlayers, setOtherPlayers] = useState([]);
 

@@ -213,7 +213,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
             <button 
               className={styles.startButton}
               onClick={() => startGame(gameCode, gameOptions.targets)}
-              disabled={!allPlayersInRange()}
+              disabled={!allPlayersInRange()&&false} //TODO remove
             >
               <h2>Start Game</h2>
             </button>

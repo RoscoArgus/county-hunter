@@ -80,6 +80,8 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
       targetLocation.longitude
     );
 
+    alert(playerLocation.latitude, playerLocation.longitude, targetLocation.latitude, targetLocation.longitude, distance, range);
+
     return distance <= range;
   };
 
@@ -97,7 +99,6 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   };
 
   useEffect(() => {
-    alert('Definitely detecting player location updates');
     if (!gameOptions) return;
 
     if (isWithinRange(playerLocation, gameOptions.startingLocation.location, STARTING_RANGE) && !lobbyData.players[currentUser.uid].inRange) {

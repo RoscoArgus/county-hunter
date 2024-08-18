@@ -150,7 +150,6 @@ export const startGame = async (gameCode, targets) => {
       console.error('No such lobby exists!');
     }
   } catch (error) {
-    alert(error);
     console.error('Error fetching timeLimit or updating lobby status:', error);
   }
 };

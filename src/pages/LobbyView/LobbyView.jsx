@@ -80,7 +80,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
       targetLocation.longitude
     );
 
-    alert(playerLocation.latitude, playerLocation.longitude, targetLocation.latitude, targetLocation.longitude, distance, range);
+    alert(`${playerLocation.latitude}, ${playerLocation.longitude}, ${targetLocation.latitude}, ${targetLocation.longitude}, ${distance}, ${range}`);
 
     return distance <= range;
   };

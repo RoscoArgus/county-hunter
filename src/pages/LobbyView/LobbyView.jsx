@@ -99,8 +99,6 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   useEffect(() => {
     if (!gameOptions) return;
 
-    alert(isWithinRange(playerLocation, gameOptions.startingLocation.location, STARTING_RANGE) && lobbyData.players[currentUser.uid].inRange);
-
     if (isWithinRange(playerLocation, gameOptions.startingLocation.location, STARTING_RANGE) && !lobbyData.players[currentUser.uid].inRange) {
       updatePlayer('inRange', true, gameCode, currentUser);
     }

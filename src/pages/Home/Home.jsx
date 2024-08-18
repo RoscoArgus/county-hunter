@@ -58,13 +58,13 @@ const Home = () => {
             <nav className={styles.user}>
                 <div className={styles.userInfo} onClick={toggleMenu}>
                     <h4>{ currentUser.displayName ? currentUser.displayName : currentUser.email.split('@')[0]}</h4>
-                    { currentUser.photoURL 
+                    { currentUser.photoURL
                         ? <img 
                             src={currentUser.photoURL} 
                             alt="user" 
                             className={styles.pfp}
                         />
-                        : <div class={styles.pfp} style={{backgroundColor: getColorFromName(currentUser.displayName)}}>
+                        : <div className={styles.pfp} style={{backgroundColor: getColorFromName(currentUser.displayName)}}>
                             {currentUser.displayName.charAt(0).toUpperCase()}
                         </div>
                     }

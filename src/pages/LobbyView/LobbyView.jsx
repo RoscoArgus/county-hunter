@@ -93,6 +93,8 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   };
 
   const allPlayersInRange = () => {
+    // if there are less than 2 players in the lobby, return false
+    if(Object.keys(lobbyData.players).length < 2) return false;
     return Object.values(lobbyData.players).every(player => player.inRange);
   };
 
@@ -213,7 +215,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
             <button 
               className={styles.startButton}
               onClick={() => startGame(gameCode, gameOptions.targets)}
-              disabled={!allPlayersInRange()&&false} //TODO remove
+              disabled={!allPlayersInRange()}
             >
               <h2>Start Game</h2>
             </button>

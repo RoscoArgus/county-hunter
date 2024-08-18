@@ -42,7 +42,7 @@ const GameHandler = () => {
           // Filter out the host by comparing with the host's document ID
           const allPlayersFinished = Object.entries(data.players || {})
             .filter(([playerId, player]) => playerId !== data.host)
-            .every(([, player]) => player.finished === true);
+            .every(([_, player]) => player.finished === true);
   
           if (allPlayersFinished && data.status !== 'waiting') {
             // Update the status to 'waiting' if all non-host players are finished
@@ -66,7 +66,6 @@ const GameHandler = () => {
               update(playerRef, { 
                 username: currentUser.displayName, 
                 online: true, 
-                inRange: false, 
                 lastActive: null, 
                 location: location 
               });

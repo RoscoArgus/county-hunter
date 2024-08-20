@@ -47,6 +47,11 @@
     padding: 5px;
     text-align: center;
     border: 2px solid black;
+
+    &:focus {
+        outline: none;
+        border: 2px solid var(--button-special);
+    }
 }
 
 .targetSelect {
@@ -61,6 +66,7 @@
 }
 
 .guessButton {
+    aspect-ratio: 1/1;
     justify-content: center;
     align-items: center;
     color: white;
@@ -239,16 +245,6 @@
     }
 }
 
-@media screen and (max-width: 800px) {
-    .prompt {
-        flex-direction: column;
-    }
-
-    .prompt.shown {
-        max-height: 50%;
-    }
-}
-
 .modal {
     position: fixed;
     top: 0;
@@ -288,4 +284,14 @@
     right: 15px;
     font-size: 30px;
     cursor: pointer;
+}
+
+@media screen and (max-width: 800px) {
+    .prompt {
+        flex-direction: column;
+    }
+
+    .prompt.shown {
+        max-height: 50%;
+    }
 }

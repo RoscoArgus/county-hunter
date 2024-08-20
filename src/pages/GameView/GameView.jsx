@@ -10,6 +10,7 @@ import { endGame } from '../../utils/game';
 import { useAuth } from '../../context/AuthContext';
 import GuessPrompt from '../../components/GuessPrompt/GuessPrompt';
 import { STARTING_RANGE } from '../../constants';
+import RoundStatistics from '../../components/RoundStatistics/RoundStatistics';
 
 const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, playerLocation }) => {
   const [gameOptions, setGameOptions] = useState(initGameOptions);
@@ -24,6 +25,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   const { currentUser } = useAuth();
   const [remainingTargets, setRemainingTargets] = useState(null); // State for remaining targets
   const [otherPlayers, setOtherPlayers] = useState([]);
+  const [sortedPlayers, setSortedPlayers] = useState([]);
 
   /*TODO TEMP REMOVE
   const [playerLocation, setPlayerLocation] = useState(null);
@@ -158,6 +160,13 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     };
 
     fetchPlayerData();
+    if(lobbyData) {
+      setSortedPlayers(Object.entries(lobbyData.players).sort(([key1, player1], [key2, player2]) => {
+        if (key1 === lobbyData.host) return -1;
+        if (key2 === lobbyData.host) return 1;
+        return 0;
+      }));
+    }
   }, [lobbyData.players, currentUser.uid]);
 
   useEffect(() => {
@@ -328,38 +337,33 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   if (isHost || finished) {
     return (
       <div className={styles.GameView}>
-        <ul>
-          {Object.keys(lobbyData.players).map((userId) => (
-            (userId === lobbyData.host) ? '' :
-            <li key={userId}>
-              {lobbyData.players[userId].username} - Score: {lobbyData.players[userId].score}
-            </li>
-          ))}
-        </ul>
-        {isHost && <button onClick={() => endGame(gameCode)}>End Game</button>}
-        <div className={styles.map}>
-          <div className={styles.timer}>
-            {!remainingTargets && <div>Get Back to the Start!</div>}
-            {endTime && 
-              <Timer 
-                targetTime={endTime} 
-                onTimeLimitReached={handleTimeLimitReached} 
-              />
+        <div className={styles.finished}>
+          <RoundStatistics players={sortedPlayers.slice(1)} label={'Scores:'}/>  
+          {isHost && <button onClick={() => endGame(gameCode)}>End Game</button>}
+          <div className={styles.map}>
+            <div className={styles.timer}>
+              {!remainingTargets && <div>Get Back to the Start!</div>}
+              {endTime && 
+                <Timer 
+                  targetTime={endTime} 
+                  onTimeLimitReached={handleTimeLimitReached} 
+                />
               }
+            </div>
+            <Map
+              circles={remainingTargets?.map(target => ({
+                  ...target.randOffset,
+                  isSelected: target.id === selectedTargetId
+                }))
+                .sort((a, b) => a.isSelected - b.isSelected) // Sort to ensure selected circle is rendered on top
+              }
+              playerLocation={playerLocation}
+              startingLocation={gameOptions.startingLocation}
+              gameMode={gameOptions.mode}
+              locationGuess={locationGuess}
+              players={otherPlayers}
+            />
           </div>
-          <Map
-            circles={remainingTargets?.map(target => ({
-                ...target.randOffset,
-                isSelected: target.id === selectedTargetId
-              }))
-              .sort((a, b) => a.isSelected - b.isSelected) // Sort to ensure selected circle is rendered on top
-            }
-            playerLocation={playerLocation}
-            startingLocation={gameOptions.startingLocation}
-            gameMode={gameOptions.mode}
-            locationGuess={locationGuess}
-            players={otherPlayers}
-          />
         </div>
       </div>
     );

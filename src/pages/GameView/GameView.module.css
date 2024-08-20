@@ -27,6 +27,35 @@
     transition: all 0.5s ease;
 }
 
+.finished {
+    padding: 15px;
+}
+
+.finished ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.finished button {
+    font-size: 1rem;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 10px;
+    gap: 5px;
+    border: none;
+
+    background-color: var(--button-tertiary);
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-tertiary-hover);
+    }
+}
+
 .shown {
     top: 10px;
 }
@@ -38,4 +67,8 @@
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
+}
+
+@media screen and (max-width: 768px) {
+
 }

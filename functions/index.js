@@ -2,14 +2,16 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
-const db = admin.database();
+const rtdb = admin.database();
+const db = admin.firestore();
+
 const FIVE_MINUTES = 5 * 60 * 1000;
 
 // Function to remove inactive players
 exports.removeInactivePlayers = functions.pubsub.schedule("every 5 minutes")
     .onRun(async (context) => {
       const now = Date.now();
-      const gamesRef = db.ref("games");
+      const gamesRef = rtdb.ref("games");
 
       const snapshot = await gamesRef.once("value");
       const updates = {};
@@ -31,14 +33,14 @@ exports.removeInactivePlayers = functions.pubsub.schedule("every 5 minutes")
         });
       });
 
-      await db.ref().update(updates);
+      await rtdb.ref().update(updates);
       return null;
     });
 
 // Function to delete lobbies without a host
 exports.removeEmptyLobbies = functions.pubsub.schedule("every 5 minutes")
     .onRun(async (context) => {
-      const gamesRef = db.ref("games");
+      const gamesRef = rtdb.ref("games");
       const snapshot = await gamesRef.once("value");
       const updates = {};
 
@@ -60,7 +62,7 @@ exports.removeEmptyLobbies = functions.pubsub.schedule("every 5 minutes")
         }
       });
 
-      await db.ref().update(updates);
+      await rtdb.ref().update(updates);
       return null;
     });
 
@@ -68,7 +70,7 @@ exports.removeEmptyLobbies = functions.pubsub.schedule("every 5 minutes")
 exports.updateGameStatus = functions.pubsub.schedule("every 30 minutes")
     .onRun(async (context) => {
       const now = Date.now();
-      const gamesRef = db.ref("games");
+      const gamesRef = rtdb.ref("games");
 
       const snapshot = await gamesRef.once("value");
       const updates = {};
@@ -83,6 +85,38 @@ exports.updateGameStatus = functions.pubsub.schedule("every 30 minutes")
         }
       });
 
-      await db.ref().update(updates);
+      await rtdb.ref().update(updates);
+      return null;
+    });
+
+// Function to delete presets created by 'Temporary' if no corresponding game exists
+exports.cleanUpTemporaryPresets = functions.pubsub.schedule("every 5 minutes")
+    .onRun(async (context) => {
+      const presetsRef = db.collection("presets");
+      const presetsSnapshot = await presetsRef.where("creator", "==", "Temporary").get();
+
+      const gamesRef = rtdb.ref("games");
+      const gamesSnapshot = await gamesRef.once("value");
+      const activePresetIds = new Set();
+
+      // Gather all active presetIds from games in the RTDB
+      gamesSnapshot.forEach((gameSnap) => {
+        const gameData = gameSnap.val();
+        if (gameData.presetId) {
+          activePresetIds.add(gameData.presetId);
+        }
+      });
+
+      // Delete presets that do not have a corresponding active game
+      const batch = db.batch();
+      presetsSnapshot.forEach((presetDoc) => {
+        const presetId = presetDoc.id;
+        if (!activePresetIds.has(presetId)) {
+          batch.delete(presetDoc.ref);
+        }
+      });
+
+      // Commit batch delete
+      await batch.commit();
       return null;
     });

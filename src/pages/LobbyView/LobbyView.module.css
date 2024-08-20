@@ -8,6 +8,24 @@
     flex: 1;
 }
 
+.lobbyCode {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.lobbyCode .icon {
+    font-size: 1.5rem;
+
+    &:hover {
+        cursor: pointer;
+        transition: opacity 0.5s ease;
+        opacity: 0.9;
+    }
+}
+
 .lobbyLeft, .lobbyRight {
     display: flex;
     flex-direction: column;
@@ -19,7 +37,8 @@
 }
 
 .lobbyRight {
-    flex: 1;
+    flex: 2;
+    align-items: last baseline
 }
 
 .playerInfo {
@@ -55,6 +74,7 @@
     flex-direction: row;
     gap: 10px;
 }
+
 .buttons button {
     display: flex;
     width: 200px;
@@ -93,6 +113,58 @@
     }
 }
 
+.gameDetails {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.mobileInfo {
+    display: none;
+    position: relative;
+}
+
+.mobileInfo .infoButtons {
+    position: absolute;
+    right: 0;
+    top: -15px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.mobileInfo .infoButtons button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--button-primary);
+    color: white;
+    border: none;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--button-primary-hover);
+    }
+}
+
+.mobileInfo .infoButtons .players {
+    border-radius: 10px 0 0 10px;
+}
+
+.mobileInfo .infoButtons .info {
+    border-radius: 0 10px 10px 0;
+}
+
+.mobileInfo .infoButtons .selected {
+    background-color: var(--button-primary-hover);
+    scale: 0.98;
+}
+
+.mobileInfo .infoButtons button .icon {
+    font-size: 1.2rem;
+}
+
 @media screen and (max-width: 768px) {
     .LobbyView {
         flex-direction: column;
@@ -107,8 +179,37 @@
         border-radius: 15px 15px 0 0;
     }
 
+    .stats {
+        display: none;
+    }
+
     .gameDetails {
         display: none;
+    }
+
+    .playerInfo {
+        display: none;
+    }
+
+    .lobbyCode h1 {
+        font-size: 1.75rem;
+    }
+
+    .mobileInfo {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .mobileInfo .gameDetails {
+        display: flex;
+        flex-direction: column;
+        max-width: 95dvw;
+    }
+
+    .mobileInfo .playerInfo {
+        display: flex;
+        flex-direction: row;
     }
 
     .startButton {
@@ -119,6 +220,7 @@
 
     .lobbyRight {
         flex-direction: column-reverse;
+        align-items: normal;
         gap: 10px;
     }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styles from './RoundStatistics.module.css';
 
-const RoundStatistics = ({players=[]}) => {
+const RoundStatistics = ({players=[], label}) => {
 
     const [playerRoundInfo, setPlayerRoundInfo] = useState([]);
 
@@ -32,7 +32,7 @@ const RoundStatistics = ({players=[]}) => {
 
     return (
         <div className={styles.stats}>
-            <h2>Previous Round:</h2>
+            <h2>{label}</h2>
             <table>
                 <thead>
                     <tr>
@@ -46,8 +46,8 @@ const RoundStatistics = ({players=[]}) => {
                         ? playerRoundInfo.map(([userId, player]) => (
                             <tr key={userId}>
                                 <td>{player?.username.slice(0,12) + (player?.username.length > 12 ? '...' : '')}</td>
-                                <td>{player?.completionTime ? convertMsToTime(player.completionTime) : 'N/A'}</td>
-                                <td className={styles.score}>{player?.score ? player.score : 'N/A'}</td>
+                                <td>{player?.completionTime ? convertMsToTime(player.completionTime) : 'DNF'}</td>
+                                <td className={styles.score}>{player?.score || player.score === 0 ? player.score : 'N/A'}</td>
                             </tr>
                         ))
                         : <tr>

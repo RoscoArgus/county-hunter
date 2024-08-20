@@ -150,6 +150,7 @@ const CustomPresetForm = ({ titleTools, SLTools, radiusTools, targetsTools, hint
                     type="text"
                     placeholder="Enter title"
                     value={title}
+                    maxLength={50}
                     onChange={(e) => setTitle(e.target.value)}
                 />
             </div>

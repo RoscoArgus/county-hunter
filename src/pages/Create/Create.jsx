@@ -32,6 +32,7 @@ const Create = () => {
   const [tempMaxPlayers, setTempMaxPlayers] = useState(maxPlayers);
   const [showCustom, setShowCustom] = useState(false);
   const [showMap, setShowMap] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
 
   const navigate = useNavigate();
   const playerLocation = useGeolocation();
@@ -135,6 +136,10 @@ const Create = () => {
     }
     setStartingLocation(preset.startingLocation);
     setTargets(preset.targets);
+    setHints(preset.targets.map(target => target.hint));
+    setTitle(preset.title);
+    setRadius(preset.radius);
+    setGameMode(preset.gameMode);
     setSelectedPreset(preset.id);
   }
 
@@ -198,12 +203,13 @@ const Create = () => {
         if (!target) {
             return false;
         }
-        if (getDistanceInMeters(
-                startingLocation?.location.latitude, 
-                startingLocation?.location.longitude, 
-                target?.location.latitude, 
-                target?.location.longitude
-            ) > radius) 
+        const distance = getDistanceInMeters(
+          startingLocation?.location.latitude, 
+          startingLocation?.location.longitude, 
+          target?.location.latitude, 
+          target?.location.longitude
+        );
+        if (distance > radius) 
         {
             return false;
         }
@@ -263,83 +269,91 @@ const Create = () => {
                 </button>
               }
             </nav>
-            <PresetSlider slides={defaultPresets} onPresetPress={handlePresetSelect} selectedId={selectedPreset}/>
+            <PresetSlider 
+              slides={defaultPresets} 
+              onPresetPress={handlePresetSelect} 
+              selectedId={selectedPreset} 
+              toggleDetails={() => setShowDetails(true)}
+              hasIssues={isMissingData() || !areTargetsInRange()}
+            />
             <form onSubmit={handleSubmit} className={styles.mainForm}>
-              <div className={styles.inputContainer}>
-                <label htmlFor="timeLimit">{`Time Limit (max ${MAX_TIME} minutes):`}</label>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTempTimeLimit(timeLimit - 1);
-                      handleValueChange(setTimeLimit, setTempTimeLimit, timeLimit - 1, 5, MAX_TIME);
-                    }}
-                    className={styles.decreaseButton}
-                    disabled={timeLimit <= 5}
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    id="timeLimit"
-                    name="timeLimit"
-                    min="1"
-                    max={MAX_TIME}
-                    value={tempTimeLimit}
-                    onChange={(e) => setTempTimeLimit(e.target.value)}
-                    onBlur={() => handleValueChange(setTimeLimit, setTempTimeLimit, tempTimeLimit, 5, MAX_TIME)}
-                    className={styles.inputField}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTempTimeLimit(timeLimit + 1);
-                      handleValueChange(setTimeLimit, setTempTimeLimit, timeLimit + 1, 5, MAX_TIME);
-                    }}
-                    className={styles.increaseButton}
-                    disabled={timeLimit >= MAX_TIME}
-                  >
-                    +
-                  </button>
+              <div className={styles.gameSettings}>
+                <div className={styles.inputContainer}>
+                  <label htmlFor="timeLimit">{`Time Limit:`}</label>
+                  <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTempTimeLimit(timeLimit - 1);
+                        handleValueChange(setTimeLimit, setTempTimeLimit, timeLimit - 1, 5, MAX_TIME);
+                      }}
+                      className={styles.decreaseButton}
+                      disabled={timeLimit <= 5}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="timeLimit"
+                      name="timeLimit"
+                      min="1"
+                      max={MAX_TIME}
+                      value={tempTimeLimit}
+                      onChange={(e) => setTempTimeLimit(e.target.value)}
+                      onBlur={() => handleValueChange(setTimeLimit, setTempTimeLimit, tempTimeLimit, 5, MAX_TIME)}
+                      className={styles.inputField}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTempTimeLimit(timeLimit + 1);
+                        handleValueChange(setTimeLimit, setTempTimeLimit, timeLimit + 1, 5, MAX_TIME);
+                      }}
+                      className={styles.increaseButton}
+                      disabled={timeLimit >= MAX_TIME}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className={styles.inputContainer}>
-                <label htmlFor="maxPlayers">Max Players:</label>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTempMaxPlayers(maxPlayers - 1);
-                      handleValueChange(setMaxPlayers, setTempMaxPlayers, maxPlayers - 1, 2, MAX_PLAYERS);
-                    }}
-                    className={styles.decreaseButton}
-                    disabled={maxPlayers <= 2}
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    id="maxPlayers"
-                    name="maxPlayers"
-                    min="2"
-                    max={MAX_PLAYERS}
-                    value={tempMaxPlayers}
-                    onChange={(e) => setTempMaxPlayers(e.target.value)}
-                    onBlur={() => handleValueChange(setMaxPlayers, setTempMaxPlayers, tempMaxPlayers, 2, MAX_PLAYERS)}
-                    className={styles.inputField}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTempMaxPlayers(maxPlayers + 1);
-                      handleValueChange(setMaxPlayers, setTempMaxPlayers, maxPlayers + 1, 2, MAX_PLAYERS);
-                    }}
-                    className={styles.increaseButton}
-                    disabled={maxPlayers >= MAX_PLAYERS}
-                  >
-                    +
-                  </button>
+                <div className={styles.inputContainer}>
+                  <label htmlFor="maxPlayers">Max Players:</label>
+                  <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTempMaxPlayers(maxPlayers - 1);
+                        handleValueChange(setMaxPlayers, setTempMaxPlayers, maxPlayers - 1, 2, MAX_PLAYERS);
+                      }}
+                      className={styles.decreaseButton}
+                      disabled={maxPlayers <= 2}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="maxPlayers"
+                      name="maxPlayers"
+                      min="2"
+                      max={MAX_PLAYERS}
+                      value={tempMaxPlayers}
+                      onChange={(e) => setTempMaxPlayers(e.target.value)}
+                      onBlur={() => handleValueChange(setMaxPlayers, setTempMaxPlayers, tempMaxPlayers, 2, MAX_PLAYERS)}
+                      className={styles.inputField}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTempMaxPlayers(maxPlayers + 1);
+                        handleValueChange(setMaxPlayers, setTempMaxPlayers, maxPlayers + 1, 2, MAX_PLAYERS);
+                      }}
+                      className={styles.increaseButton}
+                      disabled={maxPlayers >= MAX_PLAYERS}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className={styles.info}>
@@ -347,11 +361,12 @@ const Create = () => {
                 {selectedPreset &&
                   <ul className={styles.details}>
                     <h3>Game Details</h3>
+                    <li><b>Title:</b> {title}</li>
                     <li><b>Time Limit:</b> {timeLimit} minutes</li>
                     <li><b>Max Players:</b> {maxPlayers}</li>
                     <li><b>Game Mode:</b> {gameMode.charAt(0).toUpperCase().concat(gameMode.slice(1))}</li>
                     <li><b>Starting Location:</b> {startingLocation ? startingLocation.locationName : 'TBD'}</li>
-                    <li><b>Radius:</b> {radius} meters</li>
+                    <li><b>Radius:</b> {radius/1000} KM</li>
                     <li><b>Targets:</b> {targets.every(target => target) ? targets.length : 'TBD'}</li>
                   </ul>
                 }
@@ -359,7 +374,7 @@ const Create = () => {
                 {/*errors*/}
                 {selectedPreset === 'custom' && isMissingData() &&
                   <ul className={styles.requirements}>
-                    <h3>Requirements for Custom Game</h3>
+                    <h3>Issues</h3>
                     {!title && <li>Title is required</li>}
                     {!startingLocation && <li>Starting location is required</li>}
                     {!targets.every(target => target) && <li>Targets are required</li>}
@@ -391,6 +406,39 @@ const Create = () => {
           </React.Fragment>
         }
       </div>
+      {/* Modal JSX */}
+      {showDetails && (
+        <div className={styles.modal}>
+            <div className={styles.modalContent}>
+                <span className={styles.close} onClick={() => setShowDetails(false)}>&times;</span>
+                <ul className={styles.details}>
+                  <h3>Game Details</h3>
+                  <li><b>Title:</b> {title}</li>
+                  <li><b>Time Limit:</b> {timeLimit} minutes</li>
+                  <li><b>Max Players:</b> {maxPlayers}</li>
+                  <li><b>Game Mode:</b> {gameMode.charAt(0).toUpperCase().concat(gameMode.slice(1))}</li>
+                  <li><b>Starting Location:</b> {startingLocation ? startingLocation.locationName : 'TBD'}</li>
+                  <li><b>Radius:</b> {radius/1000} KM</li>
+                  <li><b>Targets:</b> {targets.every(target => target) ? targets.length : 'TBD'}</li>
+                </ul>
+                {selectedPreset === 'custom' && (isMissingData() || !areTargetsInRange()) &&
+                  <ul className={styles.requirements}>
+                    <h3>Issues</h3>
+                    {!title && <li>Title is required</li>}
+                    {!startingLocation && <li>Starting location is required</li>}
+                    {!targets.every(target => target) && <li>Targets are required</li>}
+                    {hasDuplicates(targets) && <li>Targets must be unique</li>}
+                    {!areTargetsInRange() && <li>All targets must be in range</li>}
+                    {!hints.every(hint => hint) && <li>Hints are required</li>}
+                    {!radius && <li>Radius is required</li>}
+                    {!gameMode && <li>Game mode is required</li>}
+                    {!timeLimit && <li>Time limit is required</li>}
+                    {!maxPlayers && <li>Max players is required</li>}
+                  </ul>
+                }
+            </div>
+        </div>
+      )}
       <div className={`${styles.map} ${showMap ? styles.expanded : styles.contracted}`}>
         <button 
           onClick={() => setShowMap(!showMap)} 

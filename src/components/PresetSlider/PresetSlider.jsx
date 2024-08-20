@@ -6,7 +6,7 @@ import styles from './PresetSlider.module.css';
 import PresetCard from '../PresetCard/PresetCard';
 import { FaCaretLeft, FaCaretRight } from 'react-icons/fa';
 
-const PresetSlider = ({ slides, onPresetPress, selectedId }) => {
+const PresetSlider = ({ slides, onPresetPress, selectedId, toggleDetails, hasIssues }) => {
   const sliderRef = useRef(null);
 
   const settings = {
@@ -44,7 +44,7 @@ const PresetSlider = ({ slides, onPresetPress, selectedId }) => {
       </button>
       <Slider ref={sliderRef} {...settings}>
         {displaySlides.map((d, index) => (
-          <PresetCard key={index} data={d} onPresetPress={onPresetPress} selected={selectedId === d.id}/>
+          <PresetCard key={index} data={d} onPresetPress={onPresetPress} selected={selectedId === d.id} toggleDetails={toggleDetails} hasIssues={hasIssues}/>
         ))}
       </Slider>
       <button className={styles.rightCaret} onClick={() => sliderRef.current.slickNext()}>

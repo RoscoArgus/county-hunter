@@ -13,7 +13,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 40px;
+    margin-bottom: 15px;
     position: relative;
 }
 
@@ -65,7 +65,14 @@
     }
 }
 
-.inputContainer .decreaseButton, .destructive {
+.gameSettings {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: first baseline;
+}
+
+.gameSettings .inputContainer .decreaseButton, .destructive {
     background-color: var(--button-tertiary);
 
     &:hover, &:focus, &:active {
@@ -78,7 +85,7 @@
     }
 }
 
-.inputContainer .increaseButton {
+.gameSettings .inputContainer .increaseButton {
     background-color: var(--button-secondary);
 
     &:hover, &:focus, &:active {
@@ -140,8 +147,8 @@
 
 .mainForm {
     display: flex;
+    justify-content: start;
     flex-direction: column;
-    margin-top: 40px;
 }
 
 .gameModes {
@@ -175,7 +182,7 @@ input[type="number"]::-webkit-outer-spin-button {
     margin: 0; 
 }
 
-.inputContainer {
+.gameSettings .inputContainer {
     display: flex;
     align-items: center;
     width: 400px;
@@ -185,12 +192,12 @@ input[type="number"]::-webkit-outer-spin-button {
     -webkit-tap-highlight-color: transparent;
 }
 
-.inputContainer label {
+.gameSettings .inputContainer label {
     font-family: var(--font-roboto);
     font-weight: bold;
 }
 
-.inputContainer button {
+.gameSettings .inputContainer button {
     width: 30px;
     height: 30px;
     font-size: 18px;
@@ -214,7 +221,7 @@ input[type="number"]::-webkit-outer-spin-button {
     }
 }
 
-.inputField {
+.gameSettings .inputContainer .inputField {
     width: 60px;
     height: 30px;
     text-align: center;
@@ -273,6 +280,48 @@ input[type="number"]::-webkit-outer-spin-button {
     }
 }
 
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+}
+
+.modalContent {
+    background: white;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    padding: 30px;
+    margin: 15px;
+    border-radius: 15px;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalContent h2 {
+    margin-bottom: 15px;
+}
+
+.modalContent h3 {
+    margin: 15px 0 5px 0;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 30px;
+    cursor: pointer;
+}
+
 @media screen and (max-width: 768px) {
     .Create {
         flex-direction: column;
@@ -305,7 +354,16 @@ input[type="number"]::-webkit-outer-spin-button {
         align-items: center;
     }
 
-    .inputContainer {
+    .requirements {
+        display: none;
+    }
+
+    .gameSettings {
+        flex-direction: row;
+        width: min(90%, 400px);
+    }
+
+    .gameSettings .inputContainer {
         flex-direction: column;
         
         > label {
@@ -325,6 +383,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
     .nav {
         min-height: 50px;
+        margin: 0px;
     }
 
     .nav button {
@@ -338,5 +397,14 @@ input[type="number"]::-webkit-outer-spin-button {
 
     .nav button h2{
         display: none;
+    }
+
+    .details {
+        display: none;
+    }
+
+    .modal .details, .modal .requirements {
+        display: flex;
+        flex-direction: column;
     }
 }

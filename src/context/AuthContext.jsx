@@ -140,7 +140,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const handleUpdateProfile = async (username, email) => {
+    const handleUpdateProfile = async (username, email, photoURL) => {
         try {
             const usersRef = collection(db, 'users');
             const q = query(usersRef, where('username', '==', username));
@@ -151,15 +151,38 @@ export const AuthProvider = ({ children }) => {
             await updateProfile(currentUser, {
                 displayName: username,
                 email: email,
+                photoURL: photoURL,
             });
             await updateDoc(doc(db, 'users', currentUser.uid), {
                 username,
                 email,
+                photoURL,
             });
             alert('Profile updated successfully!');
         } catch (error) {
             setError(error.message);
             console.error('Error updating profile:', error);
+        }
+    };
+
+    const handleDeleteProfile = async () => {
+        try {
+            const confirmed = window.confirm('Are you sure you want to delete your account? This action cannot be undone.');
+            if (!confirmed) return;
+            await deleteUser(currentUser);
+            // Delete presets with the given user as the creator
+            const presetsRef = collection(db, 'presets');
+            const q = query(presetsRef, where('creator', '==', currentUser.displayName));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach(async (doc) => {
+                await deleteDoc(doc.ref);
+            });
+
+            await deleteDoc(doc(db, 'users', currentUser.uid));
+            alert('Account deleted successfully!');
+        } catch (error) {
+            setError(error.message);
+            console.error('Error deleting account:', error);
         }
     };
 
@@ -174,7 +197,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ currentUser, loading, error, handleSignUp, handleLoginWithGoogle, handleLoginWithEmailAndPassword, handleUpdateProfile, handleResetPassword }}>
+        <AuthContext.Provider value={{ currentUser, loading, error, handleSignUp, handleLoginWithGoogle, handleLoginWithEmailAndPassword, handleUpdateProfile, handleDeleteProfile, handleResetPassword }}>
             {children}
         </AuthContext.Provider>
     );

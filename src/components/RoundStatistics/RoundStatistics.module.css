@@ -5,13 +5,13 @@
 
 .stats th {
   text-align: left;
-  padding: 10px;
+  padding: 10px 0;
   border-bottom: 1px solid var(--border-color);
 }
 
 .stats td {
   width: 33%;
-  padding: 0 10px;
+  padding: 0;
   border-bottom: 1px solid var(--border-color);
 }
 

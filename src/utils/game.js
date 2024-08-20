@@ -155,6 +155,9 @@ export const startGame = async (gameCode, targets) => {
 };
 
 export const endGame = async (gameCode) => {
+  const confirmed = window.confirm('Are you sure you want to end the game early?');
+  if(!confirmed) return;
+  
   const lobbyRef = ref(rtdb, `games/${gameCode}`);
 
   try {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Timer.module.css';
-const Timer = React.memo(({ targetTime, onTimeLimitReached, score }) => {
+const Timer = React.memo(({ targetTime, onTimeLimitReached, score, event, eventTriggerTimeMS=0 }) => {
+  const [eventTriggered, setEventTriggered] = useState(false);
+
   const calculateTimeLeft = () => {
     const difference = targetTime - Date.now();
     let timeLeft = {};
@@ -24,6 +26,11 @@ const Timer = React.memo(({ targetTime, onTimeLimitReached, score }) => {
     // Update timeLeft every second
     const timerId = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
+      const difference = targetTime - Date.now();
+      if (event && difference <= eventTriggerTimeMS && !eventTriggered) {
+        setEventTriggered(true);
+        event();
+      }
     }, 1000);
 
     return () => clearInterval(timerId); // Clean up timer

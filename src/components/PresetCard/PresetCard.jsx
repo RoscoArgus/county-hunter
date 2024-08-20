@@ -2,8 +2,9 @@ import React from 'react';
 import styles from './PresetCard.module.css';
 import { useAuth } from '../../context/AuthContext';
 import { getColorFromName } from '../../utils/user';
+import { FaInfo } from 'react-icons/fa';
 
-const PresetCard = ({ data, onPresetPress, selected }) => {
+const PresetCard = ({ data, onPresetPress, selected, toggleDetails, hasIssues }) => {
 
     const { currentUser } = useAuth();
 
@@ -35,30 +36,35 @@ const PresetCard = ({ data, onPresetPress, selected }) => {
     };
 
     return (
-        <button 
-            className={styles.button} 
-            style={{ border: selected ? '4px solid #FFD117' : '' }} 
-            onClick={() => onPresetPress(data)}
-        >
-            <div className={styles.thumbnail}>
-                {data?.thumbnail 
-                ? <img src={data.thumbnail} alt={data.title} />
-                : 
-                <div className={styles.noThumbnail} style={{backgroundColor: getColorFromName(data.id)}}>
-                    <h1>{reduceToInitials(data.title)}</h1>
-                </div>
-                }
-            </div>
-            <div 
-                className={styles.title} 
-                style={{
-                    '--bg-color': getBackgroundColor(),
-                    '--hover-bg-color': getHoverBackgroundColor(),
-                }}
+        <div className={styles.card}>
+            {selected && <button className={`${styles.infoButton} ${hasIssues ? styles.issue : ''}`} onClick={toggleDetails}>
+                <FaInfo className={styles.icon} />
+            </button>}
+            <button 
+                className={styles.button} 
+                style={{ border: selected ? '4px solid #FFD117' : '' }} 
+                onClick={() => onPresetPress(data)}
             >
-                <h4>{data.title}</h4>
-            </div>
-        </button>
+                <div className={styles.thumbnail}>
+                    {data?.thumbnail 
+                    ? <img src={data.thumbnail} alt={data.title} />
+                    : 
+                    <div className={styles.noThumbnail} style={{backgroundColor: getColorFromName(data.id)}}>
+                        <h1>{reduceToInitials(data.title)}</h1>
+                    </div>
+                    }
+                </div>
+                <div 
+                    className={styles.title} 
+                    style={{
+                        '--bg-color': getBackgroundColor(),
+                        '--hover-bg-color': getHoverBackgroundColor(),
+                    }}
+                >
+                    <h4>{data.title}</h4>
+                </div>
+            </button>
+        </div>
     );
 }
 

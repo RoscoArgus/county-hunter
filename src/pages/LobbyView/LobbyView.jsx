@@ -9,66 +9,14 @@ import { STARTING_RANGE } from '../../constants';
 import { updatePlayer, startGame, leaveGame, deleteLobby } from '../../utils/game';
 import RoundStatistics from '../../components/RoundStatistics/RoundStatistics';
 import { useNavigate } from 'react-router-dom';
+import { FaInfo, FaChartBar, FaUsers, FaShareAlt } from 'react-icons/fa';
 
-const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, playerLocation }) => {
+const LobbyView = ({ gameCode, lobbyData, isHost, gameOptions, playerLocation }) => {
   const [sortedPlayers, setSortedPlayers] = useState([]);
   const [mapPlayers, setMapPlayers] = useState([]);
+  const [infoToDisplay, setInfoToDisplay] = useState('players');
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  
-  /*TODO REMOVE TEMPORARY
-  const [playerLocation, setPlayerLocation] = useState(null);
-
-  useEffect(() => {
-    setPlayerLocation({
-      latitude: 53.4026551,
-      longitude: -6.4084278,
-      error: null
-    });
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      const moveDistance = 0.0001;
-
-      switch (event.key) {
-        case 'u':
-          setPlayerLocation(prevLocation => ({
-            ...prevLocation,
-            latitude: prevLocation.latitude + moveDistance
-          }));
-          break;
-        case 'j':
-          setPlayerLocation(prevLocation => ({
-            ...prevLocation,
-            latitude: prevLocation.latitude - moveDistance
-          }));
-          break;
-        case 'h':
-          setPlayerLocation(prevLocation => ({
-            ...prevLocation,
-            longitude: prevLocation.longitude - moveDistance
-          }));
-          break;
-        case 'k':
-          setPlayerLocation(prevLocation => ({
-            ...prevLocation,
-            longitude: prevLocation.longitude + moveDistance
-          }));
-          break;
-        default:
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
-  //END TEMPORARY*/
 
   const isWithinRange = (playerLocation, targetLocation, range) => {
     if(!playerLocation || !targetLocation || !range) return false;
@@ -91,6 +39,20 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
       deleteLobby(gameCode);
     navigate('/');
   };
+
+  const copyCurrentUrlToClipboard = () => {
+    const currentUrl = window.location.href; // Get the current URL
+    navigator.clipboard.writeText(currentUrl) // Copy the URL to the clipboard
+      .then(() => {
+          console.log('URL copied to clipboard!');
+          alert('URL copied to clipboard!');
+      })
+      .catch(err => {
+          console.error('Failed to copy: ', err);
+          alert('Failed to copy the URL.');
+      });
+  }
+
 
   const allPlayersInRange = () => {
     // if there are less than 2 players in the lobby, return false
@@ -147,7 +109,10 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
   return (
     <div className={styles.LobbyView}>
       <div className={styles.lobbyLeft}>
-        <h1>Lobby Code: {gameCode}</h1>
+        <div className={styles.lobbyCode}>
+          <h1>Lobby Code: {gameCode}</h1>
+          <FaShareAlt className={styles.icon} onClick={copyCurrentUrlToClipboard}/>
+        </div>
         {lobbyData && (
           <div className={styles.playerInfo}>
             <div className={styles.players}>
@@ -181,7 +146,62 @@ const LobbyView = ({ gameCode, lobbyData, isHost, handleStartGame, gameOptions, 
             </div>
           </div>
         )}
-        <RoundStatistics players={sortedPlayers.slice(1)}/>
+        <div className={styles.stats}>
+          <RoundStatistics players={sortedPlayers.slice(1)} label={'Previous Round:'}/>
+        </div>
+        <div className={styles.mobileInfo}>
+          <span className={styles.infoButtons}>
+            <button className={`${styles.players} ${infoToDisplay==='players' ? styles.selected : ''}`} onClick={() => setInfoToDisplay('players')}><FaUsers className={styles.icon} /></button>
+            <button className={`${styles.scores} ${infoToDisplay==='scores' ? styles.selected : ''}`} onClick={() => setInfoToDisplay('scores')}><FaChartBar className={styles.icon} /></button>
+            <button className={`${styles.info} ${infoToDisplay==='details' ? styles.selected : ''}`} onClick={() => setInfoToDisplay('details')}><FaInfo className={styles.icon} /></button>
+          </span>
+          { infoToDisplay === 'players' && lobbyData && 
+            <div className={styles.playerInfo}>
+              <div className={styles.players}>
+                <h3>Players:</h3>
+                <ul>
+                  {sortedPlayers.map(([userId, player]) => (
+                    <li key={userId}>
+                      {
+                        userId === lobbyData.host
+                          ? <strong>{player.username} (Host)</strong>
+                          : player.username
+                      }
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className={styles.inRange}>
+                <ul>
+                  {sortedPlayers.map(([userId, player]) => (
+                    <li key={userId}>
+                      {
+                        player.online
+                        ? player.inRange
+                          ? <div style={{ color: 'green' }}>In Range</div>
+                          : <div style={{ color: 'red' }}>Out of Range</div>
+                        : <div style={{ color: 'gray' }}>Away</div>
+                      }
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          }
+          { infoToDisplay === 'scores' && <RoundStatistics players={sortedPlayers.slice(1)} label={'Previous Round:'}/> }
+          { infoToDisplay === 'details' && 
+            <div className={styles.gameDetails}>
+              <h2>Game Details:</h2>
+              <div><strong>Title:</strong> {gameOptions?.title}</div>
+              <div><strong>Creator:</strong> {gameOptions?.creator}</div>
+              <div><strong>Game Mode:</strong> {gameOptions?.gameMode.charAt(0).toUpperCase().concat(gameOptions?.gameMode.slice(1))}</div>
+              <div><strong>Starting Location:</strong> {gameOptions?.startingLocation.locationName}</div>
+              <div><strong>Targets:</strong> {gameOptions?.targets.length}</div>
+              <div><strong>Time Limit:</strong> {lobbyData?.timeLimit} minutes</div>
+              <div><strong>Max Players:</strong> {lobbyData?.maxPlayers}</div>
+            </div>
+          }
+        </div>
       </div>
       <div className={styles.lobbyRight}>
         <div className={styles.map}>

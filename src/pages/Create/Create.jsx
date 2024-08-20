@@ -58,10 +58,10 @@ const Create = () => {
   }, []);
 
   useEffect(() => {
-    if(currentUser) {
+    if(currentUser && selectedPreset === 'custom') {
       setTitle(currentUser.displayName + "'s Preset")
     }
-  }, [currentUser])
+  }, [currentUser, selectedPreset])
 
   const handleValueChange = (setter, tempSetter, value, min, max) => {
     let newValue = parseInt(value, 10);

@@ -123,12 +123,21 @@ const Create = () => {
     }
   };
 
+  const resetValues = () => {
+    setSelectedPreset(null);
+    setTitle('');
+    setStartingLocation(null);
+    setRadius(1000);
+    setTargets(Array(5).fill(null));
+    setHints(Array(5).fill(''));
+    setGameMode('classic');
+  };
+
   const handlePresetSelect = (preset) => {
     if(preset.gamemode === 'custom') {
       // Remove targets when custom not already selected
       if(selectedPreset !== 'custom') {
-        setStartingLocation(null);
-        setTargets(Array(5).fill(null));
+        resetValues();
       }
       setSelectedPreset(preset.id);
       setShowCustom(true);
@@ -149,13 +158,7 @@ const Create = () => {
 
     if(confirmed) {
       setDefaultPresets(defaultPresets.filter(preset => preset.id !== presetId));
-      setSelectedPreset(null);
-      setTitle('');
-      setStartingLocation(null);
-      setRadius(1000);
-      setTargets(Array(5).fill(null));
-      setHints(Array(5).fill(''));
-      setGameMode('classic');
+      resetValues();
       deletePreset(presetId);
     }
   }

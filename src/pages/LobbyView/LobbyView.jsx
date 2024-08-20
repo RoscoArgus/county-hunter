@@ -9,7 +9,8 @@ import { STARTING_RANGE } from '../../constants';
 import { updatePlayer, startGame, leaveGame, deleteLobby } from '../../utils/game';
 import RoundStatistics from '../../components/RoundStatistics/RoundStatistics';
 import { useNavigate } from 'react-router-dom';
-import { FaInfo, FaChartBar, FaUsers, FaShareAlt } from 'react-icons/fa';
+import { FaInfo, FaChartBar, FaUsers } from 'react-icons/fa';
+import { FaCopy } from 'react-icons/fa6';
 
 const LobbyView = ({ gameCode, lobbyData, isHost, gameOptions, playerLocation }) => {
   const [sortedPlayers, setSortedPlayers] = useState([]);
@@ -45,7 +46,6 @@ const LobbyView = ({ gameCode, lobbyData, isHost, gameOptions, playerLocation })
     navigator.clipboard.writeText(currentUrl) // Copy the URL to the clipboard
       .then(() => {
           console.log('URL copied to clipboard!');
-          alert('URL copied to clipboard!');
       })
       .catch(err => {
           console.error('Failed to copy: ', err);
@@ -111,7 +111,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, gameOptions, playerLocation })
       <div className={styles.lobbyLeft}>
         <div className={styles.lobbyCode}>
           <h1>Lobby Code: {gameCode}</h1>
-          <FaShareAlt className={styles.icon} onClick={copyCurrentUrlToClipboard}/>
+          <FaCopy className={styles.icon} onClick={copyCurrentUrlToClipboard}/>
         </div>
         {lobbyData && (
           <div className={styles.playerInfo}>

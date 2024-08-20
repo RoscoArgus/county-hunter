@@ -62,9 +62,13 @@ const CustomPresetForm = ({ titleTools, SLTools, radiusTools, targetsTools, hint
     
     // Remove any reference to place name from the review text
     const filterText = (text, name) => {
-        const words = name.split(/\s+/).map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-        const regex = new RegExp(`\\b(${words.join('|')})\\b`, 'gi');
-        const filteredText = (text.slice(0,100)+'...').replace(regex, (match) => '*'.repeat(match.length));
+        const words = name.split(/\s+/).map(word => {
+            const baseWord = word.replace(/[^\w]/g, '');
+            return `\\b${baseWord}[\\w\\s]*\\b`;
+        });
+        const regex = new RegExp(words.join('|'), 'gi');
+        const filteredText = text.slice(0, 100).replace(regex, match => '*'.repeat(match.length)) +
+            (text.length > 100 ? '...' : '');
         return filteredText;
     };
     

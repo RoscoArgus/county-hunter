@@ -330,6 +330,12 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     endGame(gameCode);
   };
 
+  const handleEarlyEndGame = () => {
+    const confirmed = window.confirm('Are you sure you want to end the game early?');
+    if(!confirmed) return;
+    endGame(gameCode);
+  };
+
   if (!gameOptions || remainingTargets === null) {
     return <div>Loading...</div>;
   }
@@ -339,7 +345,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
       <div className={styles.GameView}>
         <div className={styles.finished}>
           <RoundStatistics players={sortedPlayers.slice(1)} label={'Scores:'}/>  
-          {isHost && <button onClick={() => endGame(gameCode)}>End Game</button>}
+          {isHost && <button onClick={handleEarlyEndGame}>End Game</button>}
           <div className={styles.map}>
             <div className={styles.timer}>
               {!remainingTargets && <div>Get Back to the Start!</div>}

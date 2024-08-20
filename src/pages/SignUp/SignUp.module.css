@@ -77,17 +77,29 @@
 }
 
 .buttons .loginButton {
-    background-color: var(--button-primary)
+    background-color: var(--button-primary);
+
+    &:hover {
+        background-color: var(--button-primary-hover)
+    }
 }
 
 .buttons .signupButton {
-    background-color: var(--button-secondary)
+    background-color: var(--button-secondary);
+
+    &:hover {
+        background-color: var(--button-secondary-hover)
+    }
 }
 
 .buttons .googleButton {
     display: flex;
     align-items: center;
     background-color: #4285F4;
+
+    &:hover {
+        background-color: #357ae8;
+    }
 }
 
 .buttons .googleButton .googleIcon {

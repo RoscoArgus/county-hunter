@@ -41,15 +41,14 @@ const LobbyView = ({ gameCode, lobbyData, isHost, gameOptions, playerLocation })
     navigate('/');
   };
 
-  const copyCurrentUrlToClipboard = () => {
-    const currentUrl = window.location.href; // Get the current URL
-    navigator.clipboard.writeText(currentUrl) // Copy the URL to the clipboard
+  const copyGameCode = () => {
+    navigator.clipboard.writeText(gameCode) // Copy the URL to the clipboard
       .then(() => {
-          console.log('URL copied to clipboard!');
+          console.log('Game code copied to clipboard!');
       })
       .catch(err => {
           console.error('Failed to copy: ', err);
-          alert('Failed to copy the URL.');
+          alert('Failed to copy the Game code.');
       });
   }
 
@@ -111,7 +110,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, gameOptions, playerLocation })
       <div className={styles.lobbyLeft}>
         <div className={styles.lobbyCode}>
           <h1>Lobby Code: {gameCode}</h1>
-          <FaCopy className={styles.icon} onClick={copyCurrentUrlToClipboard}/>
+          <FaCopy className={styles.icon} onClick={copyGameCode}/>
         </div>
         {lobbyData && (
           <div className={styles.playerInfo}>

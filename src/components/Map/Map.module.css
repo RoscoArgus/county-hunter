@@ -5,24 +5,30 @@
     z-index: 1000;
 }
 
-.leafletButton {
+.leafletControl .leafletButton {
+    display: flex;
     width: 35px;
     height: 35px;
     justify-content: center;
+    align-items: center;
     align-self: start;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
+
+    &:hover, &:focus, &:active {
+        background-color: #f8f9fa;
+        cursor: pointer;
+    }
 }
 
-.leafletButton:hover {
-    background-color: #f8f9fa;
-    cursor: pointer;
-}
-
-.leafletButton.active {
+.leafletControl .leafletButton.active {
     background-color: #007bff;
     color: #fff;
+}
+
+.leafletControl .leafletButton svg {
+    margin-left: 2px;
 }
 
 .request-popup .leaflet-popup-content-wrapper {

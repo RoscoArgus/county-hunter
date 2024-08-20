@@ -27,16 +27,16 @@
     transition: all 0.5s ease;
 }
 
-.finished {
+.GameView .finished {
     padding: 15px;
 }
 
-.finished ul {
+.GameView .finished ul {
     list-style-type: none;
     padding: 0;
 }
 
-.finished button {
+.GameView .finished .endButton {
     font-size: 1rem;
     display: flex;
     flex: 1;

@@ -200,14 +200,19 @@ button .icon {
         align-self: center;
     }
 
+    .pfp {
+        height: 150px;
+        width: 150px;
+    }
+
     .details {
         justify-content: start;
     }
 
     .homeButton {
         position: absolute;
-        left: 10px;
-        top: 10px;
+        left: 15px;
+        top: 15px;
     }
 
     .cropperContainer {

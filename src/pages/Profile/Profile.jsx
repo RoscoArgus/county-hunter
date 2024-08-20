@@ -101,12 +101,13 @@ const Profile = () => {
     const handleUpdate = async (event) => {
         event.preventDefault();
         try {
-            await handleUpdateProfile(username, email, pfp);
-            alert('Profile updated successfully!');
-            navigate('/');
+            const success = await handleUpdateProfile(username, email, pfp);
+            if(success) {
+                navigate('/');
+            }
         } catch (error) {
             console.error('Error updating profile:', error);
-            alert('Failed to update profile');
+            alert(error.message);
         }
     };
 

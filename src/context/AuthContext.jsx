@@ -3,6 +3,7 @@ import { onAuthStateChanged, updateProfile, deleteUser, setPersistence, browserL
 import { doc, setDoc, getDocs, deleteDoc, collection, query, where, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../config/firebase';
 import { GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -143,6 +144,7 @@ export const AuthProvider = ({ children }) => {
     const handleUpdateProfile = async (username, email, photoURL) => {
         try {
             const usersRef = collection(db, 'users');
+            console.log(username);
             const q = query(usersRef, where('username', '==', username));
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
@@ -159,9 +161,12 @@ export const AuthProvider = ({ children }) => {
                 photoURL,
             });
             alert('Profile updated successfully!');
+            return true;
         } catch (error) {
             setError(error.message);
+            alert(error.message);
             console.error('Error updating profile:', error);
+            return false;
         }
     };
 

@@ -71,7 +71,6 @@ export const joinLobby = async (gameCode, currentUser) => {
   }
 
   const lobbyData = lobbySnapshot.val();
-  console.log(lobbyData);
   if(lobbyData.status !== 'waiting' && !lobbyData.players[currentUser.uid]) {
     throw new Error("Game has already started");
   }

@@ -65,6 +65,7 @@ const Profile = () => {
 
             // Update user profile photoURL in auth using updateProfile method
             await updateProfile(currentUser, { photoURL });
+            setPfp(photoURL);
             setImageSrc(null);
 
             alert('Profile picture updated successfully!');
@@ -81,15 +82,20 @@ const Profile = () => {
         }
     };
 
-    const handleRemove = () => {
+    const handleRemove = async () => {
         const confirmed = window.confirm('Are you sure you want to remove your profile picture?');
         if(!confirmed) return;
 
-        updateDoc(doc(db, 'users', currentUser.uid), { photoURL: null });
-        updateProfile(currentUser, { photoURL: null });
-        setPfp(null);
-
-        alert('Profile picture removed successfully!');
+        try {
+            await updateDoc(doc(db, 'users', currentUser.uid), { photoURL: null });
+            await updateProfile(currentUser, { photoURL: '' });
+            setPfp(null);
+            console.log(currentUser);
+            alert('Profile picture removed successfully!');
+        } catch (error) {
+            console.error('Error removing profile picture: ', error);
+            alert('Failed to remove profile picture');
+        }
     }
 
     const handleUpdate = async (event) => {

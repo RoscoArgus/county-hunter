@@ -10,6 +10,10 @@
     overflow: scroll;
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 .Profile form {
     display: flex;
     flex-direction: column;
@@ -155,7 +159,7 @@ button .icon {
 }
 
 /* Button styles */
-.topLeftButton {
+.cropperContainer .topLeftButton {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -172,7 +176,7 @@ button .icon {
     }
 }
 
-.topRightButton {
+.cropperContainer .topRightButton {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -188,11 +192,6 @@ button .icon {
         background-color: var(--button-secondary-hover);
     }
 }
-
-.topLeftButton:hover, .topRightButton:hover {
-    opacity: 0.8;  /* Slight transparency on hover */
-}
-
 
 @media screen and (max-width: 768px) {
     .Profile {

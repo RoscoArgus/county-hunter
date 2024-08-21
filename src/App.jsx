@@ -5,7 +5,6 @@ import SignUp from "./pages/SignUp/SignUp";
 import Home from './pages/Home/Home';
 import Profile from "./pages/Profile/Profile";
 import Create from './pages/Create/Create';
-import Join from './pages/Join/Join';
 import GameHandler from './pages/GameHandler/GameHandler';
 import LobbyClosed from "./pages/LobbyClosed/LobbyClosed";
 import { AuthProvider } from "./context/AuthContext";

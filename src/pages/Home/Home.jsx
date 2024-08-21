@@ -79,7 +79,7 @@ const Home = () => {
                 )}
             </nav>
             <main className={styles.main}>
-                <h1 className={styles.title}>County Hunter</h1>
+                <img src='/county_hunter.svg' alt='logo' className={styles.logo}/>
                 <h2>Enter game code to join a game</h2>
                 <input 
                     className={styles.gameCode}

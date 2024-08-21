@@ -27,7 +27,7 @@ const Login = () => {
   return (
     <main className={styles.Login}>
       <h2>Welcome to</h2>
-      <h1 className={styles.title}>County Hunter</h1>
+      <img src='/county_hunter.svg' alt='logo' className={styles.logo}/>
       <h2>Login</h2>
       <input
         type="text"

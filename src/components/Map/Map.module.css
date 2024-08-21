@@ -27,10 +27,6 @@
     color: #fff;
 }
 
-.leafletControl .leafletButton svg {
-    margin-left: 2px;
-}
-
 .request-popup .leaflet-popup-content-wrapper {
     border-radius: 0px;
 }

@@ -12,7 +12,6 @@
     display: flex;
     flex-direction: row;
     gap: 10px;
-    justify-content: center;
     align-items: center;
 }
 
@@ -165,7 +164,7 @@
     font-size: 1.2rem;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 850px) {
     .LobbyView {
         flex-direction: column;
         align-items: center;
@@ -189,6 +188,10 @@
 
     .playerInfo {
         display: none;
+    }
+
+    .lobbyCode {
+        justify-content: center;
     }
 
     .lobbyCode h1 {
@@ -216,6 +219,10 @@
         position: relative;
         left: 0;
         bottom: 0;
+    }
+
+    .lobbyLeft {
+        width: 100%;
     }
 
     .lobbyRight {

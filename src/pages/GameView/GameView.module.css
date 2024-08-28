@@ -6,11 +6,47 @@
 }
 
 .timer { 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: absolute;
     top: 5px; 
     left: 50%;
     transform: translateX(-50%); 
     z-index: 10000;
+}
+
+.timer .finishedMessage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    background-color: var(--button-tertiary);
+    padding: 5px;
+    margin-top: 5px;
+    border-radius: 10px;
+    border: 2px solid black;
+    width: 175px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.timer .finishedMessage .message {
+    font-size: 0.8rem;
+    font-style: italic;
+    text-align: center;
+    color: white;
+    animation: flash 3s infinite;
+}
+
+@keyframes flash {
+    0%, 25%, 75%, 100%{
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
 }
 
 .result {

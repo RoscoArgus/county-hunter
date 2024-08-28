@@ -109,8 +109,7 @@ const LobbyView = ({ gameCode, lobbyData, isHost, gameOptions, playerLocation })
     <div className={styles.LobbyView}>
       <div className={styles.lobbyLeft}>
         <div className={styles.lobbyCode}>
-          <h1>Lobby Code: {gameCode}</h1>
-          <FaCopy className={styles.icon} onClick={copyGameCode}/>
+          <h1>Lobby Code: {gameCode} <FaCopy className={styles.icon} onClick={copyGameCode}/></h1>
         </div>
         {lobbyData && (
           <div className={styles.playerInfo}>

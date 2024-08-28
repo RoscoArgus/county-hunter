@@ -348,11 +348,11 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
           {isHost && <button onClick={handleEarlyEndGame} className={styles.endButton}>End Game</button>}
           <div className={styles.map}>
             <div className={styles.timer}>
-              {!remainingTargets && <div>Get Back to the Start!</div>}
               {endTime && 
                 <Timer 
                   targetTime={endTime} 
                   onTimeLimitReached={handleTimeLimitReached} 
+                  finished={!remainingTargets}
                 />
               }
             </div>
@@ -378,13 +378,19 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   return (
     <div className={styles.GameView}>
       <div className={styles.timer}>
-        {!remainingTargets && <div>Get Back to the Start!</div>}
-        {endTime && 
-          <Timer 
-            targetTime={endTime} 
-            onTimeLimitReached={handleTimeLimitReached} 
-            score={lobbyData.players[currentUser.uid].score}
-          />
+        {endTime && <>
+            <Timer 
+              targetTime={endTime} 
+              onTimeLimitReached={handleTimeLimitReached} 
+              score={lobbyData.players[currentUser.uid].score}
+            />
+
+            <div className={styles.finishedMessage} style={{opacity: (!remainingTargets) ? 1 : 0}}>
+              <div className={styles.message}>
+                Now get back to the start!
+              </div>
+            </div>
+          </>
         }
       </div>
       <Map

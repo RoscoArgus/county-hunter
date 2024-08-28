@@ -42,7 +42,7 @@ const Timer = React.memo(({ targetTime, onTimeLimitReached, score, event, eventT
   }, [targetTime]); // Re-run effect when targetTime changes
 
   return (
-    <div className={styles.Timer}>
+    <div className={`${styles.Timer} ${(timeLeft.hours == 0 && timeLeft.minutes < 10) ? (timeLeft.minutes == 0 && !timeLeft.seconds < 60) ? styles.urgent : styles.warning : ''}`}>
       <div>Time left: {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s</div>
       {score!==undefined && <div>Score: {score}</div>}
     </div>

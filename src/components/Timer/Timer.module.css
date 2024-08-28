@@ -10,4 +10,15 @@
     border-radius: 10px;
     border: 2px solid black;
     gap: 5px;
+    width: 190px;
+    transition: background-color 1s ease, color 1s ease;
+}
+
+.warning {
+    background-color: var(--button-special);
+}
+
+.urgent {
+    background-color: var(--button-tertiary);
+    color: white;
 }

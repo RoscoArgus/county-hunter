@@ -60,10 +60,12 @@
 }
 
 .buttons button {
-    font-size: 1.1rem;
+    display: flex;
+    width: 275px;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-roboto);
-    height: 45px; /* don't like this, but needed with Google Icon to ensure consistent height */
-    padding: 10px 20px;
+    padding: 10px;
     margin: 5px;
     border-radius: 10px;
     border: none;

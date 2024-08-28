@@ -23,7 +23,7 @@ const SignUp = () => {
         <main className={styles.Login}>
           <h2>Welcome to</h2>
           <img src='/county_hunter.svg' alt='logo' className={styles.logo}/>
-          <h2>Sign Up</h2>
+          <h3>Sign Up</h3>
             <input
                 type="email"
                 placeholder="Enter your email"
@@ -69,14 +69,14 @@ const SignUp = () => {
                     onClick={() => handleLogin(handleSignUp)} 
                     className={styles.signupButton}
                 >
-                    Sign Up
+                    <h2>Sign Up</h2>
                 </button>
                 <button onClick={() => handleLogin(handleLoginWithGoogle)} className={styles.googleButton}>
-                    <img src='/google.svg' className={styles.googleIcon} />Continue with Google
+                    <img src='/google.svg' className={styles.googleIcon} /><h2>Continue with Google</h2>
                 </button>
                 <p>Already have an account?</p>
                 <button onClick={() => navigate('/login')} className={styles.loginButton}>
-                    Login
+                    <h2>Login</h2>
                 </button>
             </div>
         </main>

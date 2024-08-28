@@ -365,8 +365,6 @@ const Create = () => {
                   <ul className={styles.details}>
                     <h3>Game Details</h3>
                     <li><b>Title:</b> {title}</li>
-                    <li><b>Time Limit:</b> {timeLimit} minutes</li>
-                    <li><b>Max Players:</b> {maxPlayers}</li>
                     <li><b>Game Mode:</b> {gameMode.charAt(0).toUpperCase().concat(gameMode.slice(1))}</li>
                     <li><b>Starting Location:</b> {startingLocation ? startingLocation.locationName : 'TBD'}</li>
                     <li><b>Radius:</b> {radius/1000} KM</li>
@@ -417,8 +415,6 @@ const Create = () => {
                 <ul className={styles.details}>
                   <h3>Game Details</h3>
                   <li><b>Title:</b> {title}</li>
-                  <li><b>Time Limit:</b> {timeLimit} minutes</li>
-                  <li><b>Max Players:</b> {maxPlayers}</li>
                   <li><b>Game Mode:</b> {gameMode.charAt(0).toUpperCase().concat(gameMode.slice(1))}</li>
                   <li><b>Starting Location:</b> {startingLocation ? startingLocation.locationName : 'TBD'}</li>
                   <li><b>Radius:</b> {radius/1000} KM</li>

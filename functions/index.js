@@ -89,11 +89,13 @@ exports.updateGameStatus = functions.pubsub.schedule("every 30 minutes")
       return null;
     });
 
-// Function to delete presets created by 'Temporary' if no corresponding game exists
-exports.cleanUpTemporaryPresets = functions.pubsub.schedule("every 5 minutes")
+// Function deletes presets by 'Temporary' if no corresponding game exists
+exports.cleanUpTemporaryPresets = functions.pubsub.schedule("every 30 minutes")
     .onRun(async (context) => {
       const presetsRef = db.collection("presets");
-      const presetsSnapshot = await presetsRef.where("creator", "==", "Temporary").get();
+      const presetsSnapshot = await presetsRef
+          .where("creator", "==", "Temporary")
+          .get();
 
       const gamesRef = rtdb.ref("games");
       const gamesSnapshot = await gamesRef.once("value");

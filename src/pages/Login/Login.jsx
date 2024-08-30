@@ -19,10 +19,14 @@ const Login = () => {
 
   const handleLogin = async (provider) => {
     const credential = await provider(email, password);
-    console.log(credential);
     if(credential)
         navigate('/');
   }
+
+  const handleTextChange = (e, setter) => {
+    const newValue = e.target.value.trim().replace(/\s+/g, '');
+    setter(newValue);
+}
 
   return (
     <main className={styles.Login}>
@@ -32,14 +36,14 @@ const Login = () => {
       <input
         type="text"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => handleTextChange(e, setEmail)}
         placeholder="Enter your email"
       />
       <div className={styles.passwordContainer}>
         <input
           type={showPassword ? 'text' : 'password'}
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => handleTextChange(e, setPassword)}
           placeholder="Enter your password"
           className={styles.input}
         />

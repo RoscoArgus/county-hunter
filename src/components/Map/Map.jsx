@@ -33,7 +33,7 @@ const validStartingLocation = (startingLocation) => {
 }
 
 const validPlayerLocation = (playerLocation) => {
-    return playerLocation && playerLocation.latitude !== null && playerLocation.longitude !== null;
+    return playerLocation && playerLocation.latitude && playerLocation.longitude;
 }
 
 const UpdateMapView = ({ center, zoom, startingLocation, playerLocation, setMapCenter, setMapZoom, tracking, setTracking }) => {
@@ -164,7 +164,7 @@ const Map = ({ circles = [], playerLocation, startingLocation, gameMode, locatio
                 </React.Fragment>
             )}
             {players && players.map((player, index) => {
-                if(!player.location) return null;
+                if(!validPlayerLocation(player.location)) return null;
                 return (
                     <UserMarker 
                         key={index} 

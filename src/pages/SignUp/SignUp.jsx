@@ -19,30 +19,36 @@ const SignUp = () => {
             navigate('/');
     }
 
+    const handleTextChange = (e, setter) => {
+        const newValue = e.target.value.replace(/\s+/g, '_');
+        setter(newValue);
+    }
+
     return (
         <main className={styles.Login}>
           <h2>Welcome to</h2>
           <img src='/county_hunter.svg' alt='logo' className={styles.logo}/>
           <h3>Sign Up</h3>
             <input
-                type="email"
+                type="text"
                 placeholder="Enter your email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => handleTextChange(e, setEmail)}
                 style={{ border:  error.toLowerCase().includes('email') ? '2px solid red' : '' }}
             />
             <input
                 type="text"
                 placeholder="Enter your username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                maxLength={20}
+                onChange={(e) => handleTextChange(e, setUsername)}
                 style={{ border:  error.toLowerCase().includes('username') ? '2px solid red' : '' }}
             />
             <div className={styles.passwordContainer}>
                 <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => handleTextChange(e, setPassword)}
                     placeholder="Enter your password"
                     className={styles.input}
                     style={{ border:  error.toLowerCase().includes('password') ? '2px solid red' : '' }}
@@ -58,7 +64,7 @@ const SignUp = () => {
             <input
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => handleTextChange(e, setConfirmPassword)}
                 placeholder="Re-enter your password"
                 className={styles.input}
                 style={{ border:  error.toLowerCase().includes('password') ? '2px solid red' : '' }}

@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     const handleLoginWithEmailAndPassword = async (email, password) => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log('User signed in:', userCredential.user);
+            console.log('User signed in successfully!');
             return userCredential;
         } catch (error) {
             let message;
@@ -144,7 +144,6 @@ export const AuthProvider = ({ children }) => {
     const handleUpdateProfile = async (username, email, photoURL) => {
         try {
             const usersRef = collection(db, 'users');
-            console.log(username);
             const q = query(usersRef, where('username', '==', username));
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {

@@ -4,7 +4,7 @@ import { FaMapSigns, FaInfoCircle, FaCommentDots, FaCheck, FaStar, FaPaperPlane 
 import PlacesAutocomplete from '../PlacesAutocomplete/PlacesAutocomplete';
 import { getDistanceInMeters } from '../../utils/calculations';
 
-const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceChanged, currentGuess, onHint, bounds, startingLocation, endGame }) => {
+const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceChanged, currentGuess, onHint, bounds, startingLocation, endGame, score }) => {
     const { selectedTargetId, setSelectedTargetId } = selectedTargetTools;
 
     const [showModal, setShowModal] = useState(false); // Add state for modal visibility
@@ -84,7 +84,7 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
 
     return (
         <div className={`${styles.prompt} ${shown ? styles.shown : ''}`}>
-            {targets ? <React.Fragment>
+            {targets && targets.length != 0? <React.Fragment>
                 <div className={styles.options}>
                     <h2>You are within the range!</h2>
                     <h3>{selectedTargetId
@@ -201,7 +201,12 @@ const GuessPrompt = ({ shown, guess, selectedTargetTools, targets, handlePlaceCh
                     </div>
                 )}
             </React.Fragment>
-            : <button onClick={endGame} className={styles.endButton}>End Game</button>}
+            : 
+                <div className={styles.endContainer}>
+                    <h2>Hit the button to finish with {score} points!</h2>
+                    <button onClick={endGame} className={styles.endButton}><h2>Finish Game</h2></button>    
+                </div>
+            }
         </div>
     );
 };

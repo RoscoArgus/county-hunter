@@ -111,6 +111,11 @@ const Profile = () => {
         }
     };
 
+    const handleTextChange = (e, setter) => {
+        const newValue = e.target.value.replace(/\s+/g, '_');
+        setter(newValue);
+    }
+
     return (
         <div className={styles.Profile} style={{background: `rgb(0, 0, 0, ${imageSrc ? 0.7 : 0})`}}>
             { imageSrc
@@ -183,8 +188,8 @@ const Profile = () => {
                             type="text"
                             placeholder="Enter username"
                             value={username}
-                            maxLength={50}
-                            onChange={(e) => setUsername(e.target.value)}
+                            maxLength={20}
+                            onChange={(e) => handleTextChange(e, setUsername)}
                         />
                     </div>
                     <hr />
@@ -198,7 +203,7 @@ const Profile = () => {
                             placeholder="Enter email"
                             value={email}
                             maxLength={50}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => handleTextChange(e, setEmail)}
                             disabled={true}
                         />
                     </div>

@@ -302,9 +302,11 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
     if (isFirstToFinish) {
         // award 50 points for being the first to finish
         updates.score = (lobbyData?.players[currentUser.uid]?.score || 0) + 50;
+        alert('Congratulations! You are the first to finish! 50 bonus points awarded!');
     } else {
         // award 20 points for finishing at all
         updates.score = (lobbyData?.players[currentUser.uid]?.score || 0) + 20;
+        alert('Well done for finishing! 20 bonus points awarded!');
     }
 
     await update(playerRef, updates);
@@ -345,7 +347,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
       <div className={styles.GameView}>
         <div className={styles.finished}>
           <RoundStatistics players={sortedPlayers.slice(1)} label={'Scores:'}/>  
-          {isHost && <button onClick={handleEarlyEndGame} className={styles.endButton}>End Game</button>}
+          {isHost && <button onClick={handleEarlyEndGame} className={styles.endButton}><h2>End Game</h2></button>}
           <div className={styles.map}>
             <div className={styles.timer}>
               {endTime && 
@@ -416,6 +418,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
         bounds={bounds}
         startingLocation={gameOptions.startingLocation}
         endGame={handleEndGame}
+        score={lobbyData.players[currentUser.uid].score}
       />
       <div className={`${styles.result} ${showResult ? styles.shown : ''}`}>{guessResult}</div>
     </div>

@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './PresetCard.module.css';
 import { useAuth } from '../../context/AuthContext';
 import { getColorFromName } from '../../utils/user';
 import { FaInfo } from 'react-icons/fa';
+import { preloadImage } from '../../utils/image';
 
 const PresetCard = ({ data, onPresetPress, selected, toggleDetails, hasIssues }) => {
 
     const { currentUser } = useAuth();
+    const [imageLoading, setImageLoading] = useState(true);
 
     const getBackgroundColor = () => {
         if (data.creator === 'County Hunter') {
@@ -35,8 +37,19 @@ const PresetCard = ({ data, onPresetPress, selected, toggleDetails, hasIssues })
           .join('');
     };
 
+    useEffect(() => {
+        if (data.thumbnail) {
+            Promise.resolve(preloadImage(data.thumbnail)).then(setImageLoading(false));
+        }
+        else {
+            setImageLoading(false);
+        }
+    }, [data.thumbnail]);
+
     return (
         <div className={styles.card}>
+            {imageLoading && <h2>Loading...</h2>}
+            {!imageLoading && <>
             {selected && <button className={`${styles.infoButton} ${hasIssues ? styles.issue : ''}`} onClick={toggleDetails}>
                 <FaInfo className={styles.icon} />
             </button>}
@@ -64,6 +77,7 @@ const PresetCard = ({ data, onPresetPress, selected, toggleDetails, hasIssues })
                     <h4>{data.title}</h4>
                 </div>
             </button>
+            </>}
         </div>
     );
 }

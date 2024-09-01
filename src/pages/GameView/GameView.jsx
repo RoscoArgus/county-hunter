@@ -27,7 +27,7 @@ const GameView = ({ isHost, lobbyData, gameCode, initGameOptions, finished, play
   const [otherPlayers, setOtherPlayers] = useState([]);
   const [sortedPlayers, setSortedPlayers] = useState([]);
 
-  /*TODO TEMP REMOVE
+  /*TODO TEMP REMOVE DEBUG TOOLS
   const [playerLocation, setPlayerLocation] = useState(null);
 
   useEffect(() => {

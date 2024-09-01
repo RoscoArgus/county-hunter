@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 import { useAuth } from '../../context/AuthContext';
 import { FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
+import { preloadImage } from '../../utils/image';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [imagesLoading, setImagesLoading] = useState(true);
   const { error, currentUser, handleLoginWithEmailAndPassword, handleLoginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
@@ -26,8 +29,17 @@ const Login = () => {
   const handleTextChange = (e, setter) => {
     const newValue = e.target.value.trim().replace(/\s+/g, '');
     setter(newValue);
-}
+  }
 
+  useEffect(() => {  
+    const images = ['/county_hunter.svg'];
+    const promises = images.map((src) => preloadImage(src));
+    Promise.all(promises).then(() => setImagesLoading(false));
+  }, []);
+
+  if(imagesLoading) {
+    return <LoadingScreen />;
+  }
   return (
     <main className={styles.Login}>
       <h2>Welcome to</h2>

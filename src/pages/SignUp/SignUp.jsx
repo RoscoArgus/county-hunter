@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import styles from './SignUp.module.css';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
+import { preloadImage } from '../../utils/image';
 
 const SignUp = () => {
     const [email, setEmail] = useState('');
@@ -10,6 +12,7 @@ const SignUp = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [imagesLoading, setImagesLoading] = useState(true);
     const { error, handleSignUp, handleLoginWithGoogle } = useAuth();
     const navigate = useNavigate();
 
@@ -22,6 +25,16 @@ const SignUp = () => {
     const handleTextChange = (e, setter) => {
         const newValue = e.target.value.replace(/\s+/g, '_');
         setter(newValue);
+    }
+
+    useEffect(() => {  
+        const images = ['/county_hunter.svg'];
+        const promises = images.map((src) => preloadImage(src));
+        Promise.all(promises).then(() => setImagesLoading(false));
+    }, []);
+
+    if(imagesLoading) {
+        return <LoadingScreen />;
     }
 
     return (

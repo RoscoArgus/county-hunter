@@ -10,13 +10,14 @@ import styles from './Profile.module.css';
 import { getColorFromName } from '../../utils/user';
 import { FaHome, FaSync, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { preloadImage } from '../../utils/image';
 
 const Profile = () => {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [pfp, setPfp] = useState(null);
+    const [imageLoading, setImageLoading] = useState(true);
     const [isGoogleUser, setIsGoogleUser] = useState(false);
     const { currentUser, handleUpdateProfile, handleDeleteProfile, handleResetPassword } = useAuth();
 
@@ -30,13 +31,20 @@ const Profile = () => {
 
     useEffect(() => {
         if (currentUser) {
-            setUser(currentUser);
             setUsername(currentUser.displayName);
             setEmail(currentUser.email);
             setPfp(currentUser.photoURL);
             setIsGoogleUser(currentUser.providerData[0].providerId === 'google.com');
         }
     }, [currentUser]);
+
+    useEffect(() => {
+        if(pfp) {
+            Promise.resolve(preloadImage(pfp)).then(() => setImageLoading(false));
+        } else {
+            setImageLoading(false);
+        }
+    }, [pfp]);
 
     const onCropComplete = (croppedArea, croppedAreaPixels) => {
         setCroppedAreaPixels(croppedAreaPixels);
@@ -148,13 +156,13 @@ const Profile = () => {
                 </div>
                 : 
                 <form>
-                    <button onClick={() => navigate('/')} className={styles.homeButton}>
+                    <button onClick={(e) => {e.preventDefault(); navigate('/')}} className={styles.homeButton}>
                         <FaHome className={styles.icon}/>
                         <h2>Home</h2>
                     </button>
                     <h1>Profile</h1>
                     <div className={styles.section}>
-                        { pfp
+                        { pfp && !imageLoading
                             ? <img src={currentUser.photoURL} alt="user" className={styles.pfp} />
                             : <div className={styles.pfp} style={{backgroundColor: getColorFromName(currentUser.displayName)}}>
                                 {currentUser.displayName.charAt(0).toUpperCase()}
@@ -224,7 +232,7 @@ const Profile = () => {
                             <FaSync className={styles.icon}/>
                             <h2>Update Profile</h2>
                         </button>
-                        <button onClick={handleDeleteProfile} className={styles.destructive}>
+                        <button onClick={(e) => {e.preventDefault(); handleDeleteProfile()}} className={styles.destructive}>
                             <FaTrash className={styles.icon}/>
                             <h2>Delete Profile</h2>
                         </button>

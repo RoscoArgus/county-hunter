@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
 import { joinLobby } from '../../utils/game';
@@ -6,14 +6,23 @@ import { auth } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { getColorFromName } from '../../utils/user';
 import { FaPlayCircle, FaDraftingCompass } from 'react-icons/fa';
+import { preloadImage } from '../../utils/image';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 
 const Home = () => {
     const navigate = useNavigate();
     const [gameCode, setGameCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [imagesLoading, setImagesLoading] = useState(true);
     const [menuOpen, setMenuOpen] = useState(false);
     const [error, setError] = useState('');
-    const { currentUser } = useAuth();
+    const { currentUser, loading } = useAuth();
+
+    useEffect(() => {  
+        const images = ['/county_hunter.svg', currentUser?.photoURL];
+        const promises = images.map((src) => preloadImage(src));
+        Promise.all(promises).then(() => setImagesLoading(false));
+    }, [currentUser?.photoURL]);
 
     const handleJoinLobby = async () => {
         setError('');
@@ -52,6 +61,10 @@ const Home = () => {
           action();
         }
     };
+
+    if(loading || imagesLoading) {
+        return <LoadingScreen />
+    }
 
     return (
         <div className={styles.Home}>

@@ -18,7 +18,6 @@ const Profile = () => {
     const [email, setEmail] = useState('');
     const [pfp, setPfp] = useState(null);
     const [imageLoading, setImageLoading] = useState(true);
-    const [isGoogleUser, setIsGoogleUser] = useState(false);
     const { currentUser, handleUpdateProfile, handleDeleteProfile, handleResetPassword } = useAuth();
 
     const [imageSrc, setImageSrc] = useState(null);
@@ -34,7 +33,6 @@ const Profile = () => {
             setUsername(currentUser.displayName);
             setEmail(currentUser.email);
             setPfp(currentUser.photoURL);
-            setIsGoogleUser(currentUser.providerData[0].providerId === 'google.com');
         }
     }, [currentUser]);
 
@@ -168,16 +166,12 @@ const Profile = () => {
                                 {currentUser.displayName.charAt(0).toUpperCase()}
                             </div>
                         }
-                        { !isGoogleUser &&
-                            <>
-                                <div className={styles.upload} onClick={handleFile}>
-                                    Upload Photo
-                                </div>
-                                <div className={styles.remove} onClick={handleRemove}>
-                                    Remove Current Photo
-                                </div>
-                            </>
-                        }
+                        <div className={styles.upload} onClick={handleFile}>
+                            Upload Photo
+                        </div>
+                        <div className={styles.remove} onClick={handleRemove}>
+                            Remove Current Photo
+                        </div>
                         {/* Hidden file input */}
                         <input
                             type="file"

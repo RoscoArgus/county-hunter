@@ -5,11 +5,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import LobbyView from '../LobbyView/LobbyView';
 import GameView from '../GameView/GameView';
-import { startGame } from '../../utils/game';
+import { leaveGame, startGame } from '../../utils/game';
 import useGeolocation from '../../hooks/useGeolocation';
 import { useAuth } from '../../context/AuthContext';
 import { TARGET_RANGE } from '../../constants';
 import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
+import { joinLobby } from '../../utils/game';
 
 const GameHandler = () => {
   const { gameCode } = useParams();
@@ -18,13 +19,14 @@ const GameHandler = () => {
   const [gameStatus, setGameStatus] = useState('waiting');
   const [gameOptions, setGameOptions] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [joined, setJoined] = useState(false);
 
   const playerLocation = useGeolocation();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (gameCode) {
+    if (gameCode && joined) {
       const lobbyRef = ref(rtdb, `games/${gameCode}`);
       const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
       const connectedRef = ref(rtdb, '.info/connected');
@@ -93,7 +95,22 @@ const GameHandler = () => {
         off(connectedRef);
       };
     }
-  }, [gameCode, currentUser.uid, playerLocation, navigate]);
+  }, [gameCode, currentUser.uid, playerLocation, navigate, joined]);
+
+  useEffect(() => {
+    // when page loads initially, joinGame is called
+    const attemptJoin = async () => {
+      try {
+        await joinLobby(gameCode, currentUser);
+        setJoined(true);
+      } catch (error) {
+        leaveGame(gameCode, currentUser);
+        alert('There was an error joining the game. Redirecting home.');
+        navigate('/');
+      }
+    };
+    attemptJoin();
+  }, []);
   
   
   // TODO: Monitor RTDB usage as this might use significant data.
@@ -102,7 +119,7 @@ const GameHandler = () => {
       // Only update location if the lobby exists
       const lobbyRef = ref(rtdb, `games/${gameCode}`);
       get(lobbyRef).then((snapshot) => {
-        if (snapshot.exists() && playerLocation.latitude && playerLocation.longitude) {
+        if (joined && snapshot.exists() && playerLocation.latitude && playerLocation.longitude) {
           const playerRef = ref(rtdb, `games/${gameCode}/players/${currentUser.uid}`);
           update(playerRef, { location: playerLocation });
         }
@@ -111,7 +128,9 @@ const GameHandler = () => {
       });
     };
   
-    handleUpdateLocation();
+    if(joined) {
+      handleUpdateLocation();
+    }
   }, [playerLocation, gameCode]);
   
 

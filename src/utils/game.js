@@ -63,6 +63,10 @@ export const createLobby = async (currentUser, presetId, timeLimit, maxPlayers) 
 };
 
 export const joinLobby = async (gameCode, currentUser) => {
+  if(!gameCode) {
+    throw new Error("Game code is required");
+  }
+
   const lobbyRef = ref(rtdb, `games/${gameCode}`);
   const lobbySnapshot = await get(lobbyRef);
 

@@ -102,7 +102,7 @@ const Home = () => {
                     maxLength={8}
                     onKeyDown={(e) => handleKeyDown(e, handleJoinLobby)}
                 />
-                <h3>{error && <p style={{ color: 'red' }}>{error}</p>}</h3>
+                <h3>{error && <p style={{ color: 'red', marginBottom: "20px" }}>{error}</p>}</h3>
                 <div className={styles.buttons}>
                     <button 
                         onClick={handleJoinLobby}

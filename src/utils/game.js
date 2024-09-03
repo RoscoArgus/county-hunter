@@ -71,6 +71,13 @@ export const joinLobby = async (gameCode, currentUser) => {
   }
 
   const lobbyData = lobbySnapshot.val();
+  const maxPlayers = lobbyData.maxPlayers;
+
+  const filteredPlayers = Object.keys(lobbyData.players).filter(playerId => playerId !== currentUser.uid);
+  if (filteredPlayers.length >= maxPlayers) {
+    throw new Error("Game is full");
+  }
+
   if(lobbyData.status !== 'waiting' && !lobbyData.players[currentUser.uid]) {
     throw new Error("Game has already started");
   }

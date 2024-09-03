@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
     
             // Check if the account is newly created and make their display name lowercase
             if (user.metadata.creationTime === user.metadata.lastSignInTime) {
-                const displayName = user.displayName.toLowerCase();
+                const displayName = user.displayName.toLowerCase().replace(/\s+/g, '_');
                 await updateProfile(user, { displayName });
                 await setDoc(doc(db, 'users', userCredential.user.uid), {
                     username: displayName,

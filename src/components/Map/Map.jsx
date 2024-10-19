@@ -9,6 +9,7 @@ import UserMarker from '../UserMarker/UserMarker';
 import TargetMarker from '../TargetMarker/TargetMarker';
 import { useAuth } from '../../context/AuthContext';
 
+// Added comment to force push (now Firebase is broken :( )
 const tileLayerUrls = {
     openStreetMap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     cartoDBVoyager: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",

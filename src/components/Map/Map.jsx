@@ -9,7 +9,6 @@ import UserMarker from '../UserMarker/UserMarker';
 import TargetMarker from '../TargetMarker/TargetMarker';
 import { useAuth } from '../../context/AuthContext';
 
-// Add comment to force publish (map broke 27/09/2024)
 const tileLayerUrls = {
     openStreetMap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     cartoDBVoyager: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",

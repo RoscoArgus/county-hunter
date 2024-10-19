@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Map.module.css';
-import { MapContainer, TileLayer, Circle, Marker, AttributionControl, useMap, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Circle, AttributionControl, useMap, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { FaCrosshairs } from 'react-icons/fa';
 import { STARTING_RANGE, TARGET_RANGE } from '../../constants';
@@ -17,7 +17,7 @@ const tileLayerUrls = {
     esriWorldStreetMap: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
     esriWorldImagery: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     esriWorldTopoMap: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-    jawgCustom: `https://tile.jawg.io/9368b365-f96a-4a6b-b1d0-899ae62b8c83/{z}/{x}/{y}{r}.png?access-token=${import.meta.env.VITE_JAWG_ACCESS_TOKEN}`
+    jawgCustom: `https://tile.jawg.io/b7e0916d-17f5-4ed0-aa33-49f06754f337/{z}/{x}/{y}{r}.png?access-token=${import.meta.env.VITE_JAWG_ACCESS_TOKEN}`
 };
 
 const playAreaOptions = { fillColor: 'transparent', fillOpacity: 1.0 };

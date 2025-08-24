@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
 import { joinLobby } from '../../utils/game';
@@ -17,12 +17,29 @@ const Home = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [error, setError] = useState('');
     const { currentUser, loading } = useAuth();
+    const menuRef = useRef(null);
 
     useEffect(() => {  
         const images = ['/county_hunter.svg', currentUser?.photoURL];
         const promises = images.map((src) => preloadImage(src));
         Promise.all(promises).then(() => setImagesLoading(false));
     }, [currentUser?.photoURL]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setMenuOpen(false);
+            }
+        };
+
+        if (menuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [menuOpen]);
 
     const handleJoinLobby = async () => {
         setError('');
@@ -68,7 +85,7 @@ const Home = () => {
 
     return (
         <div className={styles.Home}>
-            <nav className={styles.user}>
+            <nav className={styles.user} ref={menuRef}>
                 <div className={styles.userInfo} onClick={toggleMenu}>
                     <h4>{ currentUser.displayName ? currentUser.displayName : currentUser.email.split('@')[0]}</h4>
                     { currentUser.photoURL

@@ -17,7 +17,8 @@
     --button-disabled: #BBBBBB;
     --button-special: #FFD117;
     --button-special-hover: #FFC000;
-  
+    --link: #0087ee;
+    --link-hover: #005999;
     /* Fonts */
     --font-roboto: "Roboto";
   }  

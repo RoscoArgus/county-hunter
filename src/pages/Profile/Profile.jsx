@@ -44,7 +44,7 @@ const Profile = () => {
         }
     }, [pfp]);
 
-    const onCropComplete = (croppedArea, croppedAreaPixels) => {
+    const onCropComplete = (_, croppedAreaPixels) => {
         setCroppedAreaPixels(croppedAreaPixels);
     };
 

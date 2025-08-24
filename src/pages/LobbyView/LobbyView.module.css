@@ -16,12 +16,23 @@
 }
 
 .lobbyCode .icon {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+    color: var(--link);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 10px;
+    transition: all 0.1s ease-in;
 
-    &:hover {
+    &:hover, &:focus {
         cursor: pointer;
-        transition: opacity 0.5s ease;
-        opacity: 0.9;
+        color: var(--link-hover);
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.9);
+        color: var(--button-primary-hover);
     }
 }
 
@@ -43,22 +54,25 @@
 .playerInfo {
     display: flex;
     flex-direction: row;
+    box-sizing: content-box;
     gap: 30px;
+    overflow-y: scroll;
+    max-height: calc(100vh - 300px); /* Adjust based on other elements */
+    overflow-x: hidden;
+    padding-bottom: 20px;
 }
 
 .playerInfo ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
+    min-width: 150px; /* Ensure consistent width */
 }
 
 .playerInfo li {
     margin-top: 10px;
     display: flex;
     flex-direction: column;
-}
-
-.playerInfo .inRange {
-    margin-top: 22px;
 }
 
 .map {
@@ -151,7 +165,7 @@
     border-radius: 10px 0 0 10px;
 }
 
-.mobileInfo .infoButtons .info {
+.mobileInfo .infoButtons .help {
     border-radius: 0 10px 10px 0;
 }
 
@@ -162,6 +176,11 @@
 
 .mobileInfo .infoButtons button .icon {
     font-size: 1.2rem;
+}
+
+.helpInfo ul {
+    padding-left: 20px;
+    margin-bottom: 10px
 }
 
 @media screen and (max-width: 850px) {
@@ -213,6 +232,24 @@
     .mobileInfo .playerInfo {
         display: flex;
         flex-direction: row;
+        max-height: 150px; /* Limit height on mobile */
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin-bottom: 10px;
+    }
+
+    .mobileInfo .playerInfo::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .mobileInfo .playerInfo::-webkit-scrollbar-track {
+        background: var(--background-secondary, #f1f1f1);
+        border-radius: 3px;
+    }
+
+    .mobileInfo .playerInfo::-webkit-scrollbar-thumb {
+        background: var(--button-primary, #888);
+        border-radius: 3px;
     }
 
     .startButton {
@@ -238,5 +275,67 @@
 
     .buttons button {
         width: 100%;
+    }
+
+    .helpInfo {
+        height: 150px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .helpInfo::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .helpInfo::-webkit-scrollbar-track {
+        background: var(--background-secondary, #f1f1f1);
+        border-radius: 3px;
+    }
+
+    .helpInfo::-webkit-scrollbar-thumb {
+        background: var(--button-primary, #888);
+        border-radius: 3px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .lobbyCode {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .lobbyCode h1 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .lobbyCode .icon {
+        justify-content: center;
+    }
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--button-primary);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    font-weight: 500;
+    animation: slideInCenter 0.3s ease-out;
+}
+
+@keyframes slideInCenter {
+    from {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
     }
 }

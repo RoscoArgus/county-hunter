@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 import { useAuth } from '../../context/AuthContext';
-import { FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 import { preloadImage } from '../../utils/image';
 
@@ -11,7 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [imagesLoading, setImagesLoading] = useState(true);
-  const { error, currentUser, handleLoginWithEmailAndPassword, handleLoginWithGoogle } = useAuth();
+  const { error, currentUser, handleLoginWithEmailAndPassword, handleLoginWithGoogle, handleResetPassword } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,6 +66,11 @@ const Login = () => {
         >
           {showPassword ? <FaEyeSlash /> : <FaEye />}
         </button>
+      </div>
+      <div className={styles.forgotPassword}>
+        <a href="/forgot-password" className={styles.forgotButton}>
+          Forgot Password?
+        </a>
       </div>
       <div className={styles.error}>{error}</div>
       <div className={styles.buttons}>

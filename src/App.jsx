@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login/Login";
 import SignUp from "./pages/SignUp/SignUp";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import Home from './pages/Home/Home';
 import Profile from "./pages/Profile/Profile";
 import Create from './pages/Create/Create';
@@ -18,6 +19,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route element={<ProtectedLayout />}>
             <Route exact path="/" element={<Home />} />
             <Route exact path="/profile" element={<Profile />} />

@@ -3,11 +3,14 @@
 .Profile {
     display: flex;
     position: fixed;
-    height: 100%;
-    width: 100%;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
     justify-content: center;
     align-items: center;
-    overflow: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 ::-webkit-scrollbar {
@@ -21,6 +24,8 @@
     text-align: center;
     padding: 15px;
     width: 350px;
+    max-width: calc(100vw - 30px);
+    box-sizing: border-box;
 }
 
 .Profile form hr {
@@ -47,17 +52,27 @@
     align-items: center;
     margin-top: 10px;
     color: var(--button-primary);
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
 
     &:hover, &:focus, &:active {
         color: var(--button-primary-hover);
+        background-color: rgba(60, 108, 253, 0.1);
     }
 }
 
 .remove {
     color: var(--button-tertiary);
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
 
     &:hover, &:focus, &:active {
         color: var(--button-tertiary-hover);
+        background-color: rgba(255, 67, 67, 0.1);
     }
 }
 
@@ -67,6 +82,8 @@
     justify-content: center;
     align-items: center;
     gap: 5px;
+    width: 100%;
+    margin: 5px 0;
 }
 
 .section .sectionLabel {
@@ -86,6 +103,11 @@
     padding: 5px;
     text-align: center;
     border: 2px solid black;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
 
     &:focus {
         outline: none;
@@ -106,6 +128,11 @@
     padding: 10px;
     border-radius: 10px;
     border: none;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    text-align: center;
 
     background-color: var(--button-primary);
 
@@ -119,10 +146,13 @@
     }
 }
 
-.homeButton {
-    position: absolute;
+.Profile .homeButton {
+    position: fixed;
     left: 15px;
     top: 15px;
+    height: 50px;
+    width: 120px;
+    z-index: 10;
 }
 
 .section .constructive {
@@ -198,6 +228,13 @@ button .icon {
         text-align: center;
         justify-content: center;
         align-self: center;
+        padding: 10px;
+    }
+    
+    .Profile form {
+        width: 100%;
+        max-width: 350px;
+        padding: 10px;
     }
 
     .pfp {
@@ -209,10 +246,11 @@ button .icon {
         justify-content: start;
     }
 
-    .homeButton {
+    .Profile .homeButton {
         position: absolute;
         left: 15px;
         top: 15px;
+    width: 50px;
     }
 
     .cropperContainer {
@@ -221,12 +259,52 @@ button .icon {
         height: 100%;
     }
 
-    .homeButton .icon {
+    .Profile .homeButton .icon {
         font-size: 1.5rem;
+        aspect-ratio: 1;
         margin: 0;
     }
 
     .homeButton h2 {
         display: none;
+    }
+}
+
+/* Additional breakpoint for very small screens */
+@media screen and (max-width: 480px) {
+    .Profile {
+        padding: 5px;
+    }
+    
+    .Profile form {
+        padding: 8px;
+    }
+
+    .pfp {
+        height: 120px;
+        width: 120px;
+        font-size: 3.5rem;
+    }
+
+    .section input, .section select {
+        max-width: 250px;
+        font-size: 0.9rem;
+    }
+
+    .section .sectionLabel {
+        font-size: 1.1em;
+    }
+
+    .Profile .homeButton {
+        left: 10px;
+        top: 10px;
+        padding: 8px;
+    width: 50px;
+    }
+
+    .cropperContainer .topLeftButton,
+    .cropperContainer .topRightButton {
+        padding: 8px;
+        font-size: 0.9rem;
     }
 }

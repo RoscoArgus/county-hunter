@@ -21,7 +21,7 @@ const tileLayerUrls = {
 
 const playAreaOptions = { fillColor: 'transparent', fillOpacity: 1.0 };
 const locationOptions = { fillColor: 'blue', fillOpacity: 0.2, color: 'blue' };
-const startOptions = { fillColor: '#ffaaff', fillOpacity: 0.3, color: '#ffaaff'};
+const startOptions = { fillColor: '#ffaaff', fillOpacity: 0.3, color: '#ffaaff' };
 const selectedOptions = { fillColor: 'yellow', fillOpacity: 0.3, color: 'yellow' };
 
 const mapBounds = [[-180, -180], [180, 180]];

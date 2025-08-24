@@ -200,8 +200,32 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const handleForgotPassword = async (email) => {
+        try {
+            await sendPasswordResetEmail(auth, email);
+            console.log('Password reset email sent to:', email);
+        } catch (error) {
+            let message;
+            switch(error.code) {
+                case 'auth/user-not-found':
+                    message = 'No account found with this email address';
+                    break;
+                case 'auth/invalid-email':
+                    message = 'Invalid email address';
+                    break;
+                case 'auth/too-many-requests':
+                    message = 'Too many requests. Please try again later';
+                    break;
+                default:
+                    message = error.message;
+            }
+            setError(message);
+            console.error('Error sending password reset email:', error);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ currentUser, loading, error, handleSignUp, handleLoginWithGoogle, handleLoginWithEmailAndPassword, handleUpdateProfile, handleDeleteProfile, handleResetPassword }}>
+        <AuthContext.Provider value={{ currentUser, loading, error, handleSignUp, handleLoginWithGoogle, handleLoginWithEmailAndPassword, handleUpdateProfile, handleDeleteProfile, handleResetPassword, handleForgotPassword }}>
             {children}
         </AuthContext.Provider>
     );

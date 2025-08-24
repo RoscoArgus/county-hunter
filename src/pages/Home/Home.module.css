@@ -156,3 +156,23 @@
         font-size: 1.5em;
     }
 }
+
+@media screen and (max-width: 400px) {
+    .buttons button {
+        min-height: 50px;
+    }
+
+    .buttons .createButton h2 {
+        font-size: 1rem;
+    }
+}
+
+@media screen and (max-width: 335px) {
+    .buttons button {
+        height: 60px;
+    }
+    
+    .buttons .createButton h2 {
+        font-size: 1.2rem;
+    }
+}

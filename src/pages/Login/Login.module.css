@@ -114,6 +114,10 @@
     margin-right: 10px;
 }
 
+.forgot-password {
+    margin-top: 12px;
+}
+
 @media screen and (max-width:768px) {
     .logo {
         width: 200px;

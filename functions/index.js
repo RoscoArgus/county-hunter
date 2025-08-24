@@ -38,7 +38,7 @@ exports.removeInactivePlayers = functions.pubsub.schedule("every 5 minutes")
     });
 
 // Function to delete lobbies without a host
-exports.removeEmptyLobbies = functions.pubsub.schedule("every 5 minutes")
+exports.removeEmptyLobbies = functions.pubsub.schedule("every 10 minutes")
     .onRun(async (context) => {
       const gamesRef = rtdb.ref("games");
       const snapshot = await gamesRef.once("value");
@@ -67,7 +67,7 @@ exports.removeEmptyLobbies = functions.pubsub.schedule("every 5 minutes")
     });
 
 // Function to update game status if endTime has passed
-exports.updateGameStatus = functions.pubsub.schedule("every 30 minutes")
+exports.updateGameStatus = functions.pubsub.schedule("every 2 hours")
     .onRun(async (context) => {
       const now = Date.now();
       const gamesRef = rtdb.ref("games");
@@ -90,7 +90,7 @@ exports.updateGameStatus = functions.pubsub.schedule("every 30 minutes")
     });
 
 // Function deletes presets by 'Temporary' if no corresponding game exists
-exports.cleanUpTemporaryPresets = functions.pubsub.schedule("every 30 minutes")
+exports.cleanUpTemporaryPresets = functions.pubsub.schedule("every 2 hours")
     .onRun(async (context) => {
       const presetsRef = db.collection("presets");
       const presetsSnapshot = await presetsRef

@@ -200,7 +200,7 @@ button .icon {
     border-radius: 5px;
     cursor: pointer;
     z-index: 10;  /* Ensure it is on top of the cropper */
-
+    max-width: 100px;
     &:hover, &:focus, &:active {
         background-color: var(--button-tertiary-hover);
     }
@@ -217,7 +217,7 @@ button .icon {
     border-radius: 5px;
     cursor: pointer;
     z-index: 10;  /* Ensure it is on top of the cropper */
-
+    max-width: 100px;
     &:hover, &:focus, &:active {
         background-color: var(--button-secondary-hover);
     }

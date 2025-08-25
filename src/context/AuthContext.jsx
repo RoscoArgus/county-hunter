@@ -141,25 +141,55 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const handleUpdateProfile = async (username, email, photoURL) => {
+    const handleUpdateProfile = async (changedValues, originalValues) => {
         try {
-            const usersRef = collection(db, 'users');
-            const q = query(usersRef, where('username', '==', username));
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-                throw new Error('Username already exists. Please choose a different username.');
+            const updatePromises = [];
+            const authUpdateData = {};
+            const firestoreUpdateData = {};
+            
+            // Check if username is being changed and validate it
+            if (changedValues.username && changedValues.username !== originalValues.username) {
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('username', '==', changedValues.username));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    throw new Error('Username already exists. Please choose a different username.');
+                }
+                authUpdateData.displayName = changedValues.username;
+                firestoreUpdateData.username = changedValues.username;
+                console.log('Username will be updated to:', changedValues.username);
             }
-            await updateProfile(currentUser, {
-                displayName: username,
-                email: email,
-                photoURL: photoURL,
-            });
-            await updateDoc(doc(db, 'users', currentUser.uid), {
-                username,
-                email,
-                photoURL,
-            });
-            alert('Profile updated successfully!');
+            
+            // Check if email is being changed
+            if (changedValues.email && changedValues.email !== originalValues.email) {
+                // Note: Email updates through Firebase Auth require re-authentication
+                // For now, we'll just update the Firestore document
+                firestoreUpdateData.email = changedValues.email;
+                console.log('Email will be updated to:', changedValues.email);
+            }
+            
+            // Check if profile picture is being changed
+            if (changedValues.hasOwnProperty('pfp') && changedValues.pfp !== originalValues.pfp) {
+                authUpdateData.photoURL = changedValues.pfp || '';
+                firestoreUpdateData.photoURL = changedValues.pfp;
+                console.log('Profile picture will be updated to:', changedValues.pfp);
+            }
+            
+            // Update Firebase Auth profile if there are auth-related changes
+            if (Object.keys(authUpdateData).length > 0) {
+                updatePromises.push(updateProfile(currentUser, authUpdateData));
+            }
+            
+            // Update Firestore document if there are Firestore-related changes
+            if (Object.keys(firestoreUpdateData).length > 0) {
+                updatePromises.push(updateDoc(doc(db, 'users', currentUser.uid), firestoreUpdateData));
+            }
+            
+            // Execute all updates
+            await Promise.all(updatePromises);
+            
+            const changedFields = Object.keys(changedValues);
+            alert(`Profile updated successfully! Changed fields: ${changedFields.join(', ')}`);
             return true;
         } catch (error) {
             setError(error.message);

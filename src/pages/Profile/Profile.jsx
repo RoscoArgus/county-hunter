@@ -18,21 +18,47 @@ const Profile = () => {
     const [email, setEmail] = useState('');
     const [pfp, setPfp] = useState(null);
     const [imageLoading, setImageLoading] = useState(true);
+    
+    // Store original values to track changes
+    const [originalValues, setOriginalValues] = useState({
+        username: '',
+        email: '',
+        pfp: null
+    });
+    
     const { currentUser, handleUpdateProfile, handleDeleteProfile, handleResetPassword } = useAuth();
 
     const [imageSrc, setImageSrc] = useState(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-
+    
     // File input reference
     const fileInputRef = useRef(null);
 
+    // Check if there are any changes
+    const hasChanges = () => {
+        return username !== originalValues.username ||
+               email !== originalValues.email ||
+               pfp !== originalValues.pfp;
+    };
+
     useEffect(() => {
         if (currentUser) {
-            setUsername(currentUser.displayName);
-            setEmail(currentUser.email);
-            setPfp(currentUser.photoURL);
+            const initialUsername = currentUser.displayName || '';
+            const initialEmail = currentUser.email || '';
+            const initialPfp = currentUser.photoURL || null;
+            
+            setUsername(initialUsername);
+            setEmail(initialEmail);
+            setPfp(initialPfp);
+            
+            // Store original values
+            setOriginalValues({
+                username: initialUsername,
+                email: initialEmail,
+                pfp: initialPfp
+            });
         }
     }, [currentUser]);
 
@@ -72,6 +98,13 @@ const Profile = () => {
             // Update user profile photoURL in auth using updateProfile method
             await updateProfile(currentUser, { photoURL });
             setPfp(photoURL);
+            
+            // Update original values to reflect the change
+            setOriginalValues(prev => ({
+                ...prev,
+                pfp: photoURL
+            }));
+            
             setImageSrc(null);
 
             alert('Profile picture updated successfully!');
@@ -96,6 +129,13 @@ const Profile = () => {
             await updateDoc(doc(db, 'users', currentUser.uid), { photoURL: null });
             await updateProfile(currentUser, { photoURL: '' });
             setPfp(null);
+            
+            // Update original values to reflect the change
+            setOriginalValues(prev => ({
+                ...prev,
+                pfp: null
+            }));
+            
             console.log(currentUser);
             alert('Profile picture removed successfully!');
         } catch (error) {
@@ -106,9 +146,39 @@ const Profile = () => {
 
     const handleUpdate = async (event) => {
         event.preventDefault();
+        
+        // Early return if no changes detected
+        if (!hasChanges()) {
+            alert('No changes detected. Please modify your profile information before updating.');
+            return;
+        }
+        
         try {
-            const success = await handleUpdateProfile(username, email, pfp);
+            // Check which values have changed
+            const changedValues = {};
+            
+            if (username !== originalValues.username) {
+                changedValues.username = username;
+            }
+            
+            if (email !== originalValues.email) {
+                changedValues.email = email;
+            }
+            
+            if (pfp !== originalValues.pfp) {
+                changedValues.pfp = pfp;
+            }
+            
+            console.log('Changed values:', changedValues);
+            
+            const success = await handleUpdateProfile(changedValues, originalValues);
             if(success) {
+                // Update original values to reflect the new current state
+                setOriginalValues({
+                    username,
+                    email,
+                    pfp
+                });
                 navigate('/');
             }
         } catch (error) {
@@ -222,7 +292,11 @@ const Profile = () => {
 
                     {/* Buttons */}
                     <div className={styles.section}>
-                        <button onClick={handleUpdate} className={styles.constructive}>
+                        <button 
+                            onClick={handleUpdate} 
+                            className={styles.constructive}
+                            disabled={!hasChanges()}
+                        >
                             <FaSync className={styles.icon}/>
                             <h2>Update Profile</h2>
                         </button>
